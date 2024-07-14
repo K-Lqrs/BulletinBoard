@@ -1,11 +1,9 @@
 package net.rk4z.bulletinBoard
 
-import net.rk4z.beacon.EventBus
 import net.rk4z.bulletinBoard.listeners.ChatListener
 import net.rk4z.bulletinBoard.listeners.PlayerJoinListener
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager
-import net.rk4z.bulletinBoard.manager.PlayerManager
-import net.rk4z.bulletinBoard.util.*
+import org.bukkit.NamespacedKey
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -20,6 +18,8 @@ class BulletinBoard : JavaPlugin() {
     companion object {
         lateinit var instance: BulletinBoard
             private set
+        lateinit var namespacedKey: NamespacedKey
+            private set
     }
 
     val version = this.description.version
@@ -33,7 +33,7 @@ class BulletinBoard : JavaPlugin() {
     override fun onLoad() {
         logger.info("Loading $name v$version")
         instance = this
-        EventBus.initialize()
+        namespacedKey = NamespacedKey(instance, "bulletinboard")
         checkDataFolderAndDataFile()
     }
 
@@ -109,7 +109,7 @@ class BulletinBoard : JavaPlugin() {
     override fun onTabComplete(sender: CommandSender, command: Command, alias: String, args: Array<String>): List<String>? {
         if (command.name.equals("bboard", ignoreCase = true)) {
             if (args.size == 1) {
-                val subCommands = listOf("openboard", "newpost", "myposts", "posts")
+                val subCommands = listOf("openboard", "newpost", "myposts", "posts", "previewclose")
                 return subCommands.filter { it.startsWith(args[0], ignoreCase = true) }
             }
         }

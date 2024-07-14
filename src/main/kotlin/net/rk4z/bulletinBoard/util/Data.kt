@@ -4,23 +4,29 @@ import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
+import net.kyori.adventure.text.Component
 import java.io.File
 import java.util.UUID
+
+data class PostDraft(
+    val title: Component = Component.text("Title"),
+    val content: Component = Component.text("Content")
+)
 
 @Serializable
 data class Post(
     val id: String,
-    val title: String,
-    @Contextual
-    val author: UUID,
-    val content: String,
-    val date: Long
+    @Serializable(with = ComponentSerializer::class)
+    val title: Component,
+    @Contextual val author: UUID,
+    @Serializable(with = ComponentSerializer::class)
+    val content: Component,
+    val date: String
 )
 
 @Serializable
 data class PlayerData(
-    @Contextual
-    val uuid: UUID,
+    @Contextual val uuid: UUID,
     val posts: List<String>
 )
 
@@ -35,6 +41,7 @@ object JsonUtil {
         prettyPrint = true
         serializersModule = SerializersModule {
             contextual(UUID::class, UUIDSerializer)
+            contextual(Component::class, ComponentSerializer)
         }
     }
 

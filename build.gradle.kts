@@ -29,7 +29,6 @@ dependencies {
     paperweight.paperDevBundle("1.20.4-R0.1-SNAPSHOT")
     implementation("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
-    implementation("net.rk4z:beacon:1.3.4")
     implementation("org.jetbrains.kotlin:kotlin-reflect:2.0.0")
 
     implementation("com.google.code.gson:gson:2.11.0")
