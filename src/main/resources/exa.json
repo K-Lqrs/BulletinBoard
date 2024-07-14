@@ -1,0 +1,48 @@
+{
+  "players": [
+    {
+      "uuid": "<UUID1>",
+      "posts": [
+        "<postsID1>",
+        "<postsID2>"
+      ]
+    },
+    {
+      "uuid": "<UUID2>",
+      "posts": [
+        "<postsID3>",
+        "<postsID4>"
+      ]
+    }
+  ],
+  "posts": [
+    {
+      "id": "<postsID1>",
+        "title": "Post 1",
+        "content": "Content 1",
+        "author": "<UUID1>",
+      "date": "<date1>"
+    },
+    {
+      "id": "<postsID2>",
+        "title": "Post 2",
+        "content": "Content 2",
+        "author": "<UUID1>",
+      "date": "<date2>"
+    },
+    {
+      "id": "<postsID3>",
+        "title": "Post 3",
+        "content": "Content 3",
+        "author": "<UUID2>",
+      "date": "<date3>"
+    },
+    {
+      "id": "<postsID4>",
+        "title": "Post 4",
+        "content": "Content 4",
+        "author": "<UUID2>",
+      "date": "<date4>"
+    }
+  ]
+}
