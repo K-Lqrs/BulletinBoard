@@ -240,7 +240,13 @@ class BulletinBoardManager : Listener {
         val clickedItem = event.currentItem ?: return
         val player = event.whoClicked as Player
         val inventoryTitle = event.view.title()
-        val customId = clickedItem.itemMeta.persistentDataContainer.get(namespacedKey, PersistentDataType.STRING)
+
+        val itemMeta = clickedItem.itemMeta
+        if (itemMeta == null) {
+            player.sendMessage("Null ItemMeta detected for item: ${clickedItem.type}")
+            return
+        }
+        val customId = itemMeta.persistentDataContainer.get(namespacedKey, PersistentDataType.STRING)
 
         if (clickedItem.type == Material.BLACK_STAINED_GLASS_PANE) {
             event.isCancelled = true
@@ -535,15 +541,24 @@ class BulletinBoardManager : Listener {
     }
 
     fun displayPost(player: Player, post: Post) {
-        val titleComponent = LanguageManager.getMessage(player, "title_label").append(post.title)
-        val contentComponent = LanguageManager.getMessage(player, "content_label").append(post.content)
-        val dateComponent = LanguageManager.getMessage(player, "date_label").append(Component.text(post.date))
+        val titleComponent = LanguageManager.getMessage(player, "title_label")
+            .append(post.title)
+
+        val contentComponent = LanguageManager.getMessage(player, "content_label")
+            .append(post.content)
+
+        val dateComponent = LanguageManager.getMessage(player, "date_label")
+            .append(Component.text(post.date))
+
+        val authorComponent = LanguageManager.getMessage(player, "author_label")
+            .append(Component.text(Bukkit.getOfflinePlayer(post.author).name ?: "Unknown"))
 
         player.closeInventory()
         Bukkit.getScheduler().runTask(BulletinBoard.instance, Runnable {
             player.sendMessage(Component.text("---------------------------------", NamedTextColor.DARK_GRAY))
             player.sendMessage(titleComponent)
             player.sendMessage(contentComponent)
+            player.sendMessage(authorComponent)
             player.sendMessage(dateComponent)
             player.sendMessage(Component.text("---------------------------------", NamedTextColor.DARK_GRAY))
         })

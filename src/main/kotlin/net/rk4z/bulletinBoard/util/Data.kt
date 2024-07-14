@@ -13,7 +13,6 @@ data class PostDraft(
     val content: Component? = null
 )
 
-
 @Serializable
 data class Post(
     val id: String,

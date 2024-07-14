@@ -36,7 +36,13 @@ object LanguageManager {
             "no_title" to "タイトルがありません",
             "no_content" to "内容がありません",
             "date_label" to "日付：",
-            "input_set" to "{inputType}が{input}に設定されました"
+            "input_set" to "{inputType}が{input}に設定されました",
+            "usage_openboard" to "メインボードを開く",
+            "usage_newpost" to "投稿エディタを開く",
+            "usage_myposts" to "自分の投稿を表示",
+            "usage_posts" to "すべての投稿を表示",
+            "usage_previewclose" to "投稿のプレビューを閉じる(プレビューをしている場合のみ)",
+            "please_use_help" to "サブコマンドのリストを表示するには /bb help を使用してください",
         ),
         "en" to mapOf(
             "main_board" to "Main Board",
@@ -68,7 +74,13 @@ object LanguageManager {
             "no_title" to "No title",
             "no_content" to "No content",
             "date_label" to "Date: ",
-            "input_set" to "{inputType} has been set to {input}"
+            "input_set" to "{inputType} has been set to {input}",
+            "usage_openboard" to "Open the main board",
+            "usage_newpost" to "Open the post editor",
+            "usage_myposts" to "View your posts",
+            "usage_posts" to "View all posts",
+            "usage_previewclose" to "Close the post preview",
+            "please_use_help" to "Please use /bb help for a list of subcommands",
         )
     )
 

@@ -1,9 +1,12 @@
 package net.rk4z.bulletinBoard
 
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextDecoration
 import net.rk4z.bulletinBoard.listeners.ChatListener
 import net.rk4z.bulletinBoard.listeners.PlayerJoinListener
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager
+import net.rk4z.bulletinBoard.manager.LanguageManager
 import org.bukkit.NamespacedKey
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
@@ -53,10 +56,15 @@ class BulletinBoard : JavaPlugin() {
     }
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<String>): Boolean {
-        if (command.name.equals("bboard", ignoreCase = true)) {
+        if (command.name.equals("bb", ignoreCase = true)) {
             if (args.isEmpty()) {
-                sender.sendMessage("Usage: /bboard <subcommand>")
-                return true
+                if (sender is Player) {
+                    val player: Player = sender
+                    sender.sendMessage(LanguageManager.getMessage(player, "please_use_help"))
+                    return true
+                } else {
+                    sender.sendMessage("This command can only be used by players.")
+                }
             }
 
             when (args[0].lowercase()) {
@@ -100,6 +108,59 @@ class BulletinBoard : JavaPlugin() {
                         sender.sendMessage("This command can only be used by players.")
                     }
                 }
+                "help" -> {
+                    if (sender is Player) {
+                        sender.sendMessage(Component.text("Usage: /bboard <subcommand>").color(NamedTextColor.YELLOW))
+                        sender.sendMessage(Component.text("-- Subcommands --").color(NamedTextColor.GOLD))
+                        sender.sendMessage(
+                            Component.text("openboard - ").append(LanguageManager.getMessage(sender, "usage_openboard")).color(NamedTextColor.GREEN)
+                        )
+                        sender.sendMessage(
+                            Component.text("newpost - ").append(LanguageManager.getMessage(sender, "usage_newpost")).color(NamedTextColor.GREEN)
+                        )
+                        sender.sendMessage(
+                            Component.text("myposts - ").append(LanguageManager.getMessage(sender, "usage_myposts")).color(NamedTextColor.GREEN)
+                        )
+                        sender.sendMessage(
+                            Component.text("posts - ").append(LanguageManager.getMessage(sender, "usage_posts")).color(NamedTextColor.GREEN)
+                        )
+                        sender.sendMessage(
+                            Component.text("previewclose - ").append(LanguageManager.getMessage(sender, "usage_previewclose")).color(NamedTextColor.GREEN)
+                        )
+                        sender.sendMessage(Component.text("------------------").color(NamedTextColor.GOLD))
+                        return true
+                    } else {
+                        sender.sendMessage("This command can only be used by players.")
+                    }
+                }
+                "about" -> {
+                    val header = Component.text("=== BulletinBoard ===")
+                        .color(NamedTextColor.DARK_GREEN)
+                        .decorate(TextDecoration.BOLD)
+
+                    val versionMessage = Component.text("Version: v$version")
+                        .color(NamedTextColor.GOLD)
+                        .decorate(TextDecoration.BOLD)
+
+                    val authorMessage = Component.text("Author: rk4z")
+                        .color(NamedTextColor.BLUE)
+                        .decorate(TextDecoration.ITALIC)
+
+                    val description = Component.text("A Minecraft bulletin board plugin.")
+                        .color(NamedTextColor.WHITE)
+
+                    val footer = Component.text("===================")
+                        .color(NamedTextColor.DARK_GREEN)
+                        .decorate(TextDecoration.BOLD)
+
+                    sender.sendMessage(header)
+                    sender.sendMessage(versionMessage)
+                    sender.sendMessage(authorMessage)
+                    sender.sendMessage(description)
+                    sender.sendMessage(footer)
+                    return true
+                }
+
                 "sec" -> {
                     sender.sendMessage(Component.text("Oh, you found me! Good job!"))
                     return true
@@ -115,7 +176,7 @@ class BulletinBoard : JavaPlugin() {
     override fun onTabComplete(sender: CommandSender, command: Command, alias: String, args: Array<String>): List<String>? {
         if (command.name.equals("bboard", ignoreCase = true)) {
             if (args.size == 1) {
-                val subCommands = listOf("openboard", "newpost", "myposts", "posts", "previewclose")
+                val subCommands = listOf("openboard", "newpost", "myposts", "posts", "previewclose", "help", "about")
                 return subCommands.filter { it.startsWith(args[0], ignoreCase = true) }
             }
         }
