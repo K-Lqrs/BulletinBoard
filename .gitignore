@@ -118,3 +118,4 @@ run/
 !gradle-wrapper.jar
 
 src/main/kotlin/net/rk4z/bulletinBoard/listeners/ChatListener.kt
+src/main/kotlin/net/rk4z/bulletinBoard/Main.kt
