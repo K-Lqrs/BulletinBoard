@@ -1,5 +1,6 @@
 package net.rk4z.bulletinBoard
 
+import net.kyori.adventure.text.Component
 import net.rk4z.bulletinBoard.listeners.ChatListener
 import net.rk4z.bulletinBoard.listeners.PlayerJoinListener
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager
@@ -13,7 +14,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
 
-@Suppress("unused", "MemberVisibilityCanBePrivate")
+@Suppress("unused", "MemberVisibilityCanBePrivate", "DEPRECATION")
 class BulletinBoard : JavaPlugin() {
     companion object {
         lateinit var instance: BulletinBoard
@@ -27,6 +28,7 @@ class BulletinBoard : JavaPlugin() {
     val logger: Logger = LoggerFactory.getLogger(this::class.java.simpleName)
 
     val dataFile: File = dataFolder.resolve("data.json")
+    val languageSettingsFile: File = dataFolder.resolve("language_settings.json")
 
     val bulletinBoardManager = BulletinBoardManager()
 
@@ -98,6 +100,10 @@ class BulletinBoard : JavaPlugin() {
                         sender.sendMessage("This command can only be used by players.")
                     }
                 }
+                "sec" -> {
+                    sender.sendMessage(Component.text("Oh, you found me! Good job!"))
+                    return true
+                }
                 else -> {
                     sender.sendMessage("Unknown subcommand. Usage: /bboard <openboard | newpost | myposts | posts>")
                 }
@@ -126,6 +132,11 @@ class BulletinBoard : JavaPlugin() {
             if (!dataFile.exists()) {
                 logger.info("Creating data file for $name")
                 dataFile.createNewFile()
+            }
+
+            if (!languageSettingsFile.exists()) {
+                logger.info("Creating language settings file for $name")
+                languageSettingsFile.createNewFile()
             }
         } catch (e: IOException) {
             logger.error("Error creating data file for $name", e)

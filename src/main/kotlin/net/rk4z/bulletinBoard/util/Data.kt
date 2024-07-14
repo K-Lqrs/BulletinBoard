@@ -9,16 +9,18 @@ import java.io.File
 import java.util.UUID
 
 data class PostDraft(
-    val title: Component = Component.text("Title"),
-    val content: Component = Component.text("Content")
+    val title: Component? = null,
+    val content: Component? = null
 )
+
 
 @Serializable
 data class Post(
     val id: String,
     @Serializable(with = ComponentSerializer::class)
     val title: Component,
-    @Contextual val author: UUID,
+    @Contextual
+    val author: UUID,
     @Serializable(with = ComponentSerializer::class)
     val content: Component,
     val date: String
@@ -26,7 +28,8 @@ data class Post(
 
 @Serializable
 data class PlayerData(
-    @Contextual val uuid: UUID,
+    @Contextual
+    val uuid: UUID,
     val posts: List<String>
 )
 
