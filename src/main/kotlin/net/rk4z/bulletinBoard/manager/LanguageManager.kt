@@ -28,6 +28,7 @@ object LanguageManager {
             "preview_message" to "投稿のプレビュー：",
             "title_label" to "タイトル：",
             "content_label" to "内容：",
+            "author_label" to "投稿者：",
             "type_preview_close" to "プレビューを閉じるには /bb previewclose を入力してください。",
             "post_saved" to "投稿が保存されました：",
             "post_deleted" to "投稿が削除されました。",
@@ -43,6 +44,23 @@ object LanguageManager {
             "usage_posts" to "すべての投稿を表示",
             "usage_previewclose" to "投稿のプレビューを閉じる(プレビューをしている場合のみ)",
             "please_use_help" to "サブコマンドのリストを表示するには /bb help を使用してください",
+            "htu_header" to "BulletinBoardの使い方",
+            "htu_title" to "ここでは、BulletinBoardの使い方を説明します。",
+            "htu_mainboard" to "メインボードを開くには /bb openboard を使用します。" +
+                    "メインボードには、新規投稿、全投稿、自分の投稿を見ることができるアイコンがあります。",
+            "htu_newpost" to "新しい投稿を作成するには /bb newpost を使用します。" +
+                    "タイトルと内容を入力し、/bb savepost で保存します。" +
+                    "タイトル、コンテンツはチャット欄で入力します。GUIのアイテムをクリックすると一度GUIが閉じられ、" +
+                    "入力を求められます。送信すると、それがタイトル、コンテンツに設定されます。",
+            "htu_myposts" to "自分の投稿を見るには /bb myposts を使用するか、メインボードからアイコンをクリックします。" +
+                    "自分の投稿が表示され、削除することもできます。また、投稿をクリックすると詳細を見ることができます。",
+            "htu_posts" to "すべての投稿を見るには /bb posts を使用するか、メインボードからアイコンをクリックします。" +
+                    "すべての投稿が表示され、クリックすると詳細を見ることができます。",
+            "htu_preview" to "投稿のプレビューを見るには 投稿エディタで「プレビュー」をクリックします。" +
+                    "プレビューを見ると、投稿の内容がチャット欄に表示されます。" +
+                    "プレビューを閉じるには /bb previewclose を使用します。",
+            "htu_previewclose" to "投稿のプレビューを閉じるには /bb previewclose を使用します。" +
+                    "このコマンドは、投稿エディタでプレビューをしている場合のみ使用できます。"
         ),
         "en" to mapOf(
             "main_board" to "Main Board",
@@ -66,6 +84,7 @@ object LanguageManager {
             "preview_message" to "Preview of your post:",
             "title_label" to "Title: ",
             "content_label" to "Content: ",
+            "author_label" to "Author:",
             "type_preview_close" to "Type /bb previewclose to close the preview and continue.",
             "post_saved" to "Post Saved: ",
             "post_deleted" to "Post deleted successfully.",
@@ -81,6 +100,25 @@ object LanguageManager {
             "usage_posts" to "View all posts",
             "usage_previewclose" to "Close the post preview",
             "please_use_help" to "Please use /bb help for a list of subcommands",
+            "htu_header" to "How to Use BulletinBoard",
+            "htu_title" to "Here you will find instructions on how to use BulletinBoard.",
+            "htu_mainboard" to "To open the main board, use /bb openboard. " +
+                    "The main board has icons for creating a new post, viewing all posts, and viewing your own posts.",
+            "htu_newpost" to "To create a new post, use /bb newpost. " +
+                    "Enter a title and content, and save it with /bb savepost. " +
+                    "The title and content are entered in the chat. " +
+                    "Clicking on the GUI items will close the GUI once and prompt you to enter the input. " +
+                    "When you submit, it will be set as the title or content.",
+            "htu_myposts" to "To view your posts, use /bb myposts or click the icon on the main board. " +
+                    "Your posts will be displayed, and you can delete them. " +
+                    "You can also click on a post to view more details.",
+            "htu_posts" to "To view all posts, use /bb posts or click the icon on the main board. " +
+                    "All posts will be displayed, and you can click on them to view more details.",
+            "htu_preview" to "To view a preview of your post, click on 'Preview' in the post editor. " +
+                    "The preview will show the content of your post in the chat. " +
+                    "To close the preview, use /bb previewclose.",
+            "htu_previewclose" to "To close the preview of your post, use /bb previewclose. " +
+                    "This command can only be used when you are previewing a post."
         )
     )
 

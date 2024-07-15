@@ -31,7 +31,6 @@ class BulletinBoard : JavaPlugin() {
     val logger: Logger = LoggerFactory.getLogger(this::class.java.simpleName)
 
     val dataFile: File = dataFolder.resolve("data.json")
-    val languageSettingsFile: File = dataFolder.resolve("language_settings.json")
 
     val bulletinBoardManager = BulletinBoardManager()
 
@@ -111,6 +110,7 @@ class BulletinBoard : JavaPlugin() {
                 "help" -> {
                     if (sender is Player) {
                         sender.sendMessage(Component.text("Usage: /bboard <subcommand>").color(NamedTextColor.YELLOW))
+                        sender.sendMessage(Component.text(""))
                         sender.sendMessage(Component.text("-- Subcommands --").color(NamedTextColor.GOLD))
                         sender.sendMessage(
                             Component.text("openboard - ").append(LanguageManager.getMessage(sender, "usage_openboard")).color(NamedTextColor.GREEN)
@@ -160,11 +160,85 @@ class BulletinBoard : JavaPlugin() {
                     sender.sendMessage(footer)
                     return true
                 }
-
                 "sec" -> {
                     sender.sendMessage(Component.text("Oh, you found me! Good job!"))
                     return true
                 }
+
+                "howtouse" -> {
+                    if (sender is Player) {
+                        val player: Player = sender
+
+                        val headerComponent = LanguageManager.getMessage(player, "htu_header")
+                            .color(NamedTextColor.GOLD)
+                            .decorate(TextDecoration.BOLD)
+
+                        val hStartComponent = Component.text("=====")
+                            .color(NamedTextColor.GOLD)
+                            .decorate(TextDecoration.BOLD)
+
+                        val hEndComponent = Component.text("=====")
+                            .color(NamedTextColor.GOLD)
+                            .decorate(TextDecoration.BOLD)
+
+                        sender.sendMessage(
+                            hStartComponent.append(headerComponent).append(hEndComponent)
+                        )
+
+                        sender.sendMessage(
+                            Component
+                                .text(LanguageManager.getContentFromMessage(player, "htu_title"))
+                                .color(NamedTextColor.YELLOW))
+
+                        sender.sendMessage(Component.text(""))
+
+                        sender.sendMessage(
+                            Component.text(LanguageManager.getContentFromMessage(player, "htu_openboard"))
+                                .color(NamedTextColor.GREEN)
+                        )
+
+                        sender.sendMessage(Component.text(""))
+
+                        sender.sendMessage(
+                            Component.text(LanguageManager.getContentFromMessage(player, "htu_newpost"))
+                                .color(NamedTextColor.GREEN)
+                        )
+
+                        sender.sendMessage(Component.text(""))
+
+                        sender.sendMessage(
+                            Component.text(LanguageManager.getContentFromMessage(player, "htu_myposts"))
+                                .color(NamedTextColor.GREEN)
+                        )
+                        sender.sendMessage(Component.text(""))
+
+                        sender.sendMessage(
+                            Component.text(LanguageManager.getContentFromMessage(player, "htu_posts"))
+                                .color(NamedTextColor.GREEN)
+                        )
+
+                        sender.sendMessage(Component.text(""))
+
+                        sender.sendMessage(
+                            Component.text(LanguageManager.getContentFromMessage(player, "htu_preview"))
+                                .color(NamedTextColor.GREEN)
+                        )
+
+                        sender.sendMessage(Component.text(""))
+
+                        sender.sendMessage(
+                            Component.text(LanguageManager.getContentFromMessage(player, "htu_previewclose"))
+                                .color(NamedTextColor.GREEN)
+                        )
+
+                        sender.sendMessage(Component.text(""))
+
+                        sender.sendMessage(Component.text("=====================================")
+                            .color(NamedTextColor.GOLD)
+                            .decorate(TextDecoration.BOLD))
+                    }
+                }
+
                 else -> {
                     sender.sendMessage("Unknown subcommand. Usage: /bboard <openboard | newpost | myposts | posts>")
                 }
@@ -174,9 +248,9 @@ class BulletinBoard : JavaPlugin() {
     }
 
     override fun onTabComplete(sender: CommandSender, command: Command, alias: String, args: Array<String>): List<String>? {
-        if (command.name.equals("bboard", ignoreCase = true)) {
+        if (command.name.equals("bb", ignoreCase = true)) {
             if (args.size == 1) {
-                val subCommands = listOf("openboard", "newpost", "myposts", "posts", "previewclose", "help", "about")
+                val subCommands = listOf("openboard", "newpost", "myposts", "posts", "previewclose", "help", "about", "howtouse")
                 return subCommands.filter { it.startsWith(args[0], ignoreCase = true) }
             }
         }
@@ -193,11 +267,6 @@ class BulletinBoard : JavaPlugin() {
             if (!dataFile.exists()) {
                 logger.info("Creating data file for $name")
                 dataFile.createNewFile()
-            }
-
-            if (!languageSettingsFile.exists()) {
-                logger.info("Creating language settings file for $name")
-                languageSettingsFile.createNewFile()
             }
         } catch (e: IOException) {
             logger.error("Error creating data file for $name", e)
