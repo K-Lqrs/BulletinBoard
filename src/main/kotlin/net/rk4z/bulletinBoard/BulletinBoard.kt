@@ -43,7 +43,13 @@ class BulletinBoard : JavaPlugin() {
 
     override fun onEnable() {
         server.pluginManager.apply {
-            registerEvents(ChatListener(), this@BulletinBoard)
+            try {
+                Class.forName("net.rk4z.bulletinBoard.listeners.ChatListener")
+                registerEvents(ChatListener(), this@BulletinBoard)
+            } catch (e: ClassNotFoundException) {
+                logger.warn("ChatListener not found. However, if this is a published Jar, you can safely ignore this error.")
+            }
+
             registerEvents(PlayerJoinListener(), this@BulletinBoard)
             registerEvents(BulletinBoardManager(), this@BulletinBoard)
         }
