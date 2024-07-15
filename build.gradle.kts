@@ -25,7 +25,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
     implementation("com.google.code.gson:gson:2.11.0")
 }
@@ -73,9 +73,6 @@ tasks.withType<ShadowJar> {
     archiveFileName.set("${project.name}-${project.version}.jar")
     mergeServiceFiles()
     exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
-    // This is tested code, so we exclude it from the final jar
-    exclude("src/main/kotlin/net/rk4z/bulletinBoard/Main.kt")
-    //exclude("src/main/kotlin/net/rk4z/bulletinBoard/ChatListener.kt")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from("LICENSE") {
         rename { "${it}_${project.name}" }

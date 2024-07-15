@@ -46,7 +46,7 @@ object LanguageManager {
             "please_use_help" to "サブコマンドのリストを表示するには /bb help を使用してください",
             "htu_header" to "BulletinBoardの使い方",
             "htu_title" to "ここでは、BulletinBoardの使い方を説明します。",
-            "htu_mainboard" to "メインボードを開くには /bb openboard を使用します。" +
+            "htu_openboard" to "メインボードを開くには /bb openboard を使用します。" +
                     "メインボードには、新規投稿、全投稿、自分の投稿を見ることができるアイコンがあります。",
             "htu_newpost" to "新しい投稿を作成するには /bb newpost を使用します。" +
                     "タイトルと内容を入力し、/bb savepost で保存します。" +
