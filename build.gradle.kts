@@ -6,6 +6,7 @@ plugins {
     kotlin("jvm") version "2.0.0"
     kotlin("plugin.serialization") version "2.0.0"
     id("xyz.jpenilla.run-paper") version "2.3.0"
+    id("io.papermc.paperweight.userdev") version "1.7.1"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
@@ -25,6 +26,7 @@ repositories {
 }
 
 dependencies {
+    paperweight.paperDevBundle("1.20.4-R0.1-SNAPSHOT")
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
     implementation("com.google.code.gson:gson:2.11.0")
