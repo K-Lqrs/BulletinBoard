@@ -3,6 +3,7 @@ package net.rk4z.bulletinBoard
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
+import net.rk4z.bulletinBoard.listeners.BulletinBoardListener
 import net.rk4z.bulletinBoard.listeners.ChatListener
 import net.rk4z.bulletinBoard.listeners.PlayerJoinListener
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager
@@ -32,8 +33,6 @@ class BulletinBoard : JavaPlugin() {
 
     val dataFile: File = dataFolder.resolve("data.json")
 
-    val bulletinBoardManager = BulletinBoardManager()
-
     override fun onLoad() {
         logger.info("Loading $name v$version")
         instance = this
@@ -43,15 +42,9 @@ class BulletinBoard : JavaPlugin() {
 
     override fun onEnable() {
         server.pluginManager.apply {
-            try {
-                Class.forName("net.rk4z.bulletinBoard.listeners.ChatListener")
-                registerEvents(ChatListener(), this@BulletinBoard)
-            } catch (e: ClassNotFoundException) {
-                logger.warn("ChatListener not found. However, if this is a published Jar, you can safely ignore this error.")
-            }
-
+            registerEvents(ChatListener(), this@BulletinBoard)
             registerEvents(PlayerJoinListener(), this@BulletinBoard)
-            registerEvents(BulletinBoardManager(), this@BulletinBoard)
+            registerEvents(BulletinBoardListener(), this@BulletinBoard)
         }
         logger.info("$name v$version Enabled!")
     }
@@ -75,7 +68,7 @@ class BulletinBoard : JavaPlugin() {
             when (args[0].lowercase()) {
                 "openboard" -> {
                     if (sender is Player) {
-                        bulletinBoardManager.openMainBoard(sender)
+                        BulletinBoardManager.openMainBoard(sender)
                         return true
                     } else {
                         sender.sendMessage("This command can only be used by players.")
@@ -83,7 +76,7 @@ class BulletinBoard : JavaPlugin() {
                 }
                 "newpost" -> {
                     if (sender is Player) {
-                        bulletinBoardManager.openPostEditor(sender)
+                        BulletinBoardManager.openPostEditor(sender)
                         return true
                     } else {
                         sender.sendMessage("This command can only be used by players.")
@@ -91,7 +84,7 @@ class BulletinBoard : JavaPlugin() {
                 }
                 "myposts" -> {
                     if (sender is Player) {
-                        bulletinBoardManager.openMyPosts(sender)
+                        BulletinBoardManager.openMyPosts(sender)
                         return true
                     } else {
                         sender.sendMessage("This command can only be used by players.")
@@ -99,7 +92,7 @@ class BulletinBoard : JavaPlugin() {
                 }
                 "posts" -> {
                     if (sender is Player) {
-                        bulletinBoardManager.openAllPosts(sender)
+                        BulletinBoardManager.openAllPosts(sender)
                         return true
                     } else {
                         sender.sendMessage("This command can only be used by players.")
@@ -107,7 +100,7 @@ class BulletinBoard : JavaPlugin() {
                 }
                 "previewclose" -> {
                     if (sender is Player) {
-                        bulletinBoardManager.closePreview(sender)
+                        BulletinBoardManager.closePreview(sender)
                         return true
                     } else {
                         sender.sendMessage("This command can only be used by players.")

@@ -14,8 +14,6 @@ class PlayerJoinListener : Listener {
         val player = event.player
         val uuid = player.uniqueId
 
-        BulletinBoard.instance.logger.info("Handling ServerPlayerJoinEvent for player: ${player.name}")
-
         val data = JsonUtil.loadFromFile(BulletinBoard.instance.dataFile)
 
         try {

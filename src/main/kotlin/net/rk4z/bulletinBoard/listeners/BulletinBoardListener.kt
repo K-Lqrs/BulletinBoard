@@ -9,16 +9,13 @@ import net.rk4z.bulletinBoard.manager.BulletinBoardManager.displayPost
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.openAllPosts
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.openConfirmationScreen
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.openDeletePostSelection
-import net.rk4z.bulletinBoard.manager.BulletinBoardManager.openEditPostSelection
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.openMainBoard
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.openMyPosts
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.openPostEditor
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.openPreview
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.openDeleteConfirmationScreen
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.closePreview
-import net.rk4z.bulletinBoard.manager.BulletinBoardManager.openEditPostEditor
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.pendingConfirmations
-import net.rk4z.bulletinBoard.manager.BulletinBoardManager.pendingEdits
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.pendingDrafts
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.pendingInputs
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.pendingPreview
@@ -107,13 +104,6 @@ class BulletinBoardListener : Listener {
                         val playerData = data.players.find { it.uuid == player.uniqueId } ?: return
                         val posts = playerData.posts.mapNotNull { postId -> data.posts.find { it.id == postId } }
                         openDeletePostSelection(player, posts)
-                    }
-
-                    "edit_post" -> {
-                        val data = JsonUtil.loadFromFile(BulletinBoard.instance.dataFile)
-                        val playerData = data.players.find { it.uuid == player.uniqueId } ?: return
-                        val posts = playerData.posts.mapNotNull { postId -> data.posts.find { it.id == postId } }
-                        openEditPostSelection(player, posts)
                     }
 
                     else -> {
@@ -295,74 +285,6 @@ class BulletinBoardListener : Listener {
                     "back_button" -> openMyPosts(player)
                     else -> if (customId != null) {
                         openDeleteConfirmationScreen(player, customId)
-                    }
-                }
-            }
-
-            LanguageManager.getMessage(player, "select_post_to_edit") -> {
-                event.isCancelled = true
-                val currentPage = customId?.split(":")?.getOrNull(1)?.toIntOrNull() ?: 0
-
-                when (customId?.split(":")?.getOrNull(0)) {
-                    "prev_page" -> {
-                        val data = JsonUtil.loadFromFile(BulletinBoard.instance.dataFile)
-                        val playerData = data.players.find { it.uuid == player.uniqueId } ?: return
-                        val posts = playerData.posts.mapNotNull { postId -> data.posts.find { it.id == postId } }
-                        openEditPostSelection(player, posts, currentPage - 1)
-                    }
-
-                    "next_page" -> {
-                        val data = JsonUtil.loadFromFile(BulletinBoard.instance.dataFile)
-                        val playerData = data.players.find { it.uuid == player.uniqueId } ?: return
-                        val posts = playerData.posts.mapNotNull { postId -> data.posts.find { it.id == postId } }
-                        openEditPostSelection(player, posts, currentPage + 1)
-                    }
-
-                    "back_button" -> openMyPosts(player)
-                    else -> if (customId != null) {
-                        val data = JsonUtil.loadFromFile(BulletinBoard.instance.dataFile)
-                        val post = data.posts.find { it.id == customId }
-                        if (post != null) {
-                            pendingEdits[player.uniqueId] = post
-                            val draft = PostDraft(
-                                title = post.title,
-                                content = post.content
-                            )
-                            pendingDrafts[player.uniqueId] = draft
-                            openPostEditor(player)
-                        }
-                    }
-                }
-            }
-
-            LanguageManager.getMessage(player, "select_post_to_edit") -> {
-                event.isCancelled = true
-                val currentPage = customId?.split(":")?.getOrNull(1)?.toIntOrNull() ?: 0
-
-                when (customId?.split(":")?.getOrNull(0)) {
-                    "prev_page" -> {
-                        val data = JsonUtil.loadFromFile(BulletinBoard.instance.dataFile)
-                        val playerData = data.players.find { it.uuid == player.uniqueId } ?: return
-                        val posts = playerData.posts.mapNotNull { postId -> data.posts.find { it.id == postId } }
-                        openEditPostSelection(player, posts, currentPage - 1)
-                    }
-
-                    "next_page" -> {
-                        val data = JsonUtil.loadFromFile(BulletinBoard.instance.dataFile)
-                        val playerData = data.players.find { it.uuid == player.uniqueId } ?: return
-                        val posts = playerData.posts.mapNotNull { postId -> data.posts.find { it.id == postId } }
-                        openEditPostSelection(player, posts, currentPage + 1)
-                    }
-
-                    "back_button" -> openMyPosts(player)
-                    else -> if (customId != null) {
-                        val data = JsonUtil.loadFromFile(BulletinBoard.instance.dataFile)
-                        val post = data.posts.find { it.id == customId }
-                        if (post != null) {
-                            pendingEdits[player.uniqueId] = post
-                            pendingDrafts[player.uniqueId] = PostDraft(post.title, post.content)
-                            openEditPostEditor(player, post)
-                        }
                     }
                 }
             }

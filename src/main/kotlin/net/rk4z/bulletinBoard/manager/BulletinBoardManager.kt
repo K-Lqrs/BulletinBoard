@@ -11,14 +11,12 @@ import net.rk4z.bulletinBoard.util.PostDraft
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
-import org.bukkit.event.Listener
 import org.bukkit.inventory.Inventory
-import org.bukkit.inventory.ItemStack
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 @Suppress("unused", "MemberVisibilityCanBePrivate", "DuplicatedCode")
-object BulletinBoardManager : Listener {
+object BulletinBoardManager {
     val pendingInputs = ConcurrentHashMap<UUID, String>()
     val pendingDrafts = ConcurrentHashMap<UUID, PostDraft>()
     val pendingConfirmations = ConcurrentHashMap<UUID, String>()
@@ -26,7 +24,6 @@ object BulletinBoardManager : Listener {
     val playerPreviewing = ConcurrentHashMap<UUID, Boolean>()
     val playerOpeningConfirmation = ConcurrentHashMap<UUID, Boolean>()
     val playerInputting = ConcurrentHashMap<UUID, Boolean>()
-    val pendingEdits = ConcurrentHashMap<UUID, Post>()
 
     fun openMainBoard(player: Player) {
         val mainBoard: Inventory = Bukkit.createInventory(null, 27, LanguageManager.getMessage(player, "main_board"))
@@ -73,39 +70,6 @@ object BulletinBoardManager : Listener {
 
         postEditor.setItem(11, createCustomItem(Material.PAPER, title, customId = "post_title"))
         postEditor.setItem(15, createCustomItem(Material.BOOK, content, customId = "post_content"))
-
-        postEditor.setItem(
-            19,
-            createCustomItem(
-                Material.RED_WOOL,
-                LanguageManager.getMessage(player, "cancel_post"),
-                customId = "cancel_post"
-            )
-        )
-        postEditor.setItem(
-            25,
-            createCustomItem(
-                Material.GREEN_WOOL,
-                LanguageManager.getMessage(player, "save_post"),
-                customId = "save_post"
-            )
-        )
-
-        player.openInventory(postEditor)
-    }
-
-    fun openEditPostEditor(player: Player, post: Post) {
-        val postEditor: Inventory = Bukkit.createInventory(null, 27, LanguageManager.getMessage(player, "edit_post_editor"))
-
-        setGlassPane(postEditor, 0..8)
-        setGlassPane(postEditor, 18..26)
-        setGlassPane(postEditor, listOf(9, 10, 12, 13, 14, 16, 17))
-
-        val title = post.title
-        val content = post.content
-
-        postEditor.setItem(11, createCustomItem(Material.PAPER, title, customId = "edit_post_title"))
-        postEditor.setItem(15, createCustomItem(Material.BOOK, content, customId = "edit_post_content"))
 
         postEditor.setItem(
             19,
@@ -196,7 +160,7 @@ object BulletinBoardManager : Listener {
         }
 
         inventory.setItem(
-            22,
+            21,
             createCustomItem(
                 Material.BARRIER,
                 LanguageManager.getMessage(player, "back_button"),
@@ -206,19 +170,11 @@ object BulletinBoardManager : Listener {
 
         if (title == LanguageManager.getContentFromMessage(player, "my_posts")) {
             inventory.setItem(
-                24,
+                23,
                 createCustomItem(
                     Material.LAVA_BUCKET,
                     LanguageManager.getMessage(player, "delete_post"),
                     customId = "delete_post"
-                )
-            )
-            inventory.setItem(
-                20,
-                createCustomItem(
-                    Material.WRITABLE_BOOK,
-                    LanguageManager.getMessage(player, "edit_post"),
-                    customId = "edit_post"
                 )
             )
         }
@@ -226,71 +182,71 @@ object BulletinBoardManager : Listener {
         player.openInventory(inventory)
     }
 
-    fun openEditPostSelection(player: Player, posts: List<Post>, page: Int = 0) {
-        val itemsPerPage = 4
-        val totalPages = (posts.size + itemsPerPage - 1) / itemsPerPage
-        val currentPage = page.coerceIn(0, if (totalPages == 0) 0 else totalPages - 1)
-        val startIndex = currentPage * itemsPerPage
-        val endIndex = (startIndex + itemsPerPage).coerceAtMost(posts.size)
+    fun openConfirmationScreen(player: Player, type: String) {
+        playerOpeningConfirmation[player.uniqueId] = true
+        val confirmation: Inventory =
+            Bukkit.createInventory(null, 27, LanguageManager.getMessage(player, "confirmation"))
 
-        val inventory: Inventory =
-            Bukkit.createInventory(null, 27, LanguageManager.getMessage(player, "select_post_to_edit"))
+        setGlassPane(confirmation, 0..8)
+        setGlassPane(confirmation, 18..26)
+        setGlassPane(confirmation, listOf(9, 10, 12, 13, 14, 16, 17))
 
-        setGlassPane(inventory, 0..26)
-
-        val middleRowSlots = listOf(10, 12, 14, 16)
-
-        if (posts.isEmpty()) {
-            val noPostsItem =
-                createCustomItem(Material.PAPER, LanguageManager.getMessage(player, "no_posts"), customId = "no_posts")
-            inventory.setItem(13, noPostsItem)
-        } else {
-            posts.subList(startIndex, endIndex).forEachIndexed { index, post ->
-                val postItem = createCustomItem(Material.WRITTEN_BOOK, post.title, customId = post.id)
-                inventory.setItem(middleRowSlots[index], postItem)
-            }
-
-            if (currentPage > 0) {
-                inventory.setItem(
-                    18,
-                    createCustomItem(
-                        Material.ARROW,
-                        LanguageManager.getMessage(player, "prev_page"),
-                        customId = "prev_page:$currentPage"
-                    )
+        confirmation.setItem(
+            11,
+            createCustomItem(
+                Material.GREEN_WOOL,
+                LanguageManager.getMessage(player, "confirm_yes"),
+                customId = "confirm_yes"
+            )
+        )
+        confirmation.setItem(
+            15,
+            createCustomItem(
+                Material.YELLOW_WOOL,
+                LanguageManager.getMessage(player, "confirm_no"),
+                customId = "confirm_no"
+            )
+        )
+        if (type == "submit") {
+            confirmation.setItem(
+                13,
+                createCustomItem(
+                    Material.BLUE_WOOL,
+                    LanguageManager.getMessage(player, "preview_of_post"),
+                    customId = "preview_of_post"
                 )
-            }
-            if (currentPage < totalPages - 1) {
-                inventory.setItem(
-                    26,
-                    createCustomItem(
-                        Material.ARROW,
-                        LanguageManager.getMessage(player, "next_page"),
-                        customId = "next_page:$currentPage"
-                    )
-                )
-            }
-
-            if (posts.size <= itemsPerPage) {
-                if (inventory.getItem(18) == null) {
-                    setGlassPane(inventory, listOf(18))
-                }
-                if (inventory.getItem(26) == null) {
-                    setGlassPane(inventory, listOf(26))
-                }
-            }
+            )
         }
 
-        inventory.setItem(
-            21,
+        pendingConfirmations[player.uniqueId] = type
+        player.openInventory(confirmation)
+    }
+
+    fun openDeleteConfirmationScreen(player: Player, postId: String) {
+        val confirmation: Inventory =
+            Bukkit.createInventory(null, 27, LanguageManager.getMessage(player, "delete_confirmation"))
+
+        setGlassPane(confirmation, 0..8)
+        setGlassPane(confirmation, 18..26)
+
+        confirmation.setItem(
+            12,
             createCustomItem(
-                Material.BARRIER,
-                LanguageManager.getMessage(player, "back_button"),
-                customId = "back_button"
+                Material.GREEN_WOOL,
+                LanguageManager.getMessage(player, "confirm_yes"),
+                customId = "delete_confirm_yes:$postId"
+            )
+        )
+        confirmation.setItem(
+            14,
+            createCustomItem(
+                Material.YELLOW_WOOL,
+                LanguageManager.getMessage(player, "confirm_no"),
+                customId = "delete_confirm_no"
             )
         )
 
-        player.openInventory(inventory)
+        player.openInventory(confirmation)
     }
 
     fun openDeletePostSelection(player: Player, posts: List<Post>, page: Int = 0) {
@@ -360,73 +316,6 @@ object BulletinBoardManager : Listener {
         player.openInventory(inventory)
     }
 
-    fun openDeleteConfirmationScreen(player: Player, postId: String) {
-        val confirmation: Inventory =
-            Bukkit.createInventory(null, 27, LanguageManager.getMessage(player, "delete_confirmation"))
-
-        setGlassPane(confirmation, 0..8)
-        setGlassPane(confirmation, 18..26)
-
-        confirmation.setItem(
-            12,
-            createCustomItem(
-                Material.GREEN_WOOL,
-                LanguageManager.getMessage(player, "confirm_yes"),
-                customId = "delete_confirm_yes:$postId"
-            )
-        )
-        confirmation.setItem(
-            14,
-            createCustomItem(
-                Material.YELLOW_WOOL,
-                LanguageManager.getMessage(player, "confirm_no"),
-                customId = "delete_confirm_no"
-            )
-        )
-
-        player.openInventory(confirmation)
-    }
-
-    fun openConfirmationScreen(player: Player, type: String) {
-        playerOpeningConfirmation[player.uniqueId] = true
-        val confirmation: Inventory =
-            Bukkit.createInventory(null, 27, LanguageManager.getMessage(player, "confirmation"))
-
-        setGlassPane(confirmation, 0..8)
-        setGlassPane(confirmation, 18..26)
-        setGlassPane(confirmation, listOf(9, 10, 12, 13, 14, 16, 17))
-
-        confirmation.setItem(
-            11,
-            createCustomItem(
-                Material.GREEN_WOOL,
-                LanguageManager.getMessage(player, "confirm_yes"),
-                customId = "confirm_yes"
-            )
-        )
-        confirmation.setItem(
-            15,
-            createCustomItem(
-                Material.YELLOW_WOOL,
-                LanguageManager.getMessage(player, "confirm_no"),
-                customId = "confirm_no"
-            )
-        )
-        if (type == "submit") {
-            confirmation.setItem(
-                13,
-                createCustomItem(
-                    Material.BLUE_WOOL,
-                    LanguageManager.getMessage(player, "preview_of_post"),
-                    customId = "preview_of_post"
-                )
-            )
-        }
-
-        pendingConfirmations[player.uniqueId] = type
-        player.openInventory(confirmation)
-    }
-
     fun openPreview(player: Player, title: Component, content: Component) {
         player.sendMessage(LanguageManager.getMessage(player, "preview_message"))
         player.sendMessage(LanguageManager.getMessage(player, "title_label").append(title))
@@ -442,17 +331,6 @@ object BulletinBoardManager : Listener {
         Bukkit.getScheduler().runTask(BulletinBoard.instance, Runnable {
             openConfirmationScreen(player, "submit")
         })
-    }
-
-    private fun setItemInVerticalList(inventory: Inventory, startIndex: Int, item: ItemStack) {
-        var index = startIndex
-        while (index < inventory.size) {
-            if (inventory.getItem(index) == null) {
-                inventory.setItem(index, item)
-                break
-            }
-            index += 9
-        }
     }
 
     fun displayPost(player: Player, post: Post) {
