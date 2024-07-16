@@ -5,16 +5,16 @@ package net.rk4z.bulletinBoard.listeners
 import net.kyori.adventure.text.Component
 import net.rk4z.bulletinBoard.BulletinBoard
 import net.rk4z.bulletinBoard.BulletinBoard.Companion.namespacedKey
+import net.rk4z.bulletinBoard.manager.BulletinBoardManager.Confirmations.openConfirmationScreen
+import net.rk4z.bulletinBoard.manager.BulletinBoardManager.Confirmations.openDeleteConfirmationScreen
+import net.rk4z.bulletinBoard.manager.BulletinBoardManager.Previews.closePreview
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.displayPost
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.openAllPosts
-import net.rk4z.bulletinBoard.manager.BulletinBoardManager.openConfirmationScreen
-import net.rk4z.bulletinBoard.manager.BulletinBoardManager.openDeletePostSelection
+import net.rk4z.bulletinBoard.manager.BulletinBoardManager.Selections.openDeletePostSelection
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.openMainBoard
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.openMyPosts
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.openPostEditor
-import net.rk4z.bulletinBoard.manager.BulletinBoardManager.openPreview
-import net.rk4z.bulletinBoard.manager.BulletinBoardManager.openDeleteConfirmationScreen
-import net.rk4z.bulletinBoard.manager.BulletinBoardManager.closePreview
+import net.rk4z.bulletinBoard.manager.BulletinBoardManager.Previews.openPreview
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.pendingConfirmations
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.pendingDrafts
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.pendingInputs
@@ -23,11 +23,11 @@ import net.rk4z.bulletinBoard.manager.BulletinBoardManager.playerInputting
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.playerOpeningConfirmation
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.playerPreviewing
 import net.rk4z.bulletinBoard.manager.LanguageManager
+import net.rk4z.bulletinBoard.util.BulletinBoardUtil.createCustomItem
+import net.rk4z.bulletinBoard.util.BulletinBoardUtil.setGlassPane
 import net.rk4z.bulletinBoard.util.JsonUtil
 import net.rk4z.bulletinBoard.util.Post
 import net.rk4z.bulletinBoard.util.PostDraft
-import net.rk4z.bulletinBoard.util.BulletinBoardUtil.createCustomItem
-import net.rk4z.bulletinBoard.util.BulletinBoardUtil.setGlassPane
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -42,7 +42,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-@Suppress("unused")
+@Suppress("unused", "DuplicatedCode")
 class BulletinBoardListener : Listener {
 
     @EventHandler
@@ -341,10 +341,11 @@ class BulletinBoardListener : Listener {
                 val postEditor = Bukkit.createInventory(null, 27, LanguageManager.getMessage(p, "post_editor"))
                 setGlassPane(postEditor, 0..8)
                 setGlassPane(postEditor, 18..26)
+                setGlassPane(postEditor, listOf(9, 10, 12, 13, 14, 16, 17))
                 postEditor.setItem(11, createCustomItem(Material.PAPER, uTitle, customId = "post_title"))
                 postEditor.setItem(15, createCustomItem(Material.BOOK, uContent, customId = "post_content"))
                 postEditor.setItem(
-                    18,
+                    19,
                     createCustomItem(
                         Material.RED_WOOL,
                         LanguageManager.getMessage(p, "cancel_post"),
@@ -352,7 +353,7 @@ class BulletinBoardListener : Listener {
                     )
                 )
                 postEditor.setItem(
-                    26,
+                    25,
                     createCustomItem(
                         Material.GREEN_WOOL,
                         LanguageManager.getMessage(p, "save_post"),
