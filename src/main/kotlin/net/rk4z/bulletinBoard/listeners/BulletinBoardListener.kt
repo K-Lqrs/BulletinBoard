@@ -367,95 +367,95 @@ class BulletinBoardListener : Listener {
                 }
             }
         }
+    }
 
-        @EventHandler
-        fun onInventoryClose(event: InventoryCloseEvent) {
-            val p = event.player as? Player ?: return
-            val iTitle = event.view.title()
+    @EventHandler
+    fun onInventoryClose(event: InventoryCloseEvent) {
+        val p = event.player as? Player ?: return
+        val iTitle = event.view.title()
 
-            when (iTitle) {
-                LanguageManager.getMessage(p, "post_editor") -> {
-                    if (playerPreviewing[p.uniqueId] == true) {
-                        playerPreviewing.remove(p.uniqueId)
-                    } else if (playerOpeningConfirmation[p.uniqueId] == true) {
-                        playerOpeningConfirmation.remove(p.uniqueId)
-                    } else if (playerInputting[p.uniqueId] == true) {
-                        playerInputting.remove(p.uniqueId)
-                    } else {
-                        pendingDrafts.remove(p.uniqueId)
-                    }
-                }
-
-                LanguageManager.getMessage(p, "confirmation") -> {
-                    pendingConfirmations.remove(p.uniqueId)
+        when (iTitle) {
+            LanguageManager.getMessage(p, "post_editor") -> {
+                if (playerPreviewing[p.uniqueId] == true) {
+                    playerPreviewing.remove(p.uniqueId)
+                } else if (playerOpeningConfirmation[p.uniqueId] == true) {
                     playerOpeningConfirmation.remove(p.uniqueId)
-                }
-            }
-        }
-
-        @EventHandler
-        fun onPlayerChat(event: AsyncPlayerChatEvent) {
-            val p = event.player
-
-            if (pendingInputs.containsKey(p.uniqueId)) {
-                event.isCancelled = true
-                val inputType = pendingInputs[p.uniqueId]
-                val input = event.message
-                val draft = pendingDrafts.getOrDefault(p.uniqueId, PostDraft())
-
-                val updatedDraft = if (inputType == "title") {
-                    draft.copy(title = Component.text(input))
+                } else if (playerInputting[p.uniqueId] == true) {
+                    playerInputting.remove(p.uniqueId)
                 } else {
-                    draft.copy(content = Component.text(input))
+                    pendingDrafts.remove(p.uniqueId)
                 }
+            }
 
-                pendingDrafts[p.uniqueId] = updatedDraft
-
-                val uTitle = updatedDraft.title ?: LanguageManager.getMessage(p, "title")
-                val uContent = updatedDraft.content ?: LanguageManager.getMessage(p, "content")
-
-                Bukkit.getScheduler().runTask(BulletinBoard.instance, Runnable {
-                    val postEditor = Bukkit.createInventory(null, 27, LanguageManager.getMessage(p, "post_editor"))
-                    setGlassPane(postEditor, 0..8)
-                    setGlassPane(postEditor, 18..26)
-                    postEditor.setItem(11, createCustomItem(Material.PAPER, uTitle, customId = "post_title"))
-                    postEditor.setItem(15, createCustomItem(Material.BOOK, uContent, customId = "post_content"))
-                    postEditor.setItem(
-                        18,
-                        createCustomItem(
-                            Material.RED_WOOL,
-                            LanguageManager.getMessage(p, "cancel_post"),
-                            customId = "cancel_post"
-                        )
-                    )
-                    postEditor.setItem(
-                        26,
-                        createCustomItem(
-                            Material.GREEN_WOOL,
-                            LanguageManager.getMessage(p, "save_post"),
-                            customId = "save_post"
-                        )
-                    )
-                    p.openInventory(postEditor)
-                })
-                pendingInputs.remove(p.uniqueId)
-                p.sendMessage(LanguageManager.getMessage(p, "input_set").replaceText { text ->
-                    if (inputType != null) {
-                        text.matchLiteral("{inputType}").replacement(inputType)
-                    }
-                }.replaceText { text -> text.matchLiteral("{input}").replacement(input) })
+            LanguageManager.getMessage(p, "confirmation") -> {
+                pendingConfirmations.remove(p.uniqueId)
+                playerOpeningConfirmation.remove(p.uniqueId)
             }
         }
+    }
 
-        @EventHandler
-        fun onPlayerCommandPreprocess(event: PlayerCommandPreprocessEvent) {
-            val p = event.player
-            val command = event.message
+    @EventHandler
+    fun onPlayerChat(event: AsyncPlayerChatEvent) {
+        val p = event.player
 
-            if (command.equals("/bb previewclose", ignoreCase = true)) {
-                event.isCancelled = true
-                closePreview(p)
+        if (pendingInputs.containsKey(p.uniqueId)) {
+            event.isCancelled = true
+            val inputType = pendingInputs[p.uniqueId]
+            val input = event.message
+            val draft = pendingDrafts.getOrDefault(p.uniqueId, PostDraft())
+
+            val updatedDraft = if (inputType == "title") {
+                draft.copy(title = Component.text(input))
+            } else {
+                draft.copy(content = Component.text(input))
             }
+
+            pendingDrafts[p.uniqueId] = updatedDraft
+
+            val uTitle = updatedDraft.title ?: LanguageManager.getMessage(p, "title")
+            val uContent = updatedDraft.content ?: LanguageManager.getMessage(p, "content")
+
+            Bukkit.getScheduler().runTask(BulletinBoard.instance, Runnable {
+                val postEditor = Bukkit.createInventory(null, 27, LanguageManager.getMessage(p, "post_editor"))
+                setGlassPane(postEditor, 0..8)
+                setGlassPane(postEditor, 18..26)
+                postEditor.setItem(11, createCustomItem(Material.PAPER, uTitle, customId = "post_title"))
+                postEditor.setItem(15, createCustomItem(Material.BOOK, uContent, customId = "post_content"))
+                postEditor.setItem(
+                    18,
+                    createCustomItem(
+                        Material.RED_WOOL,
+                        LanguageManager.getMessage(p, "cancel_post"),
+                        customId = "cancel_post"
+                    )
+                )
+                postEditor.setItem(
+                    26,
+                    createCustomItem(
+                        Material.GREEN_WOOL,
+                        LanguageManager.getMessage(p, "save_post"),
+                        customId = "save_post"
+                    )
+                )
+                p.openInventory(postEditor)
+            })
+            pendingInputs.remove(p.uniqueId)
+            p.sendMessage(LanguageManager.getMessage(p, "input_set").replaceText { text ->
+                if (inputType != null) {
+                    text.matchLiteral("{inputType}").replacement(inputType)
+                }
+            }.replaceText { text -> text.matchLiteral("{input}").replacement(input) })
+        }
+    }
+
+    @EventHandler
+    fun onPlayerCommandPreprocess(event: PlayerCommandPreprocessEvent) {
+        val p = event.player
+        val command = event.message
+
+        if (command.equals("/bb previewclose", ignoreCase = true)) {
+            event.isCancelled = true
+            closePreview(p)
         }
     }
 }
