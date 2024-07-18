@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap
 object BulletinBoardManager {
     val pendingInputs = ConcurrentHashMap<UUID, String>()
     val pendingDrafts = ConcurrentHashMap<UUID, PostDraft>()
+    val pendingEditDrafts = ConcurrentHashMap<UUID, PostDraft>()
     val pendingConfirmations = ConcurrentHashMap<UUID, String>()
     val pendingPreview = ConcurrentHashMap<UUID, Pair<Component, Component>>()
     val playerPreviewing = ConcurrentHashMap<UUID, Boolean>()
@@ -57,12 +58,10 @@ object BulletinBoardManager {
         player.openInventory(mainBoard)
     }
 
-    fun openPostEditor(player: Player)  {
+    fun openPostEditor(player: Player) {
         val postEditor: Inventory = Bukkit.createInventory(null, 27, LanguageManager.getMessage(player, "post_editor"))
 
-        setGlassPane(postEditor, 0..8)
-        setGlassPane(postEditor, 18..26)
-        setGlassPane(postEditor, listOf(9, 10, 12, 13, 14, 16, 17))
+        setGlassPane(postEditor, 0..26)
 
         val draft = pendingDrafts.getOrDefault(player.uniqueId, PostDraft())
         val title = draft.title ?: LanguageManager.getMessage(player, "no_title")
@@ -89,6 +88,41 @@ object BulletinBoardManager {
         )
 
         player.openInventory(postEditor)
+    }
+
+    fun openPostEditorForEdit(player: Player, post: Post) {
+        val postEditorFE: Inventory = Bukkit.createInventory(null, 27, LanguageManager.getMessage(player, "post_editor_for_edit"))
+
+        setGlassPane(postEditorFE, 0..26)
+
+        val bTitle = post.title
+        val bContent = post.content
+
+        // Insert edit draft to PostDraft
+        pendingEditDrafts.getOrDefault(player.uniqueId, PostDraft(bTitle, bContent))
+
+        postEditorFE.setItem(11, createCustomItem(Material.PAPER, bTitle, customId = "edit_post_title"))
+        postEditorFE.setItem(15, createCustomItem(Material.BOOK, bContent, customId = "edit_post_content"))
+
+        postEditorFE.setItem(
+            19,
+            createCustomItem(
+                Material.RED_WOOL,
+                LanguageManager.getMessage(player, "cancel_edit"),
+                customId = "cancel_edit"
+            )
+        )
+
+        postEditorFE.setItem(
+            25,
+            createCustomItem(
+                Material.GREEN_WOOL,
+                LanguageManager.getMessage(player, "save_edit"),
+                customId = "save_edit"
+            )
+        )
+
+        player.openInventory(postEditorFE)
     }
 
     fun openMyPosts(player: Player, page: Int = 0) {
@@ -287,7 +321,70 @@ object BulletinBoardManager {
         }
 
         fun openEditPostSelection(player: Player, posts: List<Post>, page: Int = 0) {
+            val itemsPerPage = 4
+            val totalPages = (posts.size + itemsPerPage - 1) / itemsPerPage
+            val currentPage = page.coerceIn(0, if (totalPages == 0) 0 else totalPages - 1)
+            val startIndex = currentPage * itemsPerPage
+            val endIndex = (startIndex + itemsPerPage).coerceAtMost(posts.size)
 
+            val inventory: Inventory =
+                Bukkit.createInventory(null, 27, LanguageManager.getMessage(player, "select_post_to_edit"))
+
+            setGlassPane(inventory, 0..26)
+
+            val middleRowSlots = listOf(10, 12, 14, 16)
+
+            if (posts.isEmpty()) {
+                val noPostsItem =
+                    createCustomItem(Material.PAPER, LanguageManager.getMessage(player, "no_posts"), customId = "no_posts")
+                inventory.setItem(13, noPostsItem)
+            } else {
+                posts.subList(startIndex, endIndex).forEachIndexed { index, post ->
+                    val postItem = createCustomItem(Material.WRITTEN_BOOK, post.title, customId = post.id)
+                    inventory.setItem(middleRowSlots[index], postItem)
+                }
+
+                if (currentPage > 0) {
+                    inventory.setItem(
+                        18,
+                        createCustomItem(
+                            Material.ARROW,
+                            LanguageManager.getMessage(player, "prev_page"),
+                            customId = "prev_page:$currentPage"
+                        )
+                    )
+                }
+                if (currentPage < totalPages - 1) {
+                    inventory.setItem(
+                        26,
+                        createCustomItem(
+                            Material.ARROW,
+                            LanguageManager.getMessage(player, "next_page"),
+                            customId = "next_page:$currentPage"
+                        )
+                    )
+                }
+
+                if (posts.size <= itemsPerPage) {
+                    if (inventory.getItem(18) == null) {
+                        setGlassPane(inventory, listOf(18))
+                    }
+                    if (inventory.getItem(26) == null) {
+                        setGlassPane(inventory, listOf(26))
+                    }
+                }
+            }
+
+            inventory.setItem(
+                21,
+                createCustomItem(
+                    Material.BARRIER,
+                    LanguageManager.getMessage(player, "back_button"),
+                    customId = "back_button"
+                )
+            )
+
+            player.openInventory(inventory)
         }
     }
 

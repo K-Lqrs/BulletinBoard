@@ -15,8 +15,11 @@ import net.rk4z.bulletinBoard.manager.BulletinBoardManager.openMainBoard
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.openMyPosts
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.openPostEditor
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.Previews.openPreview
+import net.rk4z.bulletinBoard.manager.BulletinBoardManager.Selections.openEditPostSelection
+import net.rk4z.bulletinBoard.manager.BulletinBoardManager.openPostEditorForEdit
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.pendingConfirmations
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.pendingDrafts
+import net.rk4z.bulletinBoard.manager.BulletinBoardManager.pendingEditDrafts
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.pendingInputs
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.pendingPreview
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.playerInputting
@@ -99,11 +102,19 @@ class BulletinBoardListener : Listener {
                     }
 
                     "back_button" -> openMainBoard(player)
+
                     "delete_post" -> {
                         val data = JsonUtil.loadFromFile(BulletinBoard.instance.dataFile)
                         val playerData = data.players.find { it.uuid == player.uniqueId } ?: return
                         val posts = playerData.posts.mapNotNull { postId -> data.posts.find { it.id == postId } }
                         openDeletePostSelection(player, posts)
+                    }
+
+                    "edit_post" -> {
+                        val data = JsonUtil.loadFromFile(BulletinBoard.instance.dataFile)
+                        val playerData = data.players.find { it.uuid == player.uniqueId } ?: return
+                        val posts = playerData.posts.mapNotNull { postId -> data.posts.find { it.id == postId } }
+                        openEditPostSelection(player, posts)
                     }
 
                     else -> {
@@ -146,6 +157,24 @@ class BulletinBoardListener : Listener {
 
                     "cancel_post" -> openConfirmationScreen(player, "cancel")
                     "back_button" -> openMainBoard(player)
+                }
+            }
+
+            LanguageManager.getMessage(player, "post_editor_for_edit") -> {
+                event.isCancelled = true
+                val uuid = player.uniqueId
+                val draft = pendingEditDrafts[uuid] ?: return
+                val title = draft.title
+                val content = draft.content
+                when (customId) {
+                    "edit_post_title" -> {
+                        playerInputting[player.uniqueId] = true
+                        player.closeInventory()
+                        pendingInputs[player.uniqueId] = "title"
+                        player.sendMessage(LanguageManager.getMessage(player, "please_enter_title_for_edit"))
+                    }
+
+
                 }
             }
 
@@ -285,6 +314,36 @@ class BulletinBoardListener : Listener {
                     "back_button" -> openMyPosts(player)
                     else -> if (customId != null) {
                         openDeleteConfirmationScreen(player, customId)
+                    }
+                }
+            }
+
+            LanguageManager.getMessage(player, "select_post_to_edit") -> {
+                event.isCancelled = true
+                val currentPage = customId?.split(":")?.getOrNull(1)?.toIntOrNull() ?: 0
+
+                when (customId?.split(":")?.getOrNull(0)) {
+                    "prev_page" -> {
+                        val data = JsonUtil.loadFromFile(BulletinBoard.instance.dataFile)
+                        val playerData = data.players.find { it.uuid == player.uniqueId } ?: return
+                        val posts = playerData.posts.mapNotNull { postId -> data.posts.find { it.id == postId } }
+                        openEditPostSelection(player, posts, currentPage - 1)
+                    }
+
+                    "next_page" -> {
+                        val data = JsonUtil.loadFromFile(BulletinBoard.instance.dataFile)
+                        val playerData = data.players.find { it.uuid == player.uniqueId } ?: return
+                        val posts = playerData.posts.mapNotNull { postId -> data.posts.find { it.id == postId } }
+                        openEditPostSelection(player, posts, currentPage + 1)
+                    }
+
+                    "back_button" -> openMyPosts(player)
+                    else -> if (customId != null) {
+                        val data = JsonUtil.loadFromFile(BulletinBoard.instance.dataFile)
+                        val playerData = data.players.find { it.uuid == player.uniqueId } ?: return
+                        val posts = playerData.posts.mapNotNull { postId -> data.posts.find { it.id == postId } }
+                        val post = posts.find { it.id == customId } ?: return
+                        openPostEditorForEdit(player, post)
                     }
                 }
             }
