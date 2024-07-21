@@ -5,6 +5,7 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.rk4z.bulletinBoard.BulletinBoard
 import net.rk4z.bulletinBoard.util.BulletinBoardUtil.setGlassPane
 import net.rk4z.bulletinBoard.util.BulletinBoardUtil.createCustomItem
+import net.rk4z.bulletinBoard.util.EditPostData
 import net.rk4z.bulletinBoard.util.JsonUtil
 import net.rk4z.bulletinBoard.util.Post
 import net.rk4z.bulletinBoard.util.PostDraft
@@ -19,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap
 object BulletinBoardManager {
     val pendingInputs = ConcurrentHashMap<UUID, String>()
     val pendingDrafts = ConcurrentHashMap<UUID, PostDraft>()
-    val pendingEditDrafts = ConcurrentHashMap<UUID, PostDraft>()
+    val pendingEditDrafts = ConcurrentHashMap<UUID, EditPostData>()
     val pendingConfirmations = ConcurrentHashMap<UUID, String>()
     val pendingPreview = ConcurrentHashMap<UUID, Pair<Component, Component>>()
     val playerPreviewing = ConcurrentHashMap<UUID, Boolean>()
@@ -95,11 +96,12 @@ object BulletinBoardManager {
 
         setGlassPane(postEditorFE, 0..26)
 
+        val bId = post.id
         val bTitle = post.title
         val bContent = post.content
 
-        // Insert edit draft to PostDraft
-        pendingEditDrafts.getOrDefault(player.uniqueId, PostDraft(bTitle, bContent))
+        // Insert edit draft to pendingEditDrafts
+        pendingEditDrafts.getOrDefault(player.uniqueId, EditPostData(bId, bTitle, bContent))
 
         postEditorFE.setItem(11, createCustomItem(Material.PAPER, bTitle, customId = "edit_post_title"))
         postEditorFE.setItem(15, createCustomItem(Material.BOOK, bContent, customId = "edit_post_content"))
@@ -197,6 +199,17 @@ object BulletinBoardManager {
                         Material.BLUE_WOOL,
                         LanguageManager.getMessage(player, "preview_of_post"),
                         customId = "preview_of_post"
+                    )
+                )
+            }
+
+            if (type == "edit_submit") {
+                confirmation.setItem(
+                    13,
+                    createCustomItem(
+                        Material.BLUE_WOOL,
+                        LanguageManager.getMessage(player, "preview_of_edit"),
+                        customId = "preview_of_edit"
                     )
                 )
             }
@@ -441,18 +454,26 @@ object BulletinBoardManager {
             }
         }
 
-        inventory.setItem(
-            21,
-            createCustomItem(
-                Material.BARRIER,
-                LanguageManager.getMessage(player, "back_button"),
-                customId = "back_button"
-            )
-        )
-
         if (title == LanguageManager.getContentFromMessage(player, "my_posts")) {
             inventory.setItem(
-                23,
+                20,
+                createCustomItem(
+                    Material.WRITABLE_BOOK,
+                    LanguageManager.getMessage(player, "edit_post"),
+                    customId = "edit_post"
+                )
+            )
+            inventory.setItem(
+                22,
+                createCustomItem(
+                    Material.BARRIER,
+                    LanguageManager.getMessage(player, "back_button"),
+                    customId = "back_button"
+                )
+            )
+
+            inventory.setItem(
+                24,
                 createCustomItem(
                     Material.LAVA_BUCKET,
                     LanguageManager.getMessage(player, "delete_post"),

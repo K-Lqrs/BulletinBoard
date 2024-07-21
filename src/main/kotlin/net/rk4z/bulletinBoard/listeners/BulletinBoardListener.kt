@@ -5,6 +5,7 @@ package net.rk4z.bulletinBoard.listeners
 import net.kyori.adventure.text.Component
 import net.rk4z.bulletinBoard.BulletinBoard
 import net.rk4z.bulletinBoard.BulletinBoard.Companion.namespacedKey
+import net.rk4z.bulletinBoard.manager.BulletinBoardManager
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.Confirmations.openConfirmationScreen
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.Confirmations.openDeleteConfirmationScreen
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.Previews.closePreview
@@ -28,6 +29,7 @@ import net.rk4z.bulletinBoard.manager.BulletinBoardManager.playerPreviewing
 import net.rk4z.bulletinBoard.manager.LanguageManager
 import net.rk4z.bulletinBoard.util.BulletinBoardUtil.createCustomItem
 import net.rk4z.bulletinBoard.util.BulletinBoardUtil.setGlassPane
+import net.rk4z.bulletinBoard.util.EditPostData
 import net.rk4z.bulletinBoard.util.JsonUtil
 import net.rk4z.bulletinBoard.util.Post
 import net.rk4z.bulletinBoard.util.PostDraft
@@ -156,7 +158,6 @@ class BulletinBoardListener : Listener {
                     }
 
                     "cancel_post" -> openConfirmationScreen(player, "cancel")
-                    "back_button" -> openMainBoard(player)
                 }
             }
 
@@ -174,8 +175,17 @@ class BulletinBoardListener : Listener {
                         player.sendMessage(LanguageManager.getMessage(player, "please_enter_title_for_edit"))
                     }
 
+                    "edit_post_content" -> {
+                        playerInputting[player.uniqueId] = true
+                        player.closeInventory()
+                        pendingInputs[player.uniqueId] = "content"
+                        player.sendMessage(LanguageManager.getMessage(player, "please_enter_content_for_edit"))
+                    }
 
+                    "cancel_edit" -> openConfirmationScreen(player, "cancel")
                 }
+
+                player.sendMessage("customId: $customId")
             }
 
             LanguageManager.getMessage(player, "confirmation") -> {
@@ -226,6 +236,39 @@ class BulletinBoardListener : Listener {
                                 pendingDrafts.remove(player.uniqueId)
                             }
 
+                            "edit_submit" -> {
+                                val draft = pendingEditDrafts[player.uniqueId] ?: EditPostData()
+                                val id = draft.id ?: return
+                                val title = draft.title ?: LanguageManager.getMessage(player, "no_title")
+                                val content = draft.content ?: LanguageManager.getMessage(player, "no_content")
+
+                                val data = JsonUtil.loadFromFile(BulletinBoard.instance.dataFile)
+                                val postIndex = data.posts.indexOfFirst { it.id == id }
+
+                                if (postIndex != -1) {
+                                    val post = data.posts[postIndex]
+                                    val updatedPost = post.copy(title = title, content = content)
+                                    val updatedPosts = data.posts.toMutableList().apply {
+                                        set(postIndex, updatedPost)
+                                    }
+                                    val updatedData = data.copy(posts = updatedPosts)
+                                    JsonUtil.saveToFile(updatedData, BulletinBoard.instance.dataFile)
+
+                                    player.sendMessage(
+                                        LanguageManager.getMessage(
+                                            player, "post_edited"
+                                        )
+                                            .append(title)
+                                            .append(Component.text(", "))
+                                            .append(content)
+                                    )
+                                } else {
+                                    player.sendMessage(LanguageManager.getMessage(player, "post_not_found"))
+                                }
+
+                                pendingEditDrafts.remove(player.uniqueId)
+                            }
+
                             "cancel" -> {
                                 pendingDrafts.remove(player.uniqueId)
                                 player.closeInventory()
@@ -247,6 +290,15 @@ class BulletinBoardListener : Listener {
 
                     "preview_of_post" -> {
                         val draft = pendingDrafts[player.uniqueId] ?: PostDraft()
+                        val title = draft.title ?: LanguageManager.getMessage(player, "no_title")
+                        val content = draft.content ?: LanguageManager.getMessage(player, "no_content")
+
+                        player.closeInventory()
+                        openPreview(player, title, content)
+                    }
+
+                    "preview_of_edit" -> {
+                        val draft = pendingEditDrafts[player.uniqueId] ?: EditPostData()
                         val title = draft.title ?: LanguageManager.getMessage(player, "no_title")
                         val content = draft.content ?: LanguageManager.getMessage(player, "no_content")
 
@@ -356,7 +408,7 @@ class BulletinBoardListener : Listener {
         val iTitle = event.view.title()
 
         when (iTitle) {
-            LanguageManager.getMessage(p, "post_editor") -> {
+            LanguageManager.getMessage(p, "post_editor"), LanguageManager.getMessage(p, "post_editor_for_edit") -> {
                 if (playerPreviewing[p.uniqueId] == true) {
                     playerPreviewing.remove(p.uniqueId)
                 } else if (playerOpeningConfirmation[p.uniqueId] == true) {

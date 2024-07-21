@@ -5,8 +5,17 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import net.kyori.adventure.text.Component
+import net.rk4z.bulletinBoard.BulletinBoard
 import java.io.File
 import java.util.UUID
+
+data class EditPostData(
+    val id: String? = null,
+    @Serializable(with = ComponentSerializer::class)
+    val title: Component? = null,
+    @Serializable(with = ComponentSerializer::class)
+    val content: Component? = null
+)
 
 data class PostDraft(
     val title: Component? = null,
@@ -15,14 +24,14 @@ data class PostDraft(
 
 @Serializable
 data class Post(
-    val id: String,
+    var id: String,
     @Serializable(with = ComponentSerializer::class)
-    val title: Component,
+    var title: Component,
     @Contextual
-    val author: UUID,
+    var author: UUID,
     @Serializable(with = ComponentSerializer::class)
-    val content: Component,
-    val date: String
+    var content: Component,
+    var date: String
 )
 
 @Serializable
@@ -63,5 +72,20 @@ object JsonUtil {
 
     fun saveToFile(data: BulletinBoardData, file: File) {
         file.writeText(json.encodeToString(BulletinBoardData.serializer(), data))
+    }
+
+    fun updatePost(data: BulletinBoardData, post: Post) {
+        val index = data.posts.indexOfFirst { it.id == post.id }
+        if (index != -1) {
+            data.posts[index].id = post.id
+            data.posts[index].title = post.title
+            data.posts[index].author = post.author
+            data.posts[index].content = post.content
+            data.posts[index].date = post.date
+
+            saveToFile(data, BulletinBoard.instance.dataFile)
+        } else {
+            println("Error: Post not found.")
+        }
     }
 }

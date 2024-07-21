@@ -9,6 +9,7 @@ object LanguageManager {
         "ja" to mapOf(
             "main_board" to "メインボード",
             "post_editor" to "投稿エディタ",
+            "post_editor_for_edit" to "編集用投稿エディタ",
             "my_posts" to "私の投稿",
             "all_posts" to "すべての投稿",
             "select_post_to_delete" to "削除する投稿を選択してください",
@@ -73,6 +74,7 @@ object LanguageManager {
         "en" to mapOf(
             "main_board" to "Main Board",
             "post_editor" to "Post Editor",
+            "post_editor_for_edit" to "Post Editor for Edit",
             "my_posts" to "My Posts",
             "all_posts" to "All Posts",
             "select_post_to_delete" to "Select Post to Delete",
@@ -131,6 +133,7 @@ object LanguageManager {
         "fr" to mapOf(
             "main_board" to "Tableau Principal",
             "post_editor" to "Éditeur de Publication",
+            "post_editor_for_edit" to "Éditeur de Publication pour Modifier",
             "my_posts" to "Mes Publications",
             "all_posts" to "Toutes les Publications",
             "select_post_to_delete" to "Sélectionnez la publication à supprimer",
@@ -189,6 +192,7 @@ object LanguageManager {
         "ar" to mapOf(
             "main_board" to "اللوحة الرئيسية",
             "post_editor" to "محرر المنشورات",
+            "post_editor_for_edit" to "محرر المنشورات للتحرير",
             "my_posts" to "منشوراتي",
             "all_posts" to "جميع المنشورات",
             "select_post_to_delete" to "اختر المنشور الذي تريد حذفه",
@@ -247,6 +251,7 @@ object LanguageManager {
         "ru" to mapOf(
             "main_board" to "Главная доска",
             "post_editor" to "Редактор постов",
+            "post_editor_for_edit" to "Редактор постов для редактирования",
             "my_posts" to "Мои посты",
             "all_posts" to "Все посты",
             "select_post_to_delete" to "Выберите пост для удаления",
@@ -305,6 +310,7 @@ object LanguageManager {
         "zh" to mapOf(
             "main_board" to "主板",
             "post_editor" to "帖子编辑器",
+            "post_editor_for_edit" to "编辑帖子编辑器",
             "my_posts" to "我的帖子",
             "all_posts" to "所有帖子",
             "select_post_to_delete" to "选择要删除的帖子",

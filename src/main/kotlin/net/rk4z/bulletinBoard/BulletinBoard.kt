@@ -100,7 +100,7 @@ class BulletinBoard : JavaPlugin() {
                 }
                 "previewclose" -> {
                     if (sender is Player) {
-                        BulletinBoardManager.closePreview(sender)
+                        BulletinBoardManager.Previews.closePreview(sender)
                         return true
                     } else {
                         sender.sendMessage("This command can only be used by players.")
