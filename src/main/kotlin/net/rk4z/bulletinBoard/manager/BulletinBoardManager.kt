@@ -20,12 +20,15 @@ import java.util.concurrent.ConcurrentHashMap
 object BulletinBoardManager {
     val pendingInputs = ConcurrentHashMap<UUID, String>()
     val pendingDrafts = ConcurrentHashMap<UUID, PostDraft>()
-    val pendingEditDrafts = ConcurrentHashMap<UUID, EditPostData>()
     val pendingConfirmations = ConcurrentHashMap<UUID, String>()
     val pendingPreview = ConcurrentHashMap<UUID, Pair<Component, Component>>()
     val playerPreviewing = ConcurrentHashMap<UUID, Boolean>()
     val playerOpeningConfirmation = ConcurrentHashMap<UUID, Boolean>()
     val playerInputting = ConcurrentHashMap<UUID, Boolean>()
+
+    val pendingEditInputs = ConcurrentHashMap<UUID, String>()
+    val pendingEditDrafts = ConcurrentHashMap<UUID, EditPostData>()
+    val playerEditInputting = ConcurrentHashMap<UUID, Boolean>()
 
     fun openMainBoard(player: Player) {
         val mainBoard: Inventory = Bukkit.createInventory(null, 27, LanguageManager.getMessage(player, "main_board"))
@@ -101,7 +104,7 @@ object BulletinBoardManager {
         val bContent = post.content
 
         // Insert edit draft to pendingEditDrafts
-        pendingEditDrafts.getOrDefault(player.uniqueId, EditPostData(bId, bTitle, bContent))
+        pendingEditDrafts[player.uniqueId] = EditPostData(bId, bTitle, bContent)
 
         postEditorFE.setItem(11, createCustomItem(Material.PAPER, bTitle, customId = "edit_post_title"))
         postEditorFE.setItem(15, createCustomItem(Material.BOOK, bContent, customId = "edit_post_content"))

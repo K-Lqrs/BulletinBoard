@@ -21,8 +21,10 @@ import net.rk4z.bulletinBoard.manager.BulletinBoardManager.openPostEditorForEdit
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.pendingConfirmations
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.pendingDrafts
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.pendingEditDrafts
+import net.rk4z.bulletinBoard.manager.BulletinBoardManager.pendingEditInputs
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.pendingInputs
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.pendingPreview
+import net.rk4z.bulletinBoard.manager.BulletinBoardManager.playerEditInputting
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.playerInputting
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.playerOpeningConfirmation
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager.playerPreviewing
@@ -162,6 +164,7 @@ class BulletinBoardListener : Listener {
             }
 
             LanguageManager.getMessage(player, "post_editor_for_edit") -> {
+                player.sendMessage("customId: $customId")
                 event.isCancelled = true
                 val uuid = player.uniqueId
                 val draft = pendingEditDrafts[uuid] ?: return
@@ -169,16 +172,16 @@ class BulletinBoardListener : Listener {
                 val content = draft.content
                 when (customId) {
                     "edit_post_title" -> {
-                        playerInputting[player.uniqueId] = true
+                        playerEditInputting[player.uniqueId] = true
                         player.closeInventory()
-                        pendingInputs[player.uniqueId] = "title"
+                        pendingEditInputs[player.uniqueId] = "title"
                         player.sendMessage(LanguageManager.getMessage(player, "please_enter_title_for_edit"))
                     }
 
                     "edit_post_content" -> {
-                        playerInputting[player.uniqueId] = true
+                        playerEditInputting[player.uniqueId] = true
                         player.closeInventory()
-                        pendingInputs[player.uniqueId] = "content"
+                        pendingEditInputs[player.uniqueId] = "content"
                         player.sendMessage(LanguageManager.getMessage(player, "please_enter_content_for_edit"))
                     }
 
@@ -474,6 +477,47 @@ class BulletinBoardListener : Listener {
                 p.openInventory(postEditor)
             })
             pendingInputs.remove(p.uniqueId)
+            p.sendMessage(LanguageManager.getMessage(p, "input_set").replaceText { text ->
+                if (inputType != null) {
+                    text.matchLiteral("{inputType}").replacement(inputType)
+                }
+            }.replaceText { text -> text.matchLiteral("{input}").replacement(input) })
+        }
+        else if (pendingEditInputs.containsKey(p.uniqueId)) {
+            event.isCancelled = true
+            val inputType = pendingEditInputs[p.uniqueId]
+            val input = event.message
+            val draft = pendingEditDrafts.getOrDefault(p.uniqueId, EditPostData())
+
+            val updatedDraft = if (inputType == "title") {
+                draft.copy(title = Component.text(input))
+            } else {
+                draft.copy(content = Component.text(input))
+            }
+
+            pendingEditDrafts[p.uniqueId] = updatedDraft
+
+            val uTitle = updatedDraft.title ?: LanguageManager.getMessage(p, "title")
+            val uContent = updatedDraft.content ?: LanguageManager.getMessage(p, "content")
+
+            Bukkit.getScheduler().runTask(BulletinBoard.instance, Runnable {
+                val postEditor = Bukkit.createInventory(null, 27, LanguageManager.getMessage(p, "post_editor_for_edit"))
+                setGlassPane(postEditor, 0..8)
+                setGlassPane(postEditor, 18..26)
+                setGlassPane(postEditor, listOf(9, 10, 12, 13, 14, 16, 17))
+                postEditor.setItem(11, createCustomItem(Material.PAPER, uTitle, customId = "edit_post_title"))
+                postEditor.setItem(15, createCustomItem(Material.BOOK, uContent, customId = "edit_post_content"))
+                postEditor.setItem(
+                    19,
+                    createCustomItem(
+                        Material.RED_WOOL,
+                        LanguageManager.getMessage(p, "cancel_edit"),
+                        customId = "cancel_edit"
+                    )
+                )
+                p.openInventory(postEditor)
+            })
+            pendingEditInputs.remove(p.uniqueId)
             p.sendMessage(LanguageManager.getMessage(p, "input_set").replaceText { text ->
                 if (inputType != null) {
                     text.matchLiteral("{inputType}").replacement(inputType)

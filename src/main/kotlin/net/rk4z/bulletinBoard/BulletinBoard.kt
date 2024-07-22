@@ -237,10 +237,6 @@ class BulletinBoard : JavaPlugin() {
                             .decorate(TextDecoration.BOLD))
                     }
                 }
-
-                else -> {
-                    sender.sendMessage("Unknown subcommand. Usage: /bboard <openboard | newpost | myposts | posts>")
-                }
             }
         }
         return false
