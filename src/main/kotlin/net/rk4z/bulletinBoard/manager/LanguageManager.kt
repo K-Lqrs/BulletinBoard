@@ -52,6 +52,8 @@ object LanguageManager {
             "post_deleted" to "投稿が削除されました。",
             "please_enter_title" to "タイトルを入力してください：",
             "please_enter_content" to "内容を入力してください：",
+            "please_enter_title_for_edit" to "タイトルをどのように編集するか入力してください：",
+            "please_enter_content_for_edit" to "内容をどのように編集するか入力してください：",
             "no_title" to "タイトルがありません",
             "no_content" to "内容がありません",
             "date_label" to "日付：",

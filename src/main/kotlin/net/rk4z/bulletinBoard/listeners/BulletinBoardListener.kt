@@ -166,10 +166,6 @@ class BulletinBoardListener : Listener {
             LanguageManager.getMessage(player, "post_editor_for_edit") -> {
                 player.sendMessage("customId: $customId")
                 event.isCancelled = true
-                val uuid = player.uniqueId
-                val draft = pendingEditDrafts[uuid] ?: return
-                val title = draft.title
-                val content = draft.content
                 when (customId) {
                     "edit_post_title" -> {
                         playerEditInputting[player.uniqueId] = true
@@ -185,10 +181,16 @@ class BulletinBoardListener : Listener {
                         player.sendMessage(LanguageManager.getMessage(player, "please_enter_content_for_edit"))
                     }
 
+                    "save_edit" -> {
+                        val eDraft = pendingEditDrafts[player.uniqueId] ?: EditPostData()
+                        val eTitle = eDraft.title ?: LanguageManager.getMessage(player, "no_title")
+                        val eContent = eDraft.content ?: LanguageManager.getMessage(player, "no_content")
+                        pendingPreview[player.uniqueId] = Pair(eTitle, eContent)
+                        openConfirmationScreen(player, "edit_submit")
+                    }
+
                     "cancel_edit" -> openConfirmationScreen(player, "cancel")
                 }
-
-                player.sendMessage("customId: $customId")
             }
 
             LanguageManager.getMessage(player, "confirmation") -> {
@@ -523,6 +525,9 @@ class BulletinBoardListener : Listener {
                     text.matchLiteral("{inputType}").replacement(inputType)
                 }
             }.replaceText { text -> text.matchLiteral("{input}").replacement(input) })
+        }
+        else {
+            return
         }
     }
 
