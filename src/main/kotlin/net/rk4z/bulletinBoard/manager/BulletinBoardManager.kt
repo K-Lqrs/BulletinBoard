@@ -1,12 +1,15 @@
+@file:Suppress("unused", "MemberVisibilityCanBePrivate", "DuplicatedCode")
+
 package net.rk4z.bulletinBoard.manager
 
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.rk4z.bulletinBoard.BulletinBoard
-import net.rk4z.bulletinBoard.util.BulletinBoardUtil.setGlassPane
 import net.rk4z.bulletinBoard.util.BulletinBoardUtil.createCustomItem
+import net.rk4z.bulletinBoard.util.BulletinBoardUtil.setGlassPane
 import net.rk4z.bulletinBoard.util.EditPostData
 import net.rk4z.bulletinBoard.util.JsonUtil
+import net.rk4z.bulletinBoard.util.PlayerState
 import net.rk4z.bulletinBoard.util.Post
 import net.rk4z.bulletinBoard.util.PostDraft
 import org.bukkit.Bukkit
@@ -16,19 +19,12 @@ import org.bukkit.inventory.Inventory
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
-@Suppress("unused", "MemberVisibilityCanBePrivate", "DuplicatedCode")
 object BulletinBoardManager {
-    val pendingInputs = ConcurrentHashMap<UUID, String>()
-    val pendingDrafts = ConcurrentHashMap<UUID, PostDraft>()
-    val pendingConfirmations = ConcurrentHashMap<UUID, String>()
-    val pendingPreview = ConcurrentHashMap<UUID, Pair<Component, Component>>()
-    val playerPreviewing = ConcurrentHashMap<UUID, Boolean>()
-    val playerOpeningConfirmation = ConcurrentHashMap<UUID, Boolean>()
-    val playerInputting = ConcurrentHashMap<UUID, Boolean>()
+    val playerStates = ConcurrentHashMap<UUID, PlayerState>()
 
-    val pendingEditInputs = ConcurrentHashMap<UUID, String>()
-    val pendingEditDrafts = ConcurrentHashMap<UUID, EditPostData>()
-    val playerEditInputting = ConcurrentHashMap<UUID, Boolean>()
+    fun getPlayerState(playerId: UUID): PlayerState {
+        return playerStates.getOrPut(playerId) { PlayerState() }
+    }
 
     fun openMainBoard(player: Player) {
         val mainBoard: Inventory = Bukkit.createInventory(null, 27, LanguageManager.getMessage(player, "main_board"))
@@ -67,7 +63,8 @@ object BulletinBoardManager {
 
         setGlassPane(postEditor, 0..26)
 
-        val draft = pendingDrafts.getOrDefault(player.uniqueId, PostDraft())
+        val state = getPlayerState(player.uniqueId)
+        val draft = state.draft ?: PostDraft()
         val title = draft.title ?: LanguageManager.getMessage(player, "no_title")
         val content = draft.content ?: LanguageManager.getMessage(player, "no_content")
 
@@ -99,15 +96,11 @@ object BulletinBoardManager {
 
         setGlassPane(postEditorFE, 0..26)
 
-        val bId = post.id
-        val bTitle = post.title
-        val bContent = post.content
+        val state = getPlayerState(player.uniqueId)
+        state.editDraft = EditPostData(post.id, post.title, post.content)
 
-        // Insert edit draft to pendingEditDrafts
-        pendingEditDrafts[player.uniqueId] = EditPostData(bId, bTitle, bContent)
-
-        postEditorFE.setItem(11, createCustomItem(Material.PAPER, bTitle, customId = "edit_post_title"))
-        postEditorFE.setItem(15, createCustomItem(Material.BOOK, bContent, customId = "edit_post_content"))
+        postEditorFE.setItem(11, createCustomItem(Material.PAPER, post.title, customId = "edit_post_title"))
+        postEditorFE.setItem(15, createCustomItem(Material.BOOK, post.content, customId = "edit_post_content"))
 
         postEditorFE.setItem(
             19,
@@ -171,13 +164,14 @@ object BulletinBoardManager {
 
     object Confirmations {
         fun openConfirmationScreen(player: Player, type: String) {
-            playerOpeningConfirmation[player.uniqueId] = true
+            val state = getPlayerState(player.uniqueId)
+            state.isOpeningConfirmation = true
+            state.confirmationType = type
+
             val confirmation: Inventory =
                 Bukkit.createInventory(null, 27, LanguageManager.getMessage(player, "confirmation"))
 
-            setGlassPane(confirmation, 0..8)
-            setGlassPane(confirmation, 18..26)
-            setGlassPane(confirmation, listOf(9, 10, 12, 13, 14, 16, 17))
+            setGlassPane(confirmation, 0..26)
 
             confirmation.setItem(
                 11,
@@ -195,6 +189,7 @@ object BulletinBoardManager {
                     customId = "confirm_no"
                 )
             )
+
             if (type == "submit") {
                 confirmation.setItem(
                     13,
@@ -208,6 +203,22 @@ object BulletinBoardManager {
 
             if (type == "edit_submit") {
                 confirmation.setItem(
+                    11,
+                    createCustomItem(
+                        Material.GREEN_WOOL,
+                        LanguageManager.getMessage(player, "confirm_yes"),
+                        customId = "edit_confirm_yes"
+                    )
+                )
+                confirmation.setItem(
+                    15,
+                    createCustomItem(
+                        Material.YELLOW_WOOL,
+                        LanguageManager.getMessage(player, "confirm_no"),
+                        customId = "edit_confirm_no"
+                    )
+                )
+                confirmation.setItem(
                     13,
                     createCustomItem(
                         Material.BLUE_WOOL,
@@ -217,7 +228,6 @@ object BulletinBoardManager {
                 )
             }
 
-            pendingConfirmations[player.uniqueId] = type
             player.openInventory(confirmation)
         }
 
@@ -258,10 +268,11 @@ object BulletinBoardManager {
         }
 
         fun closePreview(player: Player) {
-            playerPreviewing[player.uniqueId] = true
-            val (_, _) = pendingPreview[player.uniqueId] ?: return
-            pendingPreview.remove(player.uniqueId)
-            playerPreviewing.remove(player.uniqueId)
+            val state = getPlayerState(player.uniqueId)
+            state.isPreviewing = true
+            val (_, _) = state.preview ?: return
+            state.preview = null
+            state.isPreviewing = false
             Bukkit.getScheduler().runTask(BulletinBoard.instance, Runnable {
                 Confirmations.openConfirmationScreen(player, "submit")
             })
@@ -455,6 +466,17 @@ object BulletinBoardManager {
                     setGlassPane(inventory, listOf(26))
                 }
             }
+        }
+
+        if (title == LanguageManager.getContentFromMessage(player, "all_posts")) {
+            inventory.setItem(
+                22,
+                createCustomItem(
+                    Material.BARRIER,
+                    LanguageManager.getMessage(player, "back_button"),
+                    customId = "back_button"
+                )
+            )
         }
 
         if (title == LanguageManager.getContentFromMessage(player, "my_posts")) {

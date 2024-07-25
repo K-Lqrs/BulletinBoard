@@ -8,10 +8,12 @@ import net.rk4z.bulletinBoard.listeners.ChatListener
 import net.rk4z.bulletinBoard.listeners.PlayerJoinListener
 import net.rk4z.bulletinBoard.manager.BulletinBoardManager
 import net.rk4z.bulletinBoard.manager.LanguageManager
+import net.rk4z.bulletinBoard.util.JsonUtil
 import org.bukkit.NamespacedKey
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import org.bukkit.event.HandlerList
 import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -51,6 +53,10 @@ class BulletinBoard : JavaPlugin() {
 
     override fun onDisable() {
         logger.info("$name v$version Disabled!")
+        server.pluginManager.apply {
+            HandlerList.unregisterAll(this@BulletinBoard)
+        }
+        server.pluginManager.disablePlugin(this)
     }
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<String>): Boolean {
@@ -74,6 +80,7 @@ class BulletinBoard : JavaPlugin() {
                         sender.sendMessage("This command can only be used by players.")
                     }
                 }
+
                 "newpost" -> {
                     if (sender is Player) {
                         BulletinBoardManager.openPostEditor(sender)
@@ -82,6 +89,7 @@ class BulletinBoard : JavaPlugin() {
                         sender.sendMessage("This command can only be used by players.")
                     }
                 }
+
                 "myposts" -> {
                     if (sender is Player) {
                         BulletinBoardManager.openMyPosts(sender)
@@ -90,6 +98,19 @@ class BulletinBoard : JavaPlugin() {
                         sender.sendMessage("This command can only be used by players.")
                     }
                 }
+
+                "editpost" -> {
+                    if (sender is Player) {
+                        val data = JsonUtil.loadFromFile(dataFile)
+                        val playerData = data.players.find { it.uuid == sender.uniqueId } ?: return false
+                        val posts = playerData.posts.mapNotNull { postId -> data.posts.find { it.id == postId } }
+                        BulletinBoardManager.Selections.openEditPostSelection(sender, posts)
+                        return true
+                    } else {
+                        sender.sendMessage("This command can only be used by players.")
+                    }
+                }
+
                 "posts" -> {
                     if (sender is Player) {
                         BulletinBoardManager.openAllPosts(sender)
@@ -98,6 +119,7 @@ class BulletinBoard : JavaPlugin() {
                         sender.sendMessage("This command can only be used by players.")
                     }
                 }
+
                 "previewclose" -> {
                     if (sender is Player) {
                         BulletinBoardManager.Previews.closePreview(sender)
@@ -106,25 +128,32 @@ class BulletinBoard : JavaPlugin() {
                         sender.sendMessage("This command can only be used by players.")
                     }
                 }
+
                 "help" -> {
                     if (sender is Player) {
                         sender.sendMessage(Component.text("Usage: /bboard <subcommand>").color(NamedTextColor.YELLOW))
                         sender.sendMessage(Component.text(""))
                         sender.sendMessage(Component.text("-- Subcommands --").color(NamedTextColor.GOLD))
                         sender.sendMessage(
-                            Component.text("openboard - ").append(LanguageManager.getMessage(sender, "usage_openboard")).color(NamedTextColor.GREEN)
+                            Component.text("openboard - ").append(LanguageManager.getMessage(sender, "usage_openboard"))
+                                .color(NamedTextColor.GREEN)
                         )
                         sender.sendMessage(
-                            Component.text("newpost - ").append(LanguageManager.getMessage(sender, "usage_newpost")).color(NamedTextColor.GREEN)
+                            Component.text("newpost - ").append(LanguageManager.getMessage(sender, "usage_newpost"))
+                                .color(NamedTextColor.GREEN)
                         )
                         sender.sendMessage(
-                            Component.text("myposts - ").append(LanguageManager.getMessage(sender, "usage_myposts")).color(NamedTextColor.GREEN)
+                            Component.text("myposts - ").append(LanguageManager.getMessage(sender, "usage_myposts"))
+                                .color(NamedTextColor.GREEN)
                         )
                         sender.sendMessage(
-                            Component.text("posts - ").append(LanguageManager.getMessage(sender, "usage_posts")).color(NamedTextColor.GREEN)
+                            Component.text("posts - ").append(LanguageManager.getMessage(sender, "usage_posts"))
+                                .color(NamedTextColor.GREEN)
                         )
                         sender.sendMessage(
-                            Component.text("previewclose - ").append(LanguageManager.getMessage(sender, "usage_previewclose")).color(NamedTextColor.GREEN)
+                            Component.text("previewclose - ")
+                                .append(LanguageManager.getMessage(sender, "usage_previewclose"))
+                                .color(NamedTextColor.GREEN)
                         )
                         sender.sendMessage(Component.text("------------------").color(NamedTextColor.GOLD))
                         return true
@@ -132,6 +161,7 @@ class BulletinBoard : JavaPlugin() {
                         sender.sendMessage("This command can only be used by players.")
                     }
                 }
+
                 "about" -> {
                     val header = Component.text("=== BulletinBoard ===")
                         .color(NamedTextColor.DARK_GREEN)
@@ -159,10 +189,6 @@ class BulletinBoard : JavaPlugin() {
                     sender.sendMessage(footer)
                     return true
                 }
-                "sec" -> {
-                    sender.sendMessage(Component.text("Oh, you found me! Good job!"))
-                    return true
-                }
 
                 "howtouse" -> {
                     if (sender is Player) {
@@ -187,7 +213,8 @@ class BulletinBoard : JavaPlugin() {
                         sender.sendMessage(
                             Component
                                 .text(LanguageManager.getContentFromMessage(player, "htu_title"))
-                                .color(NamedTextColor.YELLOW))
+                                .color(NamedTextColor.YELLOW)
+                        )
 
                         sender.sendMessage(Component.text(""))
 
@@ -232,9 +259,11 @@ class BulletinBoard : JavaPlugin() {
 
                         sender.sendMessage(Component.text(""))
 
-                        sender.sendMessage(Component.text("=====================================")
-                            .color(NamedTextColor.GOLD)
-                            .decorate(TextDecoration.BOLD))
+                        sender.sendMessage(
+                            Component.text("=====================================")
+                                .color(NamedTextColor.GOLD)
+                                .decorate(TextDecoration.BOLD)
+                        )
                     }
                 }
             }
@@ -242,10 +271,25 @@ class BulletinBoard : JavaPlugin() {
         return false
     }
 
-    override fun onTabComplete(sender: CommandSender, command: Command, alias: String, args: Array<String>): List<String>? {
+    override fun onTabComplete(
+        sender: CommandSender,
+        command: Command,
+        alias: String,
+        args: Array<String>
+    ): List<String>? {
         if (command.name.equals("bb", ignoreCase = true)) {
             if (args.size == 1) {
-                val subCommands = listOf("openboard", "newpost", "myposts", "posts", "previewclose", "help", "about", "howtouse")
+                val subCommands = listOf(
+                    "openboard",
+                    "newpost",
+                    "myposts",
+                    "editpost",
+                    "posts",
+                    "previewclose",
+                    "help",
+                    "about",
+                    "howtouse"
+                )
                 return subCommands.filter { it.startsWith(args[0], ignoreCase = true) }
             }
         }

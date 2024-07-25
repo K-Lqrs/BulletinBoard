@@ -9,13 +9,36 @@ import net.rk4z.bulletinBoard.BulletinBoard
 import java.io.File
 import java.util.UUID
 
+data class PlayerState(
+    var inputType: String? = null,
+    var draft: PostDraft? = null,
+    var confirmationType: String? = null,
+    var preview: Pair<Component, Component>? = null,
+    var isPreviewing: Boolean = false,
+    var isOpeningConfirmation: Boolean = false,
+    var isInputting: Boolean = false,
+    var editInputType: String? = null,
+    var editDraft: EditPostData? = null,
+    var isEditInputting: Boolean = false
+)
+
 data class EditPostData(
     val id: String? = null,
     @Serializable(with = ComponentSerializer::class)
     val title: Component? = null,
     @Serializable(with = ComponentSerializer::class)
     val content: Component? = null
-)
+) {
+    fun toPost(author: UUID, date: String): Post {
+        return Post(
+            id = this.id ?: UUID.randomUUID().toString(),
+            title = this.title ?: Component.text(""),
+            author = author,
+            content = this.content ?: Component.text(""),
+            date = date
+        )
+    }
+}
 
 data class PostDraft(
     val title: Component? = null,
@@ -56,36 +79,23 @@ object JsonUtil {
         }
     }
 
+    private val logger = BulletinBoard.instance.logger
+
     fun loadFromFile(file: File): BulletinBoardData {
         return if (file.exists() && file.readText().isNotEmpty()) {
             try {
                 json.decodeFromString(BulletinBoardData.serializer(), file.readText())
             } catch (e: Exception) {
-                println("Error parsing JSON: ${e.message}")
+                logger.info("Error parsing JSON: ${e.message}")
                 BulletinBoardData(players = emptyList(), posts = emptyList())
             }
         } else {
-            println("Warning: JSON file is empty or does not exist.")
+            logger.info("Warning: JSON file is empty or does not exist.")
             BulletinBoardData(players = emptyList(), posts = emptyList())
         }
     }
 
     fun saveToFile(data: BulletinBoardData, file: File) {
         file.writeText(json.encodeToString(BulletinBoardData.serializer(), data))
-    }
-
-    fun updatePost(data: BulletinBoardData, post: Post) {
-        val index = data.posts.indexOfFirst { it.id == post.id }
-        if (index != -1) {
-            data.posts[index].id = post.id
-            data.posts[index].title = post.title
-            data.posts[index].author = post.author
-            data.posts[index].content = post.content
-            data.posts[index].date = post.date
-
-            saveToFile(data, BulletinBoard.instance.dataFile)
-        } else {
-            println("Error: Post not found.")
-        }
     }
 }
