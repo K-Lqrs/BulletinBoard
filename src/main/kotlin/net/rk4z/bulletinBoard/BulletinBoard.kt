@@ -1,9 +1,9 @@
 @file:Suppress("unused", "DEPRECATION", "MemberVisibilityCanBePrivate")
 
-package net.rk4z.bulletinboard
+package net.rk4z.bulletinBoard
 
-import net.rk4z.bulletinboard.utils.Permissions
-import net.rk4z.bulletinboard.utils.Settings
+import net.rk4z.bulletinBoard.utils.Permissions
+import net.rk4z.bulletinBoard.utils.Settings
 import org.bukkit.NamespacedKey
 import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.Logger

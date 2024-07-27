@@ -1,4 +1,4 @@
-package net.rk4z.bulletinboard.utils
+package net.rk4z.bulletinBoard.utils
 
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
@@ -7,7 +7,8 @@ import java.util.*
 
 @Serializable
 data class Post(
-    var id: String,
+    @Contextual
+    var id: UUID,
     @Serializable(with = ComponentSerializer::class)
     var title: Component,
     @Contextual
@@ -37,5 +38,8 @@ data class Permissions(
 )
 
 @Serializable
-data class Settings(val clearCommandMode: Int)
+data class Settings(
+    val clearCommandMode: Int,
+    val permissionCommandMode: Int
+)
 

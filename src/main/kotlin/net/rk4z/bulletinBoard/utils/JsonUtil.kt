@@ -1,9 +1,9 @@
-package net.rk4z.bulletinboard.utils
+package net.rk4z.bulletinBoard.utils
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import net.kyori.adventure.text.Component
-import net.rk4z.bulletinboard.BulletinBoard
+import net.rk4z.bulletinBoard.BulletinBoard
 import java.io.File
 import java.util.*
 
