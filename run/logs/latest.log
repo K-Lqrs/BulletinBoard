@@ -1,0 +1,69 @@
+[21:54:18] [main/INFO]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, name=PROD]
+[21:54:20] [main/INFO]: Loaded 1175 recipes
+[21:54:20] [main/INFO]: Loaded 1276 advancements
+[21:54:21] [Server thread/INFO]: Starting minecraft server version 1.20.6
+[21:54:21] [Server thread/INFO]: Loading properties
+[21:54:21] [Server thread/INFO]: This server is running Paper version 1.20.6-148-ver/1.20.6@20f5165 (2024-07-02T15:40:01Z) (Implementing API version 1.20.6-R0.1-SNAPSHOT)
+[21:54:21] [Server thread/INFO]: Server Ping Player Sample Count: 12
+[21:54:21] [Server thread/INFO]: Using 4 threads for Netty based IO
+[21:54:22] [Server thread/WARN]: [!] The timings profiler has been enabled but has been scheduled for removal from Paper in the future.
+    We recommend installing the spark profiler as a replacement: https://spark.lucko.me/
+    For more information please visit: https://github.com/PaperMC/Paper/issues/8948
+[21:54:22] [Server thread/INFO]: [ChunkTaskScheduler] Chunk system is using 1 I/O threads, 4 worker threads, and gen parallelism of 4 threads
+[21:54:22] [Server thread/INFO]: Default game type: SURVIVAL
+[21:54:22] [Server thread/INFO]: Generating keypair
+[21:54:22] [Server thread/INFO]: Starting Minecraft server on *:25565
+[21:54:22] [Server thread/INFO]: Using default channel type
+[21:54:22] [Server thread/INFO]: Paper: Using Java compression from Velocity.
+[21:54:22] [Server thread/INFO]: Paper: Using Java cipher from Velocity.
+[21:54:23] [Server thread/INFO]: [BulletinBoard] Loading server plugin BulletinBoard v0.1.5
+[21:54:23] [Server thread/INFO]: [BulletinBoard] Loading BulletinBoard v0.1.5
+[21:54:23] [Server thread/INFO]: [ViaVersion] Loading server plugin ViaVersion v5.0.2-SNAPSHOT
+[21:54:23] [Server thread/INFO]: [ViaVersion] ViaVersion 5.0.2-SNAPSHOT is now loaded. Registering protocol transformers and injecting...
+[21:54:24] [Via-Mappingloader-0/INFO]: [ViaVersion] Loading block connection mappings ...
+[21:54:24] [Via-Mappingloader-0/INFO]: [ViaVersion] Using FastUtil Long2ObjectOpenHashMap for block connections
+[21:54:25] [Server thread/INFO]: Server permissions file permissions.yml is empty, ignoring it
+[21:54:25] [Server thread/INFO]: Preparing level "world"
+[21:54:25] [Server thread/INFO]: Preparing start region for dimension minecraft:overworld
+[21:54:27] [Server thread/INFO]: Time elapsed: 1322 ms
+[21:54:27] [Server thread/INFO]: Preparing start region for dimension minecraft:the_nether
+[21:54:27] [Server thread/INFO]: Time elapsed: 83 ms
+[21:54:27] [Server thread/INFO]: Preparing start region for dimension minecraft:the_end
+[21:54:27] [Server thread/INFO]: Time elapsed: 60 ms
+[21:54:27] [Server thread/INFO]: [BulletinBoard] Enabling BulletinBoard v0.1.5
+[21:54:27] [Server thread/INFO]: [ViaVersion] Enabling ViaVersion v5.0.2-SNAPSHOT
+[21:54:27] [Server thread/INFO]: [ViaVersion] ViaVersion detected server version: 1.20.5-1.20.6 (766)
+[21:54:27] [Server thread/INFO]: Running delayed init tasks
+[21:54:27] [Server thread/INFO]: Done (6.300s)! For help, type "help"
+[21:54:27] [Server thread/INFO]: Timings Reset
+[21:54:27] [Craft Scheduler Thread - 2 - ViaVersion/INFO]: [ViaVersion] Finished mapping loading, shutting down loader executor!
+[21:54:27] [Server thread/INFO]: [ViaVersion] You are running a development version of the plugin, please report any bugs to GitHub.
+[21:54:49] [Server thread/INFO]: Stopping the server
+[21:54:49] [Server thread/INFO]: Stopping server
+[21:54:49] [Server thread/INFO]: [ViaVersion] Disabling ViaVersion v5.0.2-SNAPSHOT
+[21:54:49] [Server thread/INFO]: [ViaVersion] ViaVersion is disabling, if this is a reload and you experience issues consider rebooting.
+[21:54:49] [Server thread/INFO]: [BulletinBoard] Disabling BulletinBoard v0.1.5
+[21:54:49] [Server thread/INFO]: Saving players
+[21:54:49] [Server thread/INFO]: Saving worlds
+[21:54:49] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:overworld
+[21:54:49] [Server thread/INFO]: [ChunkHolderManager] Waiting 60s for chunk system to halt for world 'world'
+[21:54:49] [Server thread/INFO]: [ChunkHolderManager] Halted chunk system for world 'world'
+[21:54:49] [Server thread/INFO]: [ChunkHolderManager] Saving all chunkholders for world 'world'
+[21:54:50] [Server thread/INFO]: [ChunkHolderManager] Saved 49 block chunks, 49 entity chunks, 0 poi chunks in world 'world' in 0.32s
+[21:54:50] [Server thread/INFO]: ThreadedAnvilChunkStorage (world): All chunks are saved
+[21:54:50] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world_nether]'/minecraft:the_nether
+[21:54:50] [Server thread/INFO]: [ChunkHolderManager] Waiting 60s for chunk system to halt for world 'world_nether'
+[21:54:50] [Server thread/INFO]: [ChunkHolderManager] Halted chunk system for world 'world_nether'
+[21:54:50] [Server thread/INFO]: [ChunkHolderManager] Saving all chunkholders for world 'world_nether'
+[21:54:50] [Server thread/INFO]: [ChunkHolderManager] Saved 49 block chunks, 49 entity chunks, 0 poi chunks in world 'world_nether' in 0.10s
+[21:54:50] [Server thread/INFO]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[21:54:50] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world_the_end]'/minecraft:the_end
+[21:54:50] [Server thread/INFO]: [ChunkHolderManager] Waiting 60s for chunk system to halt for world 'world_the_end'
+[21:54:50] [Server thread/INFO]: [ChunkHolderManager] Halted chunk system for world 'world_the_end'
+[21:54:50] [Server thread/INFO]: [ChunkHolderManager] Saving all chunkholders for world 'world_the_end'
+[21:54:50] [Server thread/INFO]: [ChunkHolderManager] Saved 49 block chunks, 49 entity chunks, 0 poi chunks in world 'world_the_end' in 0.15s
+[21:54:50] [Server thread/INFO]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[21:54:50] [Server thread/INFO]: ThreadedAnvilChunkStorage: All dimensions are saved
+[21:54:50] [Server thread/INFO]: Flushing Chunk IO
+[21:54:50] [Server thread/INFO]: Closing Thread Pool
+[21:54:50] [Server thread/INFO]: Closing Server
