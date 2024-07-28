@@ -1,6 +1,5 @@
 package net.rk4z.bulletinBoard.listeners
 
-import net.rk4z.bulletinBoard.BulletinBoard
 import net.rk4z.bulletinBoard.managers.BulletinBoardManager
 import org.bukkit.Material
 import org.bukkit.entity.Player
