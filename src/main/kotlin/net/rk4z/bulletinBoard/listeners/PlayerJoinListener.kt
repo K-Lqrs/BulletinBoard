@@ -1,8 +1,8 @@
 package net.rk4z.bulletinBoard.listeners
 
 import net.rk4z.bulletinBoard.BulletinBoard
-import net.rk4z.bulletinBoard.util.JsonUtil
-import net.rk4z.bulletinBoard.util.PlayerData
+import net.rk4z.bulletinBoard.utils.JsonUtil
+import net.rk4z.bulletinBoard.utils.PlayerData
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent

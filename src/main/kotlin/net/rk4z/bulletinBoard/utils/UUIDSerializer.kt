@@ -1,4 +1,4 @@
-package net.rk4z.bulletinBoard.util
+package net.rk4z.bulletinBoard.utils
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind

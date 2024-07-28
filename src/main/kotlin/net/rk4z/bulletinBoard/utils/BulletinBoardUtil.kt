@@ -1,4 +1,6 @@
-package net.rk4z.bulletinBoard.util
+@file:Suppress("DuplicatedCode")
+
+package net.rk4z.bulletinBoard.utils
 
 import net.kyori.adventure.text.Component
 import net.rk4z.bulletinBoard.BulletinBoard.Companion.namespacedKey
