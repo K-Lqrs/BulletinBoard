@@ -8,6 +8,31 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
+import java.util.*
+
+object ShortUUIDSerializer : KSerializer<ShortUUID> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("ShortUUID", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: ShortUUID) {
+        encoder.encodeString(value.toShortString())
+    }
+
+    override fun deserialize(decoder: Decoder): ShortUUID {
+        return ShortUUID.fromShortString(decoder.decodeString())
+    }
+}
+
+object UUIDSerializer : KSerializer<UUID> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: UUID) {
+        encoder.encodeString(value.toString())
+    }
+
+    override fun deserialize(decoder: Decoder): UUID {
+        return UUID.fromString(decoder.decodeString())
+    }
+}
 
 object ComponentSerializer : KSerializer<Component> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Component", PrimitiveKind.STRING)

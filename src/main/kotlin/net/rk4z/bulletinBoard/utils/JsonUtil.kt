@@ -11,6 +11,7 @@ object JsonUtil {
     private val json = Json {
         prettyPrint = true
         serializersModule = SerializersModule {
+            contextual(ShortUUID::class, ShortUUIDSerializer)
             contextual(UUID::class, UUIDSerializer)
             contextual(Component::class, ComponentSerializer)
         }

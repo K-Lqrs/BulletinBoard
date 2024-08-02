@@ -4,7 +4,6 @@ package net.rk4z.bulletinBoard.managers
 
 import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
-import java.util.Locale
 
 object LanguageManager {
     private val messages = mapOf(
@@ -15,6 +14,10 @@ object LanguageManager {
 
             //region Button
             "newPost" to "新規投稿",
+            "posts" to "投稿一覧",
+            "myPosts" to "自分の投稿",
+            "deletedPosts" to "削除済み投稿",
+            "about" to "このプラグインについて",
             //endregion
         ),
         "en" to mapOf(
@@ -24,6 +27,10 @@ object LanguageManager {
 
             //region Button
             "newPost" to "New Post",
+            "posts" to "Posts",
+            "myPosts" to "My Posts",
+            "deletedPosts" to "Deleted Posts",
+            "aboutPlugin" to "About Plugin",
             //endregion
         )
     )

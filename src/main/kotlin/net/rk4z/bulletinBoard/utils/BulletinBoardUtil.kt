@@ -21,16 +21,6 @@ object BulletinBoardUtil {
         }
     }
 
-    fun setGlassPane(board: Inventory, slots: List<Int>) {
-        val glassPane = ItemStack(Material.BLACK_STAINED_GLASS_PANE)
-        val meta: ItemMeta = glassPane.itemMeta
-        meta.displayName(Component.text(""))
-        glassPane.itemMeta = meta
-        for (i in slots) {
-            board.setItem(i, glassPane)
-        }
-    }
-
     fun createCustomItem(
         material: Material,
         name: Component,

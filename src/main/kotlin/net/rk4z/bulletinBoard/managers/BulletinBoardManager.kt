@@ -24,18 +24,21 @@ object BulletinBoardManager {
         setGlassPane(mainBoard, 0..35)
 
         val buttons = listOf(
+            // The "Key" is used to get the message from the LanguageManager
+            // Quadruple(slot, material, key, customId)
             Quadruple(10, Material.WRITABLE_BOOK, "newPost", "newPost"),
             Quadruple(12, Material.BOOK, "posts", "posts"),
             Quadruple(14, Material.WRITTEN_BOOK, "myPosts", "myPosts"),
-            Quadruple(16, Material.FLINT_AND_STEEL, "deletedPosts", "deletedPosts")
+            Quadruple(16, Material.FLINT_AND_STEEL, "deletedPosts", "deletedPosts"),
+            Quadruple(26, Material.LECTERN, "aboutPlugin", "about")
         )
 
-        buttons.forEach { (slot, material, messageKey, customId) ->
+        buttons.forEach { (slot, material, key, customId) ->
             mainBoard.setItem(
                 slot,
                 createCustomItem(
                     material,
-                    LanguageManager.getMessage(player, messageKey),
+                    LanguageManager.getMessage(player, key),
                     customId = customId
                 )
             )

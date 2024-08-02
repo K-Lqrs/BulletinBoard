@@ -2,11 +2,10 @@
 
 package net.rk4z.bulletinBoard
 
-import net.rk4z.bulletinBoard.managers.BulletinBoardManager
+import net.rk4z.bulletinBoard.managers.BBCommandManager
 import org.bukkit.NamespacedKey
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
-import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -26,8 +25,6 @@ class BulletinBoard : JavaPlugin() {
     val version = this.description.version
 
     val dataFile: File = dataFolder.resolve("data.json")
-    val permissionFile: File = dataFolder.resolve("permission.json")
-    val settingFile: File = dataFolder.resolve("setting.json")
 
     override fun onLoad() {
         instance = this
@@ -54,41 +51,7 @@ class BulletinBoard : JavaPlugin() {
         label: String,
         args: Array<out String>?
     ): Boolean {
-        if (command.name.equals("bb", ignoreCase = true)) {
-            if (args.isNullOrEmpty() || !subCommands.contains(args[0].lowercase())) {
-                if (sender is Player) {
-                    val player: Player = sender
-                    player.performCommand("bb help")
-                    return true
-                } else {
-                    sender.sendMessage("This command can only be run by a player.")
-                    return true
-                }
-            }
-
-            when (args[0].lowercase()) {
-                "openboard" -> {
-                    if (sender is Player) {
-                        BulletinBoardManager.openMainBoard(sender)
-                        return true
-                    } else {
-                        sender.sendMessage("This command can only be used by players.")
-                        return true
-                    }
-                }
-
-                "help" -> {
-                    if (sender is Player) {
-                        sender.sendMessage("In Dev")
-                        return true
-                    } else {
-                        sender.sendMessage("This command can only be used by players.")
-                        return true
-                    }
-                }
-            }
-        }
-        return false
+        return BBCommandManager.handleCommand(sender, command, args)
     }
 
     override fun onTabComplete(
@@ -115,16 +78,6 @@ class BulletinBoard : JavaPlugin() {
             if (!dataFile.exists()) {
                 logger.info("Creating data file for $name")
                 dataFile.createNewFile()
-            }
-
-            if (!permissionFile.exists()) {
-                logger.info("Creating permission file for $name")
-                permissionFile.createNewFile()
-            }
-
-            if (!settingFile.exists()) {
-                logger.info("Creating setting file for $name")
-                settingFile.createNewFile()
             }
         } catch (e: IOException) {
             logger.error("Error creating data file for $name", e)

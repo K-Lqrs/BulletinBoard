@@ -12,7 +12,7 @@ data class PlayerState(
 @Serializable
 data class Post(
     @Contextual
-    var id: UUID,
+    var id: ShortUUID,
     @Serializable(with = ComponentSerializer::class)
     var title: Component,
     @Contextual
@@ -35,18 +35,6 @@ data class BulletinBoardData(
     var posts: List<Post>
 )
 
-@Serializable
-data class Permissions(
-    val useClearCommand: List<@Contextual UUID>,
-    val usePermissionCommand: List<@Contextual UUID>
-)
-
-@Serializable
-data class Settings(
-    val clearCommandMode: Int,
-    val permissionCommandMode: Int
-)
-
 /**
  * A generic quadruple.
  * @param A the first value type
@@ -63,4 +51,26 @@ data class Quadruple<A, B, C, D>(
     val second: B,
     val third: C,
     val fourth: D
-)
+): java.io.Serializable {
+    override fun toString(): String = "($first, $second, $third, $fourth)"
+    override fun hashCode(): Int {
+        var result = first?.hashCode() ?: 0
+        result = 31 * result + (second?.hashCode() ?: 0)
+        result = 31 * result + (third?.hashCode() ?: 0)
+        result = 31 * result + (fourth?.hashCode() ?: 0)
+        return result
+    }
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+
+        other as Quadruple<*, *, *, *>
+
+        if (first != other.first) return false
+        if (second != other.second) return false
+        if (third != other.third) return false
+        if (fourth != other.fourth) return false
+
+        return true
+    }
+}
