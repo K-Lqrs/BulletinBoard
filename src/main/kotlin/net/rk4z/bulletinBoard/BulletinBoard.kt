@@ -1,7 +1,13 @@
-@file:Suppress("DEPRECATION", "MemberVisibilityCanBePrivate")
+@file:Suppress("MemberVisibilityCanBePrivate")
 
 package net.rk4z.bulletinBoard
 
+import net.rk4z.beacon.EventBus
+import net.rk4z.bulletinBoard.events.BulletinBoardOnCommandEvent
+import net.rk4z.bulletinBoard.events.BulletinBoardOnTabCompleteEvent
+import net.rk4z.bulletinBoard.listeners.BBListener
+import net.rk4z.bulletinBoard.listeners.BBListenerActions
+import net.rk4z.bulletinBoard.listeners.test.Test
 import net.rk4z.bulletinBoard.managers.BBCommandManager
 import org.bukkit.NamespacedKey
 import org.bukkit.command.Command
@@ -12,38 +18,47 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
 
+@Suppress("DEPRECATION")
 class BulletinBoard : JavaPlugin() {
     companion object {
         lateinit var instance: BulletinBoard
             private set
         lateinit var namespacedKey: NamespacedKey
             private set
+        const val ID = "bulletinboard"
     }
 
     val logger: Logger = LoggerFactory.getLogger(this::class.java.simpleName)
 
-    val version = this.description.version
-
+    val author: List<String> = description.authors
+    val version = description.version
+    val pluginDes = description.description
     val dataFile: File = dataFolder.resolve("data.json")
+    val subCommands = listOf(
+        "openboard",
+        "help"
+    )
 
     override fun onLoad() {
         instance = this
-        namespacedKey = NamespacedKey(instance, "bulletinboard")
+        namespacedKey = NamespacedKey(instance, ID)
         checkDataFolderAndDataFile()
+        EventBus.initialize()
+
+        Test
+        BBListenerActions()
+        BBCommandManager()
     }
 
     override fun onEnable() {
-
+        server.pluginManager.apply {
+            registerEvents(BBListener(), this@BulletinBoard)
+        }
     }
 
     override fun onDisable() {
         // Umm... in fact, I'm not doing anything.
     }
-
-    val subCommands = listOf(
-        "openboard",
-        "help"
-    )
 
     override fun onCommand(
         sender: CommandSender,
@@ -51,7 +66,7 @@ class BulletinBoard : JavaPlugin() {
         label: String,
         args: Array<out String>?
     ): Boolean {
-        return BBCommandManager.handleCommand(sender, command, args)
+        return EventBus.postReturnable(BulletinBoardOnCommandEvent.get(sender, command, args))?: false
     }
 
     override fun onTabComplete(
@@ -59,13 +74,8 @@ class BulletinBoard : JavaPlugin() {
         command: Command,
         alias: String,
         args: Array<out String>?
-    ): MutableList<String>? {
-        if (command.name.equals("bb", ignoreCase = true)) {
-            if (args?.size == 1) {
-                return subCommands.filter { it.startsWith(args[0].lowercase()) }.toMutableList()
-            }
-        }
-        return null
+    ): List<String>? {
+        return EventBus.postReturnable(BulletinBoardOnTabCompleteEvent.get(command, args))
     }
 
     private fun checkDataFolderAndDataFile() {

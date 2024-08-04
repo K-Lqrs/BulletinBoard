@@ -25,11 +25,11 @@ object JsonUtil {
                 json.decodeFromString(BulletinBoardData.serializer(), file.readText())
             } catch (e: Exception) {
                 logger.info("Error parsing JSON: ${e.message}")
-                BulletinBoardData(players = emptyList(), posts = emptyList())
+                BulletinBoardData(emptyList(), emptyList(), emptyList())
             }
         } else {
             logger.info("Warning: JSON file is empty or does not exist.")
-            BulletinBoardData(players = emptyList(), posts = emptyList())
+            BulletinBoardData(emptyList(), emptyList(), emptyList())
         }
     }
 

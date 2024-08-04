@@ -6,7 +6,8 @@ import net.kyori.adventure.text.Component
 import java.util.*
 
 data class PlayerState(
-    var isInputting: Boolean = false
+    var editDraft: EditPostData? = null,
+    var draft: PostDraft? = null,
 )
 
 @Serializable
@@ -23,17 +24,57 @@ data class Post(
 )
 
 @Serializable
-data class PlayerData(
+data class Comment(
     @Contextual
-    val uuid: UUID,
-    val posts: List<String>
+    var id: ShortUUID,
+    @Contextual
+    var postId: ShortUUID,
+    @Contextual
+    var author: UUID,
+    @Serializable(with = ComponentSerializer::class)
+    var content: Component,
+    var date: String,
+    val comments: List<@Contextual ShortUUID> = emptyList()
+)
+
+data class PostDraft(
+    val title: Component? = null,
+    val content: Component? = null
+)
+
+data class EditPostData(
+    val id: ShortUUID? = null,
+    @Serializable(with = ComponentSerializer::class)
+    val title: Component? = null,
+    @Serializable(with = ComponentSerializer::class)
+    val content: Component? = null
+) {
+    fun toPost(author: UUID, date: String): Post {
+        return Post(
+            id = this.id ?: ShortUUID.randomUUID(),
+            title = this.title ?: Component.text(""),
+            author = author,
+            content = this.content ?: Component.text(""),
+            date = date
+        )
+    }
+}
+
+@Serializable
+data class Permission(
+    @Contextual
+    var uuid: UUID,
+    var acquiredPermission: List<String>
 )
 
 @Serializable
 data class BulletinBoardData(
-    val players: List<PlayerData>,
-    var posts: List<Post>
+    var posts: List<@Contextual Post>,
+    var deleted: List<@Contextual Post>,
+    var permission: List<@Contextual Permission>
 )
+
+typealias Sable = java.io.Serializable
 
 /**
  * A generic quadruple.
@@ -51,7 +92,7 @@ data class Quadruple<A, B, C, D>(
     val second: B,
     val third: C,
     val fourth: D
-): java.io.Serializable {
+): Sable {
     override fun toString(): String = "($first, $second, $third, $fourth)"
     override fun hashCode(): Int {
         var result = first?.hashCode() ?: 0

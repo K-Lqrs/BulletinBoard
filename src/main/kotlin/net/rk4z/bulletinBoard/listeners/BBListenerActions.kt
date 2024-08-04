@@ -1,28 +1,48 @@
 package net.rk4z.bulletinBoard.listeners
 
-import net.kyori.adventure.text.Component
-import net.rk4z.bulletinBoard.utils.PlayerState
-import org.bukkit.entity.Player
-import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.event.player.PlayerCommandPreprocessEvent
+import net.rk4z.beacon.EventHandler
+import net.rk4z.beacon.IEventHandler
+import net.rk4z.beacon.Priority
+import net.rk4z.beacon.handler
+import net.rk4z.bulletinBoard.events.BulletinBoardClickEvent
+import net.rk4z.bulletinBoard.events.BulletinBoardCommandPreprocessEvent
+import net.rk4z.bulletinBoard.managers.BulletinBoardManager
+import net.rk4z.bulletinBoard.managers.LanguageManager
 
-object BBListenerActions {
+@Suppress("unused", "UNUSED_VARIABLE")
+@EventHandler
+class BBListenerActions : IEventHandler {
 
-    fun handleBBClick(
-        player: Player,
-        customId: String?,
-        inventoryTitle: Component,
-        state: PlayerState,
-        event: InventoryClickEvent
+    val onBBClick = handler<BulletinBoardClickEvent>(
+        priority = Priority.HIGHEST
     ) {
+        val player = it.player
+        val event = it.event
+        val state = it.state
+        val customId = it.customId
+        val inventory = it.inventoryTitle
 
+        when (inventory) {
+            LanguageManager.getMessage(player, "mainBoard") -> {
+                event.isCancelled = true
+                when (customId) {
+                    "newPost" -> BulletinBoardManager.openPostEditor(player)
+                    "allPosts" -> BulletinBoardManager.openAllPosts(player)
+                    "myPosts" -> BulletinBoardManager.openMyPosts(player)
+                    "deletedPosts" -> BulletinBoardManager.openDeletedPosts(player)
+                    "aboutPlugin" -> BulletinBoardManager.performAbout(player)
+                }
+            }
+        }
     }
 
-    fun handlePlayerCommandPreprocess(
-        player: Player,
-        command: String,
-        event: PlayerCommandPreprocessEvent
+    val onBBCommandPre = handler<BulletinBoardCommandPreprocessEvent>(
+        priority = Priority.HIGHEST
     ) {
+        val player = it.player
+        val command = it.command
+        val oEvent = it.event
+
 
     }
 }
