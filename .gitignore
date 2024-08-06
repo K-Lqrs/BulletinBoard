@@ -4,3 +4,4 @@
 run
 build
 bb.db
+src/main/kotlin/net/rk4z/bulletinBoard/dev
