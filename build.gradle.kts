@@ -16,21 +16,18 @@ version = "0.1.5"
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
-    maven("https://repo.dmulloy2.net/repository/public/")
 }
 
 dependencies {
-    paperweight.paperDevBundle("1.20.6-R0.1-SNAPSHOT")
-    compileOnly("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
-    compileOnly("com.comphenix.protocol:ProtocolLib:5.1.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
-    implementation("com.google.code.gson:gson:2.11.0")
-    implementation("org.reflections:reflections:0.10.2")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:2.0.0")
+    paperweight.paperDevBundle("1.21-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
+    // SQLite
+    implementation("org.xerial:sqlite-jdbc:3.46.0.1")
+    // Original Event API
     implementation("net.rk4z:beacon:1.3.7")
 }
 
-val targetJavaVersion = 21
+val targetJavaVersion: Int = 21
 java {
     val javaVersion = JavaVersion.toVersion(targetJavaVersion)
     sourceCompatibility = javaVersion
