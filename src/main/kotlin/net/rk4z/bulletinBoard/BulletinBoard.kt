@@ -18,7 +18,11 @@ class BulletinBoard : JavaPlugin() {
         }
         database = DataBase(this)
         database.connectToDatabase()
-        database.createPostsTable()
+        database.createRequirementTables()
+    }
+
+    override fun onEnable() {
+
     }
 
     override fun onDisable() {
