@@ -25,6 +25,7 @@ import net.rk4z.bulletinBoard.listeners.BBListener
 import net.rk4z.bulletinBoard.listeners.BBListenerActions
 import net.rk4z.bulletinBoard.managers.BBCommandManager
 import net.rk4z.bulletinBoard.utils.DataBase
+import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
@@ -42,6 +43,10 @@ class BulletinBoard : JavaPlugin() {
             private set
 
         private const val ID: String = "bulletinboard"
+
+        val runTask: TaskRunner = { plugin, runnable ->
+            Bukkit.getScheduler().runTask(plugin, runnable)
+        }
     }
 
     val version: String = description.version
@@ -107,4 +112,8 @@ class BulletinBoard : JavaPlugin() {
     ): MutableList<String>? {
         return EventBus.postReturnable(BulletinBoardOnTabCompleteEvent.get(command, args))
     }
+
+    external fun onRender()
 }
+
+typealias TaskRunner = (JavaPlugin, Runnable) -> Unit

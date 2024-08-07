@@ -5,6 +5,7 @@ import net.rk4z.bulletinBoard.BulletinBoard
 import net.rk4z.bulletinBoard.events.BulletinBoardClickEvent
 import net.rk4z.bulletinBoard.events.BulletinBoardOnChatEvent
 import net.rk4z.bulletinBoard.managers.BulletinBoardManager
+import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -32,6 +33,10 @@ class BBListener : Listener {
         val state = BulletinBoardManager.getPlayerState(player.uniqueId)
 
         EventBus.postAsync(BulletinBoardClickEvent.get(player, customId, inventoryTitle, state, event))
+
+        Bukkit.getScheduler().runTaskLater(BulletinBoard.instance, Runnable {
+            removeItemFromPlayerInventory(player, customId)
+        }, 0L)
     }
 
     @EventHandler
@@ -40,5 +45,18 @@ class BBListener : Listener {
         val state = BulletinBoardManager.getPlayerState(player.uniqueId)
 
         EventBus.postAsync(BulletinBoardOnChatEvent.get(player, state, event))
+    }
+
+    private fun removeItemFromPlayerInventory(player: Player, customId: String?) {
+        val inventory = player.inventory
+        for (item in inventory.contents) {
+            if (item != null && item.itemMeta != null) {
+                val itemMeta = item.itemMeta
+                val itemCustomId = itemMeta?.persistentDataContainer?.get(BulletinBoard.namespacedKey, PersistentDataType.STRING)
+                if (itemCustomId == customId) {
+                    inventory.remove(item)
+                }
+            }
+        }
     }
 }

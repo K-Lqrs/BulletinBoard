@@ -3,6 +3,7 @@ package net.rk4z.bulletinBoard.utils
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import net.kyori.adventure.text.Component
+import org.bukkit.Material
 import java.util.*
 
 data class PlayerState(
@@ -76,33 +77,9 @@ data class Permission(
 
 //>----------------------------------------------<\\
 
-typealias Sable = java.io.Serializable
-
-data class Quadruple<A, B, C, D>(
-    val first: A,
-    val second: B,
-    val third: C,
-    val fourth: D
-): Sable {
-    override fun toString(): String = "($first, $second, $third, $fourth)"
-    override fun hashCode(): Int {
-        var result = first?.hashCode() ?: 0
-        result = 31 * result + (second?.hashCode() ?: 0)
-        result = 31 * result + (third?.hashCode() ?: 0)
-        result = 31 * result + (fourth?.hashCode() ?: 0)
-        return result
-    }
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || other::class != this::class) return false
-
-        other as Quadruple<*, *, *, *>
-
-        if (first != other.first) return false
-        if (second != other.second) return false
-        if (third != other.third) return false
-        if (fourth != other.fourth) return false
-
-        return true
-    }
-}
+data class Button(
+    val slot: Int,
+    val item: Material,
+    val key: String,
+    val customId: String
+)

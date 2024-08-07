@@ -6,6 +6,7 @@ import net.rk4z.beacon.IEventHandler
 import net.rk4z.beacon.Priority
 import net.rk4z.beacon.handler
 import net.rk4z.bulletinBoard.BulletinBoard
+import net.rk4z.bulletinBoard.BulletinBoard.Companion.runTask
 import net.rk4z.bulletinBoard.events.BulletinBoardClickEvent
 import net.rk4z.bulletinBoard.events.BulletinBoardOnChatEvent
 import net.rk4z.bulletinBoard.managers.BulletinBoardManager
@@ -17,6 +18,7 @@ import org.bukkit.Bukkit
 @EventHandler
 @Suppress("unused", "DuplicatedCode")
 class BBListenerActions : IEventHandler {
+    private val p = BulletinBoard.instance
 
     val onBBClick: Unit = handler<BulletinBoardClickEvent>(
         priority = Priority.HIGHEST
@@ -29,9 +31,11 @@ class BBListenerActions : IEventHandler {
 
         when (inventory) {
             LanguageManager.getMessage(player, "mainBoard") -> {
-                event.isCancelled = true
                 when (customId) {
-                    "newPost" -> BulletinBoardManager.openPostEditor(player)
+                    "newPost" -> {
+                        event.isCancelled = true
+                        BulletinBoardManager.openPostEditor(player)
+                    }
 //                    "allPosts" -> BulletinBoardManager.openAllPosts(player)
 //                    "myPosts" -> BulletinBoardManager.openMyPosts(player)
 //                    "deletedPosts" -> BulletinBoardManager.openDeletedPosts(player)
@@ -44,10 +48,22 @@ class BBListenerActions : IEventHandler {
                 when (customId) {
                     "postTitle" -> {
                         state.isInputting = true
-                        player.closeInventory()
+                        runTask(p) {
+                            player.closeInventory()
+                        }
                         state.inputType = "title"
                         player.sendMessage(LanguageManager.getMessage(player, "pleaseEnterTitle"))
                     }
+
+                    "postContent" -> {
+                        state.isInputting = true
+                        runTask(p) {
+                            player.closeInventory()
+                        }
+                        state.inputType = "content"
+                        player.sendMessage(LanguageManager.getMessage(player, "pleaseEnterContent"))
+                    }
+
                     "cancelPost" -> {
 
                     }
@@ -56,7 +72,9 @@ class BBListenerActions : IEventHandler {
         }
     }
 
-    val onChat: Unit = handler<BulletinBoardOnChatEvent> {
+    val onChat: Unit = handler<BulletinBoardOnChatEvent>(
+        priority = Priority.HIGHEST
+    ) {
         val player = it.player
         val state = it.state
         val event = it.event
@@ -89,9 +107,9 @@ class BBListenerActions : IEventHandler {
                 "savePost"
             )
 
-            Bukkit.getScheduler().runTask(BulletinBoard.instance, Runnable {
+            runTask(p) {
                 player.openInventory(postEditor)
-            })
+            }
             state.inputType = null
             player.sendMessage(
                 LanguageManager.getMessage(player, "inputSet").replaceText { text ->
@@ -125,12 +143,12 @@ class BBListenerActions : IEventHandler {
                 "saveEdit"
             )
 
-            Bukkit.getScheduler().runTask(BulletinBoard.instance, Runnable {
+            runTask(p) {
                 player.openInventory(postEditor)
-            })
+            }
             state.editInputType = null
             player.sendMessage(
-                LanguageManager.getMessage(player, "input_set").replaceText { text ->
+                LanguageManager.getMessage(player, "inputSet").replaceText { text ->
                     inputType?.let { s -> text.matchLiteral("{inputType}").replacement(s) }
                 }.replaceText { text -> text.matchLiteral("{input}").replacement(message) }
             )

@@ -6,7 +6,7 @@ import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
 
 object LanguageManager {
-    val messages = mutableMapOf(
+    private val messages: MutableMap<String, MutableMap<String, String>> = mutableMapOf(
         "ja" to mutableMapOf(
             //region GUI
             "mainBoard" to "メインボード",
@@ -24,6 +24,11 @@ object LanguageManager {
 
             "savePost" to "投稿する",
             "cancelPost" to "投稿をキャンセル",
+            //endregion
+
+            //region Messages
+            "pleaseEnterTitle" to "タイトルを入力して下さい: ",
+            "pleaseEnterContent" to "内容を入力してください: ",
             //endregion
 
             //region Others
