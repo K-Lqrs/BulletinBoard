@@ -76,6 +76,43 @@ object BulletinBoardManager {
         }
     }
 
+    fun openConfirmation(player: Player, type: ConfirmationType, titleType: TitleType) {
+        val state = getPlayerState(player.uniqueId)
+        state.isOpeningConfirmation = true
+        state.confirmationType = type
+
+        val title = if (titleType == TitleType.CONFIRM) {
+            MessageKey.CONFIRMATION
+        } else {
+            // It's the same as if titleType is TitleType.CANCEL_CONFIRM
+            MessageKey.CANCELLATION
+        }
+
+        val confirmation =
+            Bukkit.createInventory(null, 27, LanguageManager.getMessage(player,title))
+
+        setGlassPane(confirmation, 0..26)
+
+        if (type == ConfirmationType.SAVE_POST) {
+            val buttons = listOf(
+                Button(11, Material.RED_WOOL, MessageKey.CONFIRM_CANCEL_POST, CustomID.CONFIRM_CANCEL_POST),
+                Button(13, Material.BLUE_WOOL, MessageKey.PREVIEW_POST, CustomID.PREVIEW_POST),
+                Button(15, Material.GREEN_WOOL, MessageKey.CONFIRM_SAVE_POST, CustomID.CONFIRM_SAVE_POST)
+            )
+
+            buttons.forEach { (slot, material, key, customId) ->
+                confirmation.setItem(
+                    slot,
+                    createCustomItem(
+                        material,
+                        LanguageManager.getMessage(player, key),
+                        customId = customId
+                    )
+                )
+            }
+        }
+    }
+
     fun performAbout(player: Player) {
         runTask(p) {
             player.closeInventory()

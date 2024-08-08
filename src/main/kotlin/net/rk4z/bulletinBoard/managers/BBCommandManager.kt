@@ -47,6 +47,16 @@ class BBCommandManager : IEventHandler {
                     }
                 }
 
+                "newpost" -> {
+                    if (sender is Player) {
+                        BulletinBoardManager.openPostEditor(sender)
+                        return@returnableHandler true
+                    } else {
+                        sender.sendMessage("This command can only be used by players.")
+                        return@returnableHandler true
+                    }
+                }
+
                 "help" -> {
                     if (sender is Player) {
                         val headerComponent = LanguageManager.getMessage(sender, MessageKey.USAGE_HEADER)

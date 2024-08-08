@@ -11,9 +11,13 @@ data class PlayerState(
     var editDraft: EditPostData? = null,
 
     var isInputting: Boolean = false,
+    var isOpeningConfirmation: Boolean = false,
 
     var inputType: InputType? = null,
     var editInputType: InputType? = null,
+    var confirmationType: ConfirmationType? = null,
+
+    var preview: Pair<Component, Component>? = null,
 )
 
 data class PostDraft(
@@ -100,12 +104,20 @@ enum class CustomID {
     EDIT_POST_TITLE,
     EDIT_POST_CONTENT,
     CANCEL_EDIT,
-    SAVE_EDIT
+    SAVE_EDIT,
+    CONFIRM_SAVE_POST,
+    CONFIRM_CANCEL_POST,
+    PREVIEW_POST,
 }
 
 enum class InputType {
     TITLE,
     CONTENT
+}
+
+enum class ConfirmationType {
+    SAVE_POST,
+    CANCEL_POST,
 }
 
 enum class MessageKey {
@@ -141,5 +153,15 @@ enum class MessageKey {
     USAGE_POSTS,
     USAGE_SETTINGS,
     USAGE_DELETED_POSTS,
-    USAGE_PREVIEWCLOSE
+    USAGE_PREVIEWCLOSE,
+    CONFIRMATION,
+    CANCELLATION,
+    CONFIRM_SAVE_POST,
+    CONFIRM_CANCEL_POST,
+    PREVIEW_POST,
+}
+
+enum class TitleType {
+    CONFIRM,
+    CANCEL_CONFIRM,
 }

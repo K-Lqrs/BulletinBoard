@@ -8,7 +8,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataType
 
-@Suppress("DuplicatedCode")
+@Suppress("DuplicatedCode", "unused")
 object BBUtil {
     fun setGlassPane(board: Inventory, slots: IntRange) {
         val glassPane = ItemStack(Material.BLACK_STAINED_GLASS_PANE)
@@ -20,7 +20,7 @@ object BBUtil {
         }
     }
 
-    fun setGlassPane(board: Inventory, slots: List<Int>) {
+    fun setGlassPane(board: Inventory, slots: Collection<Int>) {
         val glassPane = ItemStack(Material.BLACK_STAINED_GLASS_PANE)
         val meta: ItemMeta = glassPane.itemMeta
         meta.displayName(Component.text(""))
