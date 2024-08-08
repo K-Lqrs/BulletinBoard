@@ -76,16 +76,18 @@ object BulletinBoardManager {
         }
     }
 
-    fun openConfirmation(player: Player, type: ConfirmationType, titleType: TitleType) {
+    fun openConfirmation(player: Player, type: ConfirmationType) {
         val state = getPlayerState(player.uniqueId)
         state.isOpeningConfirmation = true
         state.confirmationType = type
 
-        val title = if (titleType == TitleType.CONFIRM) {
-            MessageKey.CONFIRMATION
-        } else {
-            // It's the same as if titleType is TitleType.CANCEL_CONFIRM
-            MessageKey.CANCELLATION
+        val title = when (type) {
+            ConfirmationType.SAVE_POST -> {
+                MessageKey.SAVE_POST_CONFIRMATION
+            }
+            ConfirmationType.CANCEL_POST -> {
+                MessageKey.CANCEL_POST_CONFIRMATION
+            }
         }
 
         val confirmation =
@@ -97,6 +99,24 @@ object BulletinBoardManager {
             val buttons = listOf(
                 Button(11, Material.RED_WOOL, MessageKey.CONFIRM_CANCEL_POST, CustomID.CONFIRM_CANCEL_POST),
                 Button(13, Material.BLUE_WOOL, MessageKey.PREVIEW_POST, CustomID.PREVIEW_POST),
+                Button(15, Material.GREEN_WOOL, MessageKey.CONFIRM_SAVE_POST, CustomID.CONFIRM_SAVE_POST)
+            )
+
+            buttons.forEach { (slot, material, key, customId) ->
+                confirmation.setItem(
+                    slot,
+                    createCustomItem(
+                        material,
+                        LanguageManager.getMessage(player, key),
+                        customId = customId
+                    )
+                )
+            }
+        }
+
+        if (type == ConfirmationType.CANCEL_POST) {
+            val buttons = listOf(
+                Button(11, Material.RED_WOOL, MessageKey.CONFIRM_CANCEL_POST, CustomID.CONFIRM_CANCEL_POST),
                 Button(15, Material.GREEN_WOOL, MessageKey.CONFIRM_SAVE_POST, CustomID.CONFIRM_SAVE_POST)
             )
 

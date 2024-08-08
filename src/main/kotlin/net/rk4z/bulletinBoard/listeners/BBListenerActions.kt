@@ -61,14 +61,14 @@ class BBListenerActions : IEventHandler {
                         player.sendMessage(LanguageManager.getMessage(player, MessageKey.PLEASE_ENTER_CONTENT))
                     }
 
-                    CustomID.CANCEL_POST.name -> BulletinBoardManager.openConfirmation(player, ConfirmationType.CANCEL_POST, TitleType.CANCEL_CONFIRM)
+                    CustomID.CANCEL_POST.name -> BulletinBoardManager.openConfirmation(player, ConfirmationType.CANCEL_POST)
 
                     CustomID.SAVE_POST.name -> {
                         val draft = state.draft ?: PostDraft()
                         val title = draft.title ?: LanguageManager.getMessage(player, MessageKey.NO_TITLE)
                         val content = draft.content ?: LanguageManager.getMessage(player, MessageKey.NO_CONTENT)
                         state.preview = Pair(title, content)
-                        BulletinBoardManager.openConfirmation(player, ConfirmationType.SAVE_POST, TitleType.CONFIRM)
+                        BulletinBoardManager.openConfirmation(player, ConfirmationType.SAVE_POST)
                     }
                 }
             }
