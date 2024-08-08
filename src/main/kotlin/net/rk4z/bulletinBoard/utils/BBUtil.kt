@@ -1,7 +1,7 @@
 package net.rk4z.bulletinBoard.utils
 
 import net.kyori.adventure.text.Component
-import net.rk4z.bulletinBoard.BulletinBoard.Companion.namespacedKey
+import net.rk4z.bulletinBoard.BulletinBoard
 import org.bukkit.Material
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
@@ -34,7 +34,7 @@ object BBUtil {
         material: Material,
         name: Component,
         customModelData: Int? = null,
-        customId: String? = null
+        customId: CustomID? = null
     ): ItemStack {
         val item = ItemStack(material)
         val meta: ItemMeta = item.itemMeta
@@ -43,9 +43,10 @@ object BBUtil {
             meta.setCustomModelData(customModelData)
         }
         if (customId != null) {
-            meta.persistentDataContainer.set(namespacedKey, PersistentDataType.STRING, customId)
+            meta.persistentDataContainer.set(BulletinBoard.namespacedKey, PersistentDataType.STRING, customId.name)
         }
         item.itemMeta = meta
         return item
     }
+
 }

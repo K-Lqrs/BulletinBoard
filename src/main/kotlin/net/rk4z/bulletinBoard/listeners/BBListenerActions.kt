@@ -11,9 +11,7 @@ import net.rk4z.bulletinBoard.events.BulletinBoardClickEvent
 import net.rk4z.bulletinBoard.events.BulletinBoardOnChatEvent
 import net.rk4z.bulletinBoard.managers.BulletinBoardManager
 import net.rk4z.bulletinBoard.managers.LanguageManager
-import net.rk4z.bulletinBoard.utils.EditPostData
-import net.rk4z.bulletinBoard.utils.PostDraft
-import org.bukkit.Bukkit
+import net.rk4z.bulletinBoard.utils.*
 
 @EventHandler
 @Suppress("unused", "DuplicatedCode")
@@ -30,38 +28,37 @@ class BBListenerActions : IEventHandler {
         val inventory = it.inventoryTitle
 
         when (inventory) {
-            LanguageManager.getMessage(player, "mainBoard") -> {
+            LanguageManager.getMessage(player, MessageKey.MAIN_BOARD) -> {
+                event.isCancelled = true
                 when (customId) {
-                    "newPost" -> {
-                        event.isCancelled = true
-                        BulletinBoardManager.openPostEditor(player)
-                    }
+                    CustomID.NEW_POST.name -> BulletinBoardManager.openPostEditor(player)
 //                    "allPosts" -> BulletinBoardManager.openAllPosts(player)
 //                    "myPosts" -> BulletinBoardManager.openMyPosts(player)
 //                    "deletedPosts" -> BulletinBoardManager.openDeletedPosts(player)
-//                    "aboutPlugin" -> BulletinBoardManager.performAbout(player)
+                    CustomID.ABOUT_PLUGIN.name -> BulletinBoardManager.performAbout(player)
+                    CustomID.HELP.name -> BulletinBoardManager.performHelp(player)
                 }
             }
 
-            LanguageManager.getMessage(player, "postEditor") -> {
+            LanguageManager.getMessage(player, MessageKey.POST_EDITOR) -> {
                 event.isCancelled = true
                 when (customId) {
-                    "postTitle" -> {
+                    CustomID.POST_TITLE.name -> {
                         state.isInputting = true
                         runTask(p) {
                             player.closeInventory()
                         }
-                        state.inputType = "title"
-                        player.sendMessage(LanguageManager.getMessage(player, "pleaseEnterTitle"))
+                        state.inputType = InputType.TITLE
+                        player.sendMessage(LanguageManager.getMessage(player, MessageKey.PLEASE_ENTER_TITLE))
                     }
 
-                    "postContent" -> {
+                    CustomID.POST_CONTENT.name -> {
                         state.isInputting = true
                         runTask(p) {
                             player.closeInventory()
                         }
-                        state.inputType = "content"
-                        player.sendMessage(LanguageManager.getMessage(player, "pleaseEnterContent"))
+                        state.inputType = InputType.CONTENT
+                        player.sendMessage(LanguageManager.getMessage(player, MessageKey.PLEASE_ENTER_CONTENT))
                     }
 
                     "cancelPost" -> {
@@ -85,26 +82,30 @@ class BBListenerActions : IEventHandler {
             val inputType = state.inputType
             val draft = state.draft ?: PostDraft()
 
-            val updatedDraft = if (inputType == "title") {
-                draft.copy(title = Component.text(message))
-            } else {
-                draft.copy(content = Component.text(message))
+            val updatedDraft = when (inputType) {
+                InputType.TITLE -> {
+                    draft.copy(title = Component.text(message))
+                }
+                InputType.CONTENT -> {
+                    draft.copy(content = Component.text(message))
+                }
+                else -> draft
             }
 
             state.draft = updatedDraft
 
-            val uTitle = updatedDraft.title ?: LanguageManager.getMessage(player, "noTitle")
-            val uContent = updatedDraft.content ?: LanguageManager.getMessage(player, "noContent")
+            val uTitle = updatedDraft.title ?: LanguageManager.getMessage(player, MessageKey.NO_TITLE)
+            val uContent = updatedDraft.content ?: LanguageManager.getMessage(player, MessageKey.NO_CONTENT)
 
             val postEditor = BulletinBoardManager.createPostEditorInventory(
                 player,
                 uTitle,
                 uContent,
-                LanguageManager.getMessage(player, "postEditor"),
-                "postTitle",
-                "postContent",
-                "cancelPost",
-                "savePost"
+                LanguageManager.getMessage(player, MessageKey.POST_EDITOR),
+                CustomID.POST_TITLE,
+                CustomID.POST_CONTENT,
+                CustomID.CANCEL_POST,
+                CustomID.SAVE_POST
             )
 
             runTask(p) {
@@ -112,8 +113,8 @@ class BBListenerActions : IEventHandler {
             }
             state.inputType = null
             player.sendMessage(
-                LanguageManager.getMessage(player, "inputSet").replaceText { text ->
-                    inputType?.let { s -> text.matchLiteral("{inputType}").replacement(s) }
+                LanguageManager.getMessage(player, MessageKey.INPUT_SET).replaceText { text ->
+                    inputType?.name?.lowercase()?.let { s -> text.matchLiteral("{inputType}").replacement(s) }
                 }.replaceText { text -> text.matchLiteral("{input}").replacement(message) }
             )
         } else if (state.editInputType != null) {
@@ -121,26 +122,30 @@ class BBListenerActions : IEventHandler {
             val inputType = state.editInputType
             val draft = state.editDraft ?: EditPostData()
 
-            val updatedDraft = if (inputType == "title") {
-                draft.copy(title = Component.text(message))
-            } else {
-                draft.copy(content = Component.text(message))
+            val updatedDraft = when (inputType) {
+                InputType.TITLE -> {
+                    draft.copy(title = Component.text(message))
+                }
+                InputType.CONTENT -> {
+                    draft.copy(content = Component.text(message))
+                }
+                else -> draft
             }
 
             state.editDraft = updatedDraft
 
-            val uTitle = updatedDraft.title ?: LanguageManager.getMessage(player, "noTitle")
-            val uContent = updatedDraft.content ?: LanguageManager.getMessage(player, "noContent")
+            val uTitle = updatedDraft.title ?: LanguageManager.getMessage(player, MessageKey.NO_TITLE)
+            val uContent = updatedDraft.content ?: LanguageManager.getMessage(player, MessageKey.NO_CONTENT)
 
             val postEditor = BulletinBoardManager.createPostEditorInventory(
                 player,
                 uTitle,
                 uContent,
-                LanguageManager.getMessage(player, "postEditorForEdit"),
-                "editPostTitle",
-                "editPostContent",
-                "cancelEdit",
-                "saveEdit"
+                LanguageManager.getMessage(player, MessageKey.POST_EDITOR_FOR_EDIT),
+                CustomID.EDIT_POST_TITLE,
+                CustomID.EDIT_POST_CONTENT,
+                CustomID.CANCEL_EDIT,
+                CustomID.SAVE_EDIT
             )
 
             runTask(p) {
@@ -148,8 +153,8 @@ class BBListenerActions : IEventHandler {
             }
             state.editInputType = null
             player.sendMessage(
-                LanguageManager.getMessage(player, "inputSet").replaceText { text ->
-                    inputType?.let { s -> text.matchLiteral("{inputType}").replacement(s) }
+                LanguageManager.getMessage(player, MessageKey.INPUT_SET).replaceText { text ->
+                    inputType?.name?.lowercase()?.let { s -> text.matchLiteral("{inputType}").replacement(s) }
                 }.replaceText { text -> text.matchLiteral("{input}").replacement(message) }
             )
         }

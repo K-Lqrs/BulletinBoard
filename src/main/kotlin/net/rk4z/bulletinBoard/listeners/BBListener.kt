@@ -5,6 +5,7 @@ import net.rk4z.bulletinBoard.BulletinBoard
 import net.rk4z.bulletinBoard.events.BulletinBoardClickEvent
 import net.rk4z.bulletinBoard.events.BulletinBoardOnChatEvent
 import net.rk4z.bulletinBoard.managers.BulletinBoardManager
+import net.rk4z.bulletinBoard.utils.CustomID
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -25,7 +26,7 @@ class BBListener : Listener {
         val customId = itemMeta.persistentDataContainer.get(BulletinBoard.namespacedKey, PersistentDataType.STRING)
 
         if (clickedItem.type.isAir) return
-        if (clickedItem.type == Material.BLACK_STAINED_GLASS_PANE || customId == "noPosts") {
+        if (clickedItem.type == Material.BLACK_STAINED_GLASS_PANE || customId == CustomID.NO_POSTS.name) {
             event.isCancelled = true
             return
         }
@@ -35,8 +36,8 @@ class BBListener : Listener {
         EventBus.postAsync(BulletinBoardClickEvent.get(player, customId, inventoryTitle, state, event))
 
         Bukkit.getScheduler().runTaskLater(BulletinBoard.instance, Runnable {
-            removeItemFromPlayerInventory(player, customId)
-        }, 0L)
+            removeItemFromPlayerInventory(player)
+        }, 1L)
     }
 
     @EventHandler
@@ -47,14 +48,17 @@ class BBListener : Listener {
         EventBus.postAsync(BulletinBoardOnChatEvent.get(player, state, event))
     }
 
-    private fun removeItemFromPlayerInventory(player: Player, customId: String?) {
+    private fun removeItemFromPlayerInventory(player: Player) {
         val inventory = player.inventory
         for (item in inventory.contents) {
             if (item != null && item.itemMeta != null) {
                 val itemMeta = item.itemMeta
-                val itemCustomId = itemMeta?.persistentDataContainer?.get(BulletinBoard.namespacedKey, PersistentDataType.STRING)
-                if (itemCustomId == customId) {
-                    inventory.remove(item)
+                val itemCustomIdName = itemMeta.persistentDataContainer.get(BulletinBoard.namespacedKey, PersistentDataType.STRING)
+                if (itemCustomIdName != null) {
+                    val itemCustomId = CustomID.entries.find { it.name == itemCustomIdName }
+                    if (itemCustomId != null) {
+                        inventory.remove(item)
+                    }
                 }
             }
         }

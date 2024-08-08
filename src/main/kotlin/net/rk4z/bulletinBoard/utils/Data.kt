@@ -12,8 +12,8 @@ data class PlayerState(
 
     var isInputting: Boolean = false,
 
-    var inputType: String? = null,
-    var editInputType: String? = null,
+    var inputType: InputType? = null,
+    var editInputType: InputType? = null,
 )
 
 data class PostDraft(
@@ -80,6 +80,66 @@ data class Permission(
 data class Button(
     val slot: Int,
     val item: Material,
-    val key: String,
-    val customId: String
+    val key: MessageKey,
+    val customId: CustomID
 )
+
+enum class CustomID {
+    NEW_POST,
+    ALL_POSTS,
+    MY_POSTS,
+    DELETED_POSTS,
+    ABOUT_PLUGIN,
+    SETTINGS,
+    HELP,
+    NO_POSTS,
+    POST_TITLE,
+    POST_CONTENT,
+    CANCEL_POST,
+    SAVE_POST,
+    EDIT_POST_TITLE,
+    EDIT_POST_CONTENT,
+    CANCEL_EDIT,
+    SAVE_EDIT
+}
+
+enum class InputType {
+    TITLE,
+    CONTENT
+}
+
+enum class MessageKey {
+    MAIN_BOARD,
+    POST_EDITOR,
+    POST_EDITOR_FOR_EDIT,
+    ALL_POSTS,
+    MY_POSTS,
+    NEW_POST,
+    DELETED_POSTS,
+    ABOUT_PLUGIN,
+    SETTINGS,
+    HELP,
+    SAVE_POST,
+    CANCEL_POST,
+    PLEASE_ENTER_TITLE,
+    PLEASE_ENTER_CONTENT,
+    INPUT_SET,
+    NO_TITLE,
+    NO_CONTENT,
+    NO_POSTS,
+    HTU_HEADER,
+    HTU_OPENBOARD,
+    HTU_NEWPOST,
+    HTU_MYPOSTS,
+    HTU_POSTS,
+    HTU_PREVIEW,
+    HTU_PREVIEW_CLOSE,
+    USAGE_HEADER,
+    USAGE_OPENBOARD,
+    USAGE_NEWPOST,
+    USAGE_MYPOSTS,
+    USAGE_POSTS,
+    USAGE_SETTINGS,
+    USAGE_DELETED_POSTS,
+    USAGE_PREVIEWCLOSE
+}

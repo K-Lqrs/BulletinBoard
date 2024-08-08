@@ -5,10 +5,11 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import net.rk4z.beacon.EventHandler
 import net.rk4z.beacon.IEventHandler
-import net.rk4z.beacon.Priority
 import net.rk4z.beacon.returnableHandler
 import net.rk4z.bulletinBoard.BulletinBoard
-import net.rk4z.bulletinBoard.events.*
+import net.rk4z.bulletinBoard.events.BulletinBoardOnCommandEvent
+import net.rk4z.bulletinBoard.events.BulletinBoardOnTabCompleteEvent
+import net.rk4z.bulletinBoard.utils.MessageKey
 import org.bukkit.Sound
 import org.bukkit.SoundCategory
 import org.bukkit.entity.Player
@@ -16,13 +17,15 @@ import org.bukkit.entity.Player
 @Suppress("unused")
 @EventHandler
 class BBCommandManager : IEventHandler {
+    private val subCommandsList = BulletinBoard.instance.subCommands
+
     val onCommand: Unit = returnableHandler<BulletinBoardOnCommandEvent, Boolean> {
         val sender = it.sender
         val command = it.command
         val args = it.args
 
         if (command.name.equals("bb", ignoreCase = true)) {
-            if (args.isNullOrEmpty()) {
+            if (args.isNullOrEmpty() || subCommandsList.contains(args[0].lowercase()).not()) {
                 if (sender is Player) {
                     val player: Player = sender
                     player.performCommand("bb help")
@@ -46,7 +49,7 @@ class BBCommandManager : IEventHandler {
 
                 "help" -> {
                     if (sender is Player) {
-                        val headerComponent = LanguageManager.getMessage(sender, "usageHeader")
+                        val headerComponent = LanguageManager.getMessage(sender, MessageKey.USAGE_HEADER)
                             .color(NamedTextColor.GOLD)
                             .decorate(TextDecoration.BOLD)
 
@@ -61,33 +64,33 @@ class BBCommandManager : IEventHandler {
                         sender.sendMessage(hStartComponent.append(headerComponent).append(hEndComponent))
 
                         sender.sendMessage(
-                            Component.text("openboard - ").append(LanguageManager.getMessage(sender, "usageOpenBoard"))
+                            Component.text("openboard - ").append(LanguageManager.getMessage(sender, MessageKey.USAGE_OPENBOARD))
                                 .color(NamedTextColor.GREEN)
                         )
                         sender.sendMessage(
-                            Component.text("newpost - ").append(LanguageManager.getMessage(sender, "usageNewPost"))
+                            Component.text("newpost - ").append(LanguageManager.getMessage(sender, MessageKey.USAGE_NEWPOST))
                                 .color(NamedTextColor.GREEN)
                         )
                         sender.sendMessage(
-                            Component.text("myposts - ").append(LanguageManager.getMessage(sender, "usageMyPosts"))
+                            Component.text("myposts - ").append(LanguageManager.getMessage(sender, MessageKey.USAGE_MYPOSTS))
                                 .color(NamedTextColor.GREEN)
                         )
                         sender.sendMessage(
-                            Component.text("posts - ").append(LanguageManager.getMessage(sender, "usagePosts"))
+                            Component.text("posts - ").append(LanguageManager.getMessage(sender, MessageKey.USAGE_POSTS))
                                 .color(NamedTextColor.GREEN)
                         )
                         sender.sendMessage(
-                            Component.text("settings - ").append(LanguageManager.getMessage(sender, "usageSettings"))
+                            Component.text("settings - ").append(LanguageManager.getMessage(sender, MessageKey.USAGE_SETTINGS))
                                 .color(NamedTextColor.GREEN)
                         )
                         sender.sendMessage(
                             Component.text("deletedposts - ")
-                                .append(LanguageManager.getMessage(sender, "usageDeletedPosts"))
+                                .append(LanguageManager.getMessage(sender, MessageKey.USAGE_DELETED_POSTS))
                                 .color(NamedTextColor.GREEN)
                         )
                         sender.sendMessage(
                             Component.text("previewclose - ")
-                                .append(LanguageManager.getMessage(sender, "usagePreviewClose"))
+                                .append(LanguageManager.getMessage(sender, MessageKey.USAGE_PREVIEWCLOSE))
                                 .color(NamedTextColor.GREEN)
                         )
                         sender.sendMessage(Component.text("=======================").color(NamedTextColor.GOLD))
@@ -138,7 +141,7 @@ class BBCommandManager : IEventHandler {
                         val location = player.location
                         player.playSound(location, Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1.0f, 1.0f)
 
-                        val headerComponent = LanguageManager.getMessage(player, "htuHeader")
+                        val headerComponent = LanguageManager.getMessage(player, MessageKey.HTU_HEADER)
                             .color(NamedTextColor.GOLD)
                             .decorate(TextDecoration.BOLD)
                         val hStartComponent = Component.text("=====")
@@ -153,41 +156,41 @@ class BBCommandManager : IEventHandler {
                         sender.sendMessage(Component.text(""))
 
                         sender.sendMessage(
-                            Component.text(LanguageManager.getContentFromMessage(player, "htuOpenboard"))
+                            Component.text(LanguageManager.getContentFromMessage(player, MessageKey.HTU_OPENBOARD))
                                 .color(NamedTextColor.GREEN)
                         )
 
                         sender.sendMessage(Component.text(""))
 
                         sender.sendMessage(
-                            Component.text(LanguageManager.getContentFromMessage(player, "htuNewPost"))
+                            Component.text(LanguageManager.getContentFromMessage(player, MessageKey.HTU_NEWPOST))
                                 .color(NamedTextColor.GREEN)
                         )
 
                         sender.sendMessage(Component.text(""))
 
                         sender.sendMessage(
-                            Component.text(LanguageManager.getContentFromMessage(player, "htuMyPosts"))
+                            Component.text(LanguageManager.getContentFromMessage(player, MessageKey.HTU_MYPOSTS))
                                 .color(NamedTextColor.GREEN)
                         )
                         sender.sendMessage(Component.text(""))
 
                         sender.sendMessage(
-                            Component.text(LanguageManager.getContentFromMessage(player, "htuPosts"))
-                                .color(NamedTextColor.GREEN)
-                        )
-
-                        sender.sendMessage(Component.text(""))
-
-                        sender.sendMessage(
-                            Component.text(LanguageManager.getContentFromMessage(player, "htuPreview"))
+                            Component.text(LanguageManager.getContentFromMessage(player, MessageKey.HTU_POSTS))
                                 .color(NamedTextColor.GREEN)
                         )
 
                         sender.sendMessage(Component.text(""))
 
                         sender.sendMessage(
-                            Component.text(LanguageManager.getContentFromMessage(player, "htuPreviewClose"))
+                            Component.text(LanguageManager.getContentFromMessage(player, MessageKey.HTU_PREVIEW))
+                                .color(NamedTextColor.GREEN)
+                        )
+
+                        sender.sendMessage(Component.text(""))
+
+                        sender.sendMessage(
+                            Component.text(LanguageManager.getContentFromMessage(player, MessageKey.HTU_PREVIEW_CLOSE))
                                 .color(NamedTextColor.GREEN)
                         )
 
@@ -210,11 +213,9 @@ class BBCommandManager : IEventHandler {
         return@returnableHandler false
     }
 
-    val onTabComplete = returnableHandler<BulletinBoardOnTabCompleteEvent, MutableList<String>?> { event ->
+    val onTabComplete: Unit = returnableHandler<BulletinBoardOnTabCompleteEvent, MutableList<String>?> { event ->
         val command = event.command
         val args = event.args
-
-        val subCommandsList = BulletinBoard.instance.subCommands
 
         if (command.name.equals("bb", ignoreCase = true)) {
             if (args.isNullOrEmpty()) {

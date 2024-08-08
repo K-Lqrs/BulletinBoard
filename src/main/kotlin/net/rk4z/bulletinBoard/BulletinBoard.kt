@@ -44,6 +44,7 @@ class BulletinBoard : JavaPlugin() {
 
         private const val ID: String = "bulletinboard"
 
+        // TaskRunner for Bukkit Scheduler
         val runTask: TaskRunner = { plugin, runnable ->
             Bukkit.getScheduler().runTask(plugin, runnable)
         }
@@ -53,9 +54,14 @@ class BulletinBoard : JavaPlugin() {
     val pluginDes: String? = description.description
     val author: MutableList<String> = description.authors
     val logger: Logger = LoggerFactory.getLogger(BulletinBoard::class.java.simpleName)
-    val subCommands = mutableListOf(
+    val subCommands: MutableList<String> = mutableListOf(
         "openboard",
-        "help"
+        "newpost",
+        "posts",
+        "myposts",
+        "help",
+        "about",
+        "howtouse"
     )
 
     private lateinit var database: DataBase
@@ -112,8 +118,6 @@ class BulletinBoard : JavaPlugin() {
     ): MutableList<String>? {
         return EventBus.postReturnable(BulletinBoardOnTabCompleteEvent.get(command, args))
     }
-
-    external fun onRender()
 }
 
 typealias TaskRunner = (JavaPlugin, Runnable) -> Unit

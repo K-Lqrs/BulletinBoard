@@ -3,11 +3,9 @@ package net.rk4z.bulletinBoard.managers
 import net.kyori.adventure.text.Component
 import net.rk4z.bulletinBoard.BulletinBoard
 import net.rk4z.bulletinBoard.BulletinBoard.Companion.runTask
+import net.rk4z.bulletinBoard.utils.*
 import net.rk4z.bulletinBoard.utils.BBUtil.createCustomItem
 import net.rk4z.bulletinBoard.utils.BBUtil.setGlassPane
-import net.rk4z.bulletinBoard.utils.Button
-import net.rk4z.bulletinBoard.utils.PlayerState
-import net.rk4z.bulletinBoard.utils.PostDraft
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -24,20 +22,20 @@ object BulletinBoardManager {
     }
 
     fun openMainBoard(player: Player) {
-        val mainBoard: Inventory = Bukkit.createInventory(null, 45, LanguageManager.getMessage(player, "mainBoard"))
+        val mainBoard: Inventory = Bukkit.createInventory(null, 45, LanguageManager.getMessage(player, MessageKey.MAIN_BOARD))
 
         setGlassPane(mainBoard, 0..44)
 
         val buttons = listOf(
             // The "Key" is used to get the message from the LanguageManager
             // Quadruple(slot, material, key, customId)
-            Button(10, Material.WRITABLE_BOOK, "newPost", "newPost"),
-            Button(12, Material.BOOK, "allPosts", "allPosts"),
-            Button(14, Material.WRITTEN_BOOK, "myPosts", "myPosts"),
-            Button(16, Material.FLINT_AND_STEEL, "deletedPosts", "deletedPosts"),
-            Button(29, Material.LECTERN, "aboutPlugin", "about"),
-            Button(31, Material.COMPARATOR, "settings", "settings"),
-            Button(33, Material.OAK_SIGN, "help", "help")
+            Button(10, Material.WRITABLE_BOOK, MessageKey.NEW_POST, CustomID.NEW_POST),
+            Button(12, Material.BOOK, MessageKey.ALL_POSTS, CustomID.ALL_POSTS),
+            Button(14, Material.WRITTEN_BOOK, MessageKey.MY_POSTS, CustomID.MY_POSTS),
+            Button(16, Material.FLINT_AND_STEEL, MessageKey.DELETED_POSTS, CustomID.DELETED_POSTS),
+            Button(29, Material.LECTERN, MessageKey.ABOUT_PLUGIN, CustomID.ABOUT_PLUGIN),
+            Button(31, Material.COMPARATOR, MessageKey.SETTINGS, CustomID.SETTINGS),
+            Button(33, Material.OAK_SIGN, MessageKey.HELP, CustomID.HELP)
         )
 
         buttons.forEach { (slot, material, key, customId) ->
@@ -59,22 +57,36 @@ object BulletinBoardManager {
     fun openPostEditor(player: Player) {
         val state = getPlayerState(player.uniqueId)
         val draft = state.draft ?: PostDraft()
-        val title = draft.title ?: LanguageManager.getMessage(player, "noTitle")
-        val content = draft.content ?: LanguageManager.getMessage(player, "noContent")
+        val title = draft.title ?: LanguageManager.getMessage(player, MessageKey.NO_TITLE)
+        val content = draft.content ?: LanguageManager.getMessage(player, MessageKey.NO_CONTENT)
 
         val postEditor = createPostEditorInventory(
             player,
             title,
             content,
-            LanguageManager.getMessage(player, "postEditor"),
-            "postTitle",
-            "postContent",
-            "cancelPost",
-            "savePost"
+            LanguageManager.getMessage(player, MessageKey.POST_EDITOR),
+            CustomID.POST_TITLE,
+            CustomID.POST_CONTENT,
+            CustomID.CANCEL_POST,
+            CustomID.SAVE_POST
         )
 
         runTask(p) {
             player.openInventory(postEditor)
+        }
+    }
+
+    fun performAbout(player: Player) {
+        runTask(p) {
+            player.closeInventory()
+            player.performCommand("bb about")
+        }
+    }
+
+    fun performHelp(player: Player) {
+        runTask(p) {
+            player.closeInventory()
+            player.performCommand("bb help")
         }
     }
 
@@ -83,10 +95,10 @@ object BulletinBoardManager {
         title: Component,
         content: Component,
         editorTitle: Component,
-        titleCustomId: String,
-        contentCustomId: String,
-        cancelCustomId: String,
-        saveCustomId: String
+        titleCustomId: CustomID,
+        contentCustomId: CustomID,
+        cancelCustomId: CustomID,
+        saveCustomId: CustomID
     ): Inventory {
         val postEditor = Bukkit.createInventory(null, 27, editorTitle)
         setGlassPane(postEditor, 0..26)
@@ -94,11 +106,11 @@ object BulletinBoardManager {
         postEditor.setItem(15, createCustomItem(Material.BOOK, content, customId = contentCustomId))
         postEditor.setItem(
             19,
-            createCustomItem(Material.RED_WOOL, LanguageManager.getMessage(player, "cancelPost"), customId = cancelCustomId)
+            createCustomItem(Material.RED_WOOL, LanguageManager.getMessage(player, MessageKey.CANCEL_POST), customId = cancelCustomId)
         )
         postEditor.setItem(
             25,
-            createCustomItem(Material.GREEN_WOOL, LanguageManager.getMessage(player, "savePost"), customId = saveCustomId)
+            createCustomItem(Material.GREEN_WOOL, LanguageManager.getMessage(player, MessageKey.SAVE_POST), customId = saveCustomId)
         )
         return postEditor
     }
