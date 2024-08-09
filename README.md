@@ -18,4 +18,4 @@ You can check the how-to-use guide by typing `/bb howtouse` in the chat.
 3. Restart your server
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/KT-Ruxy/BulletinBoard/blob/main/LICENSE) file for details
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/KT-Ruxy/BulletinBoard/blob/v2/LICENSE) file for details
