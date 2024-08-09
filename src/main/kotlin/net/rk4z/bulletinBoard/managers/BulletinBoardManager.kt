@@ -97,7 +97,7 @@ object BulletinBoardManager {
 
         if (type == ConfirmationType.SAVE_POST) {
             val buttons = listOf(
-                Button(11, Material.RED_WOOL, MessageKey.CONFIRM_CANCEL_POST, CustomID.CONFIRM_CANCEL_POST),
+                Button(11, Material.RED_WOOL, MessageKey.CANCEL_CONFIRM_SAVE_POST, CustomID.CANCEL_CONFIRM_SAVE_POST),
                 Button(13, Material.BLUE_WOOL, MessageKey.PREVIEW_POST, CustomID.PREVIEW_POST),
                 Button(15, Material.GREEN_WOOL, MessageKey.CONFIRM_SAVE_POST, CustomID.CONFIRM_SAVE_POST)
             )
@@ -116,8 +116,8 @@ object BulletinBoardManager {
 
         if (type == ConfirmationType.CANCEL_POST) {
             val buttons = listOf(
-                Button(11, Material.RED_WOOL, MessageKey.CONFIRM_CANCEL_POST, CustomID.CONFIRM_CANCEL_POST),
-                Button(15, Material.GREEN_WOOL, MessageKey.CONFIRM_SAVE_POST, CustomID.CONFIRM_SAVE_POST)
+                Button(11, Material.RED_WOOL, MessageKey.CONTINUE_POST, CustomID.CONTINUE_POST),
+                Button(15, Material.GREEN_WOOL, MessageKey.CONFIRM_CANCEL_POST, CustomID.CONFIRM_CANCEL_POST)
             )
 
             buttons.forEach { (slot, material, key, customId) ->

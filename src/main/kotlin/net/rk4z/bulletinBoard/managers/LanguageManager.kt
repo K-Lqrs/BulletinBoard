@@ -28,6 +28,7 @@ object LanguageManager {
             MessageKey.PLEASE_ENTER_TITLE to "タイトルを入力して下さい: ",
             MessageKey.PLEASE_ENTER_CONTENT to "内容を入力してください: ",
             MessageKey.INPUT_SET to "{inputType}が{input}に設定されました",
+            MessageKey.WHEN_POST_DRAFT_NULL to "内部データから投稿のドラフトを見つけられませんでした。もう一度お試しください。",
             //endregion
 
             //region Others

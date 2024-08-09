@@ -7,11 +7,14 @@ import net.rk4z.beacon.Priority
 import net.rk4z.beacon.handler
 import net.rk4z.bulletinBoard.BulletinBoard
 import net.rk4z.bulletinBoard.BulletinBoard.Companion.runTask
+import net.rk4z.bulletinBoard.BulletinBoard.Companion.runTaskAsynchronous
 import net.rk4z.bulletinBoard.events.BulletinBoardClickEvent
 import net.rk4z.bulletinBoard.events.BulletinBoardOnChatEvent
 import net.rk4z.bulletinBoard.managers.BulletinBoardManager
 import net.rk4z.bulletinBoard.managers.LanguageManager
 import net.rk4z.bulletinBoard.utils.*
+import org.bukkit.entity.Player
+import java.util.*
 
 @EventHandler
 @Suppress("unused", "DuplicatedCode")
@@ -69,6 +72,38 @@ class BBListenerActions : IEventHandler {
                         val content = draft.content ?: LanguageManager.getMessage(player, MessageKey.NO_CONTENT)
                         state.preview = Pair(title, content)
                         BulletinBoardManager.openConfirmation(player, ConfirmationType.SAVE_POST)
+                    }
+                }
+            }
+
+            LanguageManager.getMessage(player, MessageKey.SAVE_POST_CONFIRMATION) -> {
+                event.isCancelled = true
+                when (customId) {
+                    CustomID.CONFIRM_SAVE_POST.name -> {
+                        val draft = state.draft
+                        if (draft == null) {
+                            savePostStateNull(player)
+                        } else {
+                            val title = draft.title ?: LanguageManager.getMessage(player, MessageKey.NO_TITLE)
+                            val content = draft.content ?: LanguageManager.getMessage(player, MessageKey.NO_CONTENT)
+                            val post = Post(
+                                id = ShortUUID.randomUUID(),
+                                title = title,
+                                author = player.uniqueId,
+                                content = content,
+                                date = Date()
+                            )
+
+                            runTaskAsynchronous(p) {
+                                BulletinBoard.database.insertPost(post)
+                                state.draft = null
+                            }
+
+                            runTask(p) {
+                                player.closeInventory()
+                                player.sendMessage(LanguageManager.getMessage(player, MessageKey.POST_SAVED))
+                            }
+                        }
                     }
                 }
             }
@@ -163,6 +198,13 @@ class BBListenerActions : IEventHandler {
                     inputType?.name?.lowercase()?.let { s -> text.matchLiteral("{inputType}").replacement(s) }
                 }.replaceText { text -> text.matchLiteral("{input}").replacement(message) }
             )
+        }
+    }
+
+    private fun savePostStateNull(player: Player) {
+        runTask(p) {
+            player.closeInventory()
+            player.sendMessage(LanguageManager.getMessage(player, MessageKey.WHEN_POST_DRAFT_NULL))
         }
     }
 }

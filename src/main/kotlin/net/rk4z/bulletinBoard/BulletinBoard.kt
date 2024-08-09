@@ -41,12 +41,17 @@ class BulletinBoard : JavaPlugin() {
             private set
         lateinit var namespacedKey: NamespacedKey
             private set
+        lateinit var database: DataBase
+            private set
 
         private const val ID: String = "bulletinboard"
 
-        // TaskRunner for Bukkit Scheduler
         val runTask: TaskRunner = { plugin, runnable ->
             Bukkit.getScheduler().runTask(plugin, runnable)
+        }
+
+        val runTaskAsynchronous: TaskRunner = { plugin, runnable ->
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, runnable)
         }
     }
 
@@ -63,8 +68,6 @@ class BulletinBoard : JavaPlugin() {
         "about",
         "howtouse"
     )
-
-    private lateinit var database: DataBase
 
     override fun onLoad() {
         instance = this
