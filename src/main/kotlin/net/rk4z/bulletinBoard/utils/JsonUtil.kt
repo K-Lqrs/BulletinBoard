@@ -7,6 +7,7 @@ import net.rk4z.bulletinBoard.BulletinBoard
 import java.io.File
 import java.util.*
 
+@Suppress("unused")
 object JsonUtil {
     private val json = Json {
         prettyPrint = true

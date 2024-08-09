@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "net.rk4z"
-version = "0.1.5"
+version = "0.2.0"
 
 repositories {
     mavenCentral()
@@ -23,7 +23,7 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
     implementation("org.xerial:sqlite-jdbc:3.46.0.1")
     // Original Event API
-    implementation("net.rk4z:beacon:1.3.7")
+    implementation("net.rk4z:beacon:1.3.8")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
 }
 

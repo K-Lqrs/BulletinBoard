@@ -3,7 +3,10 @@ package net.rk4z.bulletinBoard.utils
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import net.kyori.adventure.text.Component
+import net.rk4z.bulletinBoard.managers.BBCommandManager
+import net.rk4z.bulletinBoard.managers.BulletinBoardManager
 import org.bukkit.Material
+import org.bukkit.entity.Player
 import java.util.*
 
 data class PlayerState(
@@ -11,6 +14,8 @@ data class PlayerState(
     var editDraft: EditPostData? = null,
 
     var isInputting: Boolean = false,
+    var isEditInputting: Boolean = false,
+    var isPreviewing: Boolean = false,
     var isOpeningConfirmation: Boolean = false,
 
     var inputType: InputType? = null,
@@ -28,7 +33,7 @@ data class PostDraft(
 @Serializable
 data class Post(
     @Contextual
-    val id: ShortUUID,
+    val id: String,
     @Contextual
     val author: UUID,
     @Serializable(with = ComponentSerializer::class)
@@ -46,7 +51,7 @@ data class EditPostData(
 ) {
     fun toPost(author: UUID, date: Date): Post {
         return Post(
-            id = this.id ?: ShortUUID.randomUUID(),
+            id = this.id.toString(),
             title = this.title ?: Component.text(""),
             author = author,
             content = this.content ?: Component.text(""),
@@ -109,7 +114,16 @@ enum class CustomID {
     CONFIRM_CANCEL_POST,
     PREVIEW_POST,
     CANCEL_CONFIRM_SAVE_POST,
-    CONTINUE_POST
+    CONTINUE_POST,
+    PREV_PAGE,
+    NEXT_PAGE,
+    BACK_BUTTON,
+    EDIT_POST,
+    DELETE_POST,
+    RESTORE_POST,
+    DELETE_POST_PERMANENTLY,
+    CONFIRM_DELETE_POST,
+    CANCEL_DELETE_POST,
 }
 
 enum class InputType {
@@ -120,6 +134,7 @@ enum class InputType {
 enum class ConfirmationType {
     SAVE_POST,
     CANCEL_POST,
+    DELETING_POST,
 }
 
 enum class MessageKey {
@@ -158,6 +173,7 @@ enum class MessageKey {
     USAGE_PREVIEWCLOSE,
     SAVE_POST_CONFIRMATION,
     CANCEL_POST_CONFIRMATION,
+    DELETE_POST_CONFIRMATION,
     CONFIRM_SAVE_POST,
     CANCEL_CONFIRM_SAVE_POST,
     PREVIEW_POST,
@@ -165,4 +181,42 @@ enum class MessageKey {
     CONFIRM_CANCEL_POST,
     WHEN_POST_DRAFT_NULL,
     POST_SAVED,
+    PREV_PAGE,
+    NEXT_PAGE,
+    BACK_BUTTON,
+    EDIT_POST,
+    DELETE_POST,
+    TITLE_LABEL,
+    CONTENT_LABEL,
+    DATE_LABEL,
+    AUTHOR_LABEL,
+    RESTORE_POST,
+    DELETE_POST_PERMANENTLY,
+    DELETE_POST_SELECTION,
+    CANCEL_DELETE_POST,
+    CONFIRM_DELETE_POST,
+}
+
+enum class TitleType(val key: MessageKey) {
+    ALL_POSTS(MessageKey.ALL_POSTS),
+    MY_POSTS(MessageKey.MY_POSTS),
+    DELETED_POSTS(MessageKey.DELETED_POSTS),
+    DELETE_POST_SELECTION(MessageKey.DELETE_POST_SELECTION),
+}
+
+enum class Commands(val execute: (Player) -> Unit) {
+    OPENBOARD({ player -> BulletinBoardManager.openMainBoard(player) }),
+    NEWPOST({ player -> BulletinBoardManager.openPostEditor(player) }),
+    MYPOSTS({ player -> BulletinBoardManager.openMyPosts(player) }),
+    POSTS({ player -> BulletinBoardManager.openAllPosts(player) }),
+    DELETEDPOSTS({ player -> BulletinBoardManager.openDeletedPosts(player) }),
+    HELP({ player -> BBCommandManager.displayHelp(player) }),
+    ABOUT({ player -> BBCommandManager.displayAbout(player)}),
+    HOWTOUSE({ player -> BBCommandManager.displayHowToUse(player) });
+
+    companion object {
+        fun fromString(name: String): Commands? {
+            return entries.find { it.name.equals(name, ignoreCase = true) }
+        }
+    }
 }

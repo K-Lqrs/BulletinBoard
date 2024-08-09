@@ -12,6 +12,9 @@ object LanguageManager {
             MessageKey.POST_EDITOR to "投稿エディタ",
             MessageKey.ALL_POSTS to "投稿一覧",
             MessageKey.MY_POSTS to "自分の投稿",
+            MessageKey.CANCEL_POST_CONFIRMATION to "投稿をキャンセルしますか？",
+            MessageKey.SAVE_POST_CONFIRMATION to "投稿を保存しますか？",
+            MessageKey.DELETE_POST_SELECTION to "削除する投稿を選択してください",
             //endregion
 
             //region Button
@@ -22,13 +25,23 @@ object LanguageManager {
             MessageKey.HELP to "ヘルプ",
             MessageKey.SAVE_POST to "投稿する",
             MessageKey.CANCEL_POST to "投稿をキャンセル",
+            MessageKey.BACK_BUTTON to "戻る",
+            MessageKey.EDIT_POST to "投稿を編集",
+            MessageKey.CONTINUE_POST to "投稿を続ける",
+            MessageKey.CONFIRM_CANCEL_POST to "投稿をキャンセル",
+            MessageKey.CONFIRM_SAVE_POST to "投稿を保存",
+            MessageKey.CANCEL_CONFIRM_SAVE_POST to "投稿をやめる",
+            MessageKey.PREVIEW_POST to "投稿をプレビュー",
+            MessageKey.DELETE_POST to "投稿を削除",
+            MessageKey.DELETE_POST_PERMANENTLY to "投稿を完全に削除",
             //endregion
 
             //region Messages
             MessageKey.PLEASE_ENTER_TITLE to "タイトルを入力して下さい: ",
             MessageKey.PLEASE_ENTER_CONTENT to "内容を入力してください: ",
             MessageKey.INPUT_SET to "{inputType}が{input}に設定されました",
-            MessageKey.WHEN_POST_DRAFT_NULL to "内部データから投稿のドラフトを見つけられませんでした。もう一度お試しください。",
+            MessageKey.WHEN_POST_DRAFT_NULL to "内部データから投稿のドラフトを見つけられませんでした。もう一度お試しください : タイトル、コンテンツの両方共を空にできません。",
+            MessageKey.RESTORE_POST to "投稿を復元",
             //endregion
 
             //region Others
@@ -42,8 +55,17 @@ object LanguageManager {
             MessageKey.USAGE_OPENBOARD to "メインボードを開く",
             MessageKey.USAGE_NEWPOST to "投稿エディタを開く",
             MessageKey.USAGE_MYPOSTS to "自分の投稿を表示",
+            MessageKey.USAGE_SETTINGS to "設定を開く",
+            MessageKey.USAGE_DELETED_POSTS to "削除済み投稿を表示",
             MessageKey.USAGE_POSTS to "すべての投稿を表示",
             MessageKey.USAGE_PREVIEWCLOSE to "投稿のプレビューを閉じる(プレビューをしている場合のみ)",
+            //endregion
+
+            //region Label
+            MessageKey.TITLE_LABEL to "タイトル: ",
+            MessageKey.CONTENT_LABEL to "コンテンツ: ",
+            MessageKey.AUTHOR_LABEL to "投稿者: ",
+            MessageKey.DATE_LABEL to "投稿日時: ",
             //endregion
 
             //region How to Use
@@ -70,9 +92,11 @@ object LanguageManager {
             MessageKey.ABOUT_PLUGIN to "About Plugin",
             MessageKey.SETTINGS to "Settings",
             MessageKey.HELP to "Help",
-
             MessageKey.SAVE_POST to "Save Post",
             MessageKey.CANCEL_POST to "Cancel Post",
+            MessageKey.BACK_BUTTON to "Back",
+            MessageKey.EDIT_POST to "Edit Post",
+            MessageKey.RESTORE_POST to "Restore Post",
             //endregion
 
             //region Others
@@ -85,6 +109,7 @@ object LanguageManager {
             MessageKey.PLEASE_ENTER_TITLE to "Please enter a title: ",
             MessageKey.PLEASE_ENTER_CONTENT to "Please enter content: ",
             MessageKey.INPUT_SET to "{inputType} set to {input}",
+            MessageKey.WHEN_POST_DRAFT_NULL to "Could not find the draft from internal data. Please try again.",
             //endregion
 
             //region Help
@@ -94,6 +119,13 @@ object LanguageManager {
             MessageKey.USAGE_MYPOSTS to "View your own posts",
             MessageKey.USAGE_POSTS to "View all posts",
             MessageKey.USAGE_PREVIEWCLOSE to "Close the post preview (if previewing)",
+            //endregion
+
+            //region Label
+            MessageKey.TITLE_LABEL to "Title: ",
+            MessageKey.CONTENT_LABEL to "Content: ",
+            MessageKey.AUTHOR_LABEL to "Author: ",
+            MessageKey.DATE_LABEL to "Date: ",
             //endregion
 
             //region How to Use

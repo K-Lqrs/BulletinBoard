@@ -7,9 +7,11 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
 import java.text.SimpleDateFormat
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
-@Suppress("DuplicatedCode")
+@Suppress("DuplicatedCode", "LoggingSimilarMessage")
 class DataBase(private val plugin: BulletinBoard) {
     private var connection: Connection? = null
 
@@ -84,7 +86,7 @@ class DataBase(private val plugin: BulletinBoard) {
     fun importDataFromJson(file: File) {
         val data = JsonUtil.loadFromFile(file)
         data.posts.forEach { post ->
-            insertPost(post)
+            insertPost(post, true)
         }
         plugin.logger.info("Data imported from JSON to SQLite successfully!")
         setMigrationFlag()
@@ -120,16 +122,22 @@ class DataBase(private val plugin: BulletinBoard) {
         }
     }
 
-
 //>-----------------------------------------------<\\
 
-    fun insertPost(post: Post) {
+    fun insertPost(post: Post, useOriginalUUID: Boolean = false) {
         val insertSQL = "INSERT INTO posts (id, author, title, content, date) VALUES (?, ?, ?, ?, ?)"
         val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
         dateFormat.timeZone = TimeZone.getTimeZone("UTC")
+
         try {
             connection?.prepareStatement(insertSQL)?.use { statement ->
-                statement.setString(1, post.id.toShortString())
+                val idString = if (useOriginalUUID) {
+                    post.id
+                } else {
+                    ShortUUID.fromUUID(UUID.fromString(post.id)).toShortString()
+                }
+
+                statement.setString(1, idString)
                 statement.setString(2, post.author.toString())
                 statement.setString(3, GsonComponentSerializer.gson().serialize(post.title))
                 statement.setString(4, GsonComponentSerializer.gson().serialize(post.content))
@@ -142,18 +150,25 @@ class DataBase(private val plugin: BulletinBoard) {
         }
     }
 
-    fun deletePost(id: ShortUUID) {
+    fun deletePost(id: String) {
         val selectSQL = "SELECT * FROM posts WHERE id = ?"
         val deleteSQL = "DELETE FROM posts WHERE id = ?"
         val insertDeletedSQL = "INSERT INTO deletedPosts (id, author, title, content, date) VALUES (?, ?, ?, ?, ?)"
 
         try {
             connection?.prepareStatement(selectSQL)?.use { selectStatement ->
-                selectStatement.setString(1, id.toShortString())
+                selectStatement.setString(1, id)
                 val resultSet = selectStatement.executeQuery()
                 if (resultSet.next()) {
+                    val postIdString = resultSet.getString("id")
+                    val postId = if (postIdString.length == 36) {
+                        postIdString
+                    } else {
+                        ShortUUID.fromShortString(postIdString).toString()
+                    }
+
                     val post = Post(
-                        id = id,
+                        id = postId,
                         author = UUID.fromString(resultSet.getString("author")),
                         title = GsonComponentSerializer.gson().deserialize(resultSet.getString("title")),
                         content = GsonComponentSerializer.gson().deserialize(resultSet.getString("content")),
@@ -161,7 +176,7 @@ class DataBase(private val plugin: BulletinBoard) {
                     )
 
                     connection?.prepareStatement(insertDeletedSQL)?.use { insertStatement ->
-                        insertStatement.setString(1, post.id.toShortString())
+                        insertStatement.setString(1, post.id)
                         insertStatement.setString(2, post.author.toString())
                         insertStatement.setString(3, GsonComponentSerializer.gson().serialize(post.title))
                         insertStatement.setString(4, GsonComponentSerializer.gson().serialize(post.content))
@@ -170,7 +185,7 @@ class DataBase(private val plugin: BulletinBoard) {
                     }
 
                     connection?.prepareStatement(deleteSQL)?.use { deleteStatement ->
-                        deleteStatement.setString(1, id.toShortString())
+                        deleteStatement.setString(1, id)
                         deleteStatement.executeUpdate()
                     }
 
@@ -184,4 +199,212 @@ class DataBase(private val plugin: BulletinBoard) {
             e.printStackTrace()
         }
     }
+
+    fun getAllPosts(): List<Post> {
+        val posts = mutableListOf<Post>()
+        val selectSQL = "SELECT * FROM posts"
+
+        try {
+            connection?.prepareStatement(selectSQL)?.use { statement ->
+                val resultSet = statement.executeQuery()
+                while (resultSet.next()) {
+                    val postIdString = resultSet.getString("id")
+                    val postId = if (postIdString.length == 36) {
+                        postIdString
+                    } else {
+                        ShortUUID.fromShortString(postIdString).toShortString()
+                    }
+
+                    val rawDate = resultSet.getString("date")
+                    val parsedDate = try {
+                        Date.from(ZonedDateTime.parse(rawDate, DateTimeFormatter.ISO_DATE_TIME).toInstant())
+                    } catch (e: Exception) {
+                        val formatter = SimpleDateFormat("yyyy:MM:dd_HH:mm:ss")
+                        formatter.parse(rawDate)
+                    }
+
+                    val post = Post(
+                        id = postId,
+                        author = UUID.fromString(resultSet.getString("author")),
+                        title = GsonComponentSerializer.gson().deserialize(resultSet.getString("title")),
+                        content = GsonComponentSerializer.gson().deserialize(resultSet.getString("content")),
+                        date = parsedDate
+                    )
+                    posts.add(post)
+                }
+            }
+        } catch (e: SQLException) {
+            plugin.logger.error("Could not retrieve posts from database!")
+            e.printStackTrace()
+        }
+
+        return posts
+    }
+
+    fun getPostsByAuthor(authorId: UUID): List<Post> {
+        val posts = mutableListOf<Post>()
+        val selectSQL = "SELECT * FROM posts WHERE author = ?"
+
+        try {
+            connection?.prepareStatement(selectSQL)?.use { statement ->
+                statement.setString(1, authorId.toString())
+                val resultSet = statement.executeQuery()
+                while (resultSet.next()) {
+                    val postIdString = resultSet.getString("id")
+                    val postId = if (postIdString.length == 36) {
+                        postIdString
+                    } else {
+                        ShortUUID.fromShortString(postIdString).toShortString()
+                    }
+
+                    val rawDate = resultSet.getString("date")
+                    val parsedDate = try {
+                        ZonedDateTime.parse(rawDate, DateTimeFormatter.ISO_DATE_TIME).toInstant()
+                    } catch (e: Exception) {
+                        val formatter = SimpleDateFormat("yyyy:MM:dd_HH:mm:ss")
+                        formatter.parse(rawDate).toInstant()
+                    }
+
+                    val post = Post(
+                        id = postId,
+                        author = UUID.fromString(resultSet.getString("author")),
+                        title = GsonComponentSerializer.gson().deserialize(resultSet.getString("title")),
+                        content = GsonComponentSerializer.gson().deserialize(resultSet.getString("content")),
+                        date = Date.from(parsedDate)
+                    )
+                    posts.add(post)
+                }
+            }
+        } catch (e: SQLException) {
+            plugin.logger.error("Could not retrieve posts from database!")
+            e.printStackTrace()
+        }
+
+        return posts
+    }
+
+    fun getPost(id: String): Post? {
+        val selectSQL = "SELECT * FROM posts WHERE id = ?"
+
+        return try {
+            connection?.prepareStatement(selectSQL)?.use { statement ->
+                statement.setString(1, id)
+                val resultSet = statement.executeQuery()
+                if (resultSet.next()) {
+                    val postIdString = resultSet.getString("id")
+                    val postId = if (postIdString.length == 36) {
+                        postIdString
+                    } else {
+                        ShortUUID.fromShortString(postIdString).toString()
+                    }
+
+                    val rawDate = resultSet.getString("date")
+                    val parsedDate = try {
+                        Date.from(ZonedDateTime.parse(rawDate, DateTimeFormatter.ISO_DATE_TIME).toInstant())
+                    } catch (e: Exception) {
+                        val formatter = SimpleDateFormat("yyyy:MM:dd_HH:mm:ss")
+                        formatter.parse(rawDate)
+                    }
+
+                    Post(
+                        id = postId,
+                        author = UUID.fromString(resultSet.getString("author")),
+                        title = GsonComponentSerializer.gson().deserialize(resultSet.getString("title")),
+                        content = GsonComponentSerializer.gson().deserialize(resultSet.getString("content")),
+                        date = parsedDate
+                    )
+                } else {
+                    null
+                }
+            }
+        } catch (e: SQLException) {
+            plugin.logger.error("Could not retrieve post from database!")
+            e.printStackTrace()
+            null
+        }
+    }
+
+    fun getDeletedPostsByAuthor(authorId: UUID): List<Post> {
+        val posts = mutableListOf<Post>()
+        val selectSQL = "SELECT * FROM deletedPosts WHERE author = ?"
+
+        try {
+            connection?.prepareStatement(selectSQL)?.use { statement ->
+                statement.setString(1, authorId.toString())
+                val resultSet = statement.executeQuery()
+                while (resultSet.next()) {
+                    val postIdString = resultSet.getString("id")
+                    val postId = if (postIdString.length == 36) {
+                        postIdString
+                    } else {
+                        ShortUUID.fromShortString(postIdString).toShortString()
+                    }
+
+                    val rawDate = resultSet.getString("date")
+                    val parsedDate = try {
+                        ZonedDateTime.parse(rawDate, DateTimeFormatter.ISO_DATE_TIME).toInstant()
+                    } catch (e: Exception) {
+                        val formatter = SimpleDateFormat("yyyy:MM:dd_HH:mm:ss")
+                        formatter.parse(rawDate).toInstant()
+                    }
+
+                    val post = Post(
+                        id = postId,
+                        author = UUID.fromString(resultSet.getString("author")),
+                        title = GsonComponentSerializer.gson().deserialize(resultSet.getString("title")),
+                        content = GsonComponentSerializer.gson().deserialize(resultSet.getString("content")),
+                        date = Date.from(parsedDate)
+                    )
+                    posts.add(post)
+                }
+            }
+        } catch (e: SQLException) {
+            plugin.logger.error("Could not retrieve deleted posts from database!")
+            e.printStackTrace()
+        }
+
+        return posts
+    }
+
+    fun getDeletedPostsByID(id: String): Post? {
+        val selectSQL = "SELECT * FROM deletedPosts WHERE id = ?"
+
+        return try {
+            connection?.prepareStatement(selectSQL)?.use { statement ->
+                statement.setString(1, id)
+                val resultSet = statement.executeQuery()
+                if (resultSet.next()) {
+                    val postIdString = resultSet.getString("id")
+                    val postId = if (postIdString.length == 36) {
+                        postIdString
+                    } else {
+                        ShortUUID.fromShortString(postIdString).toString()
+                    }
+
+                    val rawDate = resultSet.getString("date")
+                    val parsedDate = try {
+                        Date.from(ZonedDateTime.parse(rawDate, DateTimeFormatter.ISO_DATE_TIME).toInstant())
+                    } catch (e: Exception) {
+                        val formatter = SimpleDateFormat("yyyy:MM:dd_HH:mm:ss")
+                        formatter.parse(rawDate)
+                    }
+
+                    Post(
+                        id = postId,
+                        author = UUID.fromString(resultSet.getString("author")),
+                        title = GsonComponentSerializer.gson().deserialize(resultSet.getString("title")),
+                        content = GsonComponentSerializer.gson().deserialize(resultSet.getString("content")),
+                        date = parsedDate
+                    )
+                } else {
+                    null
+                }
+            }
+        } catch (e: SQLException) {
+            plugin.logger.error("Could not retrieve deleted post from database!")
+            e.printStackTrace()
+            null
+        }
+    }
+
 }

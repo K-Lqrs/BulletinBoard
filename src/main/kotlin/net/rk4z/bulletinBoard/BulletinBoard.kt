@@ -19,6 +19,7 @@
 package net.rk4z.bulletinBoard
 
 import net.rk4z.beacon.EventBus
+import net.rk4z.beacon.EventProcessingType
 import net.rk4z.bulletinBoard.events.BulletinBoardOnCommandEvent
 import net.rk4z.bulletinBoard.events.BulletinBoardOnTabCompleteEvent
 import net.rk4z.bulletinBoard.listeners.BBListener
@@ -59,21 +60,12 @@ class BulletinBoard : JavaPlugin() {
     val pluginDes: String? = description.description
     val author: MutableList<String> = description.authors
     val logger: Logger = LoggerFactory.getLogger(BulletinBoard::class.java.simpleName)
-    val subCommands: MutableList<String> = mutableListOf(
-        "openboard",
-        "newpost",
-        "posts",
-        "myposts",
-        "help",
-        "about",
-        "howtouse"
-    )
 
     override fun onLoad() {
         instance = this
         namespacedKey = NamespacedKey(this, ID)
         EventBus.initialize()
-        BBCommandManager()
+        BBCommandManager
         BBListenerActions()
 
         if (!dataFolder.exists()) {
@@ -110,7 +102,7 @@ class BulletinBoard : JavaPlugin() {
         label: String,
         args: Array<out String>?
     ): Boolean {
-        return EventBus.postReturnable(BulletinBoardOnCommandEvent.get(sender, command, args))?: false
+        return EventBus.postReturnable(BulletinBoardOnCommandEvent.get(sender, command, args), EventProcessingType.Sync)?: false
     }
 
     override fun onTabComplete(
@@ -118,8 +110,8 @@ class BulletinBoard : JavaPlugin() {
         command: Command,
         alias: String,
         args: Array<out String>?
-    ): MutableList<String>? {
-        return EventBus.postReturnable(BulletinBoardOnTabCompleteEvent.get(command, args))
+    ): List<String>? {
+        return EventBus.postReturnable(BulletinBoardOnTabCompleteEvent.get(command, args), EventProcessingType.Sync)
     }
 }
 

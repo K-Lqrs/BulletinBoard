@@ -2,6 +2,7 @@ package net.rk4z.bulletinBoard.utils
 
 import java.util.*
 
+@Suppress("unused")
 class ShortUUID
 private constructor(private val uuid: UUID) {
 
@@ -21,6 +22,14 @@ private constructor(private val uuid: UUID) {
             val low = bb.long
             return ShortUUID(UUID(high, low))
         }
+
+        fun fromUUID(uuid: UUID): ShortUUID {
+            return ShortUUID(uuid)
+        }
+    }
+
+    fun fromShortUUIDString(shortUUIDString: String): ShortUUID {
+        return fromShortString(shortUUIDString)
     }
 
     fun toUUID(): UUID {

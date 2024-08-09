@@ -1,8 +1,11 @@
+@file:Suppress("DEPRECATION")
+
 package net.rk4z.bulletinBoard.listeners
 
 import net.rk4z.beacon.EventBus
 import net.rk4z.bulletinBoard.BulletinBoard
 import net.rk4z.bulletinBoard.events.BulletinBoardClickEvent
+import net.rk4z.bulletinBoard.events.BulletinBoardCloseEvent
 import net.rk4z.bulletinBoard.events.BulletinBoardOnChatEvent
 import net.rk4z.bulletinBoard.managers.BulletinBoardManager
 import net.rk4z.bulletinBoard.utils.CustomID
@@ -12,6 +15,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.persistence.PersistentDataType
 
@@ -37,7 +41,7 @@ class BBListener : Listener {
 
         Bukkit.getScheduler().runTaskLater(BulletinBoard.instance, Runnable {
             removeItemFromPlayerInventory(player)
-        }, 1L)
+        }, 2L)
     }
 
     @EventHandler
@@ -46,6 +50,19 @@ class BBListener : Listener {
         val state = BulletinBoardManager.getPlayerState(player.uniqueId)
 
         EventBus.postAsync(BulletinBoardOnChatEvent.get(player, state, event))
+    }
+
+    @EventHandler
+    fun onInventoryClose(event: InventoryCloseEvent) {
+        val player = event.player as? Player ?: return
+        val state = BulletinBoardManager.getPlayerState(player.uniqueId)
+        val inventoryTitle = event.view.title()
+
+        EventBus.postAsync(BulletinBoardCloseEvent.get(player, inventoryTitle, state))
+
+        Bukkit.getScheduler().runTaskLater(BulletinBoard.instance, Runnable {
+            removeItemFromPlayerInventory(player)
+        }, 2L)
     }
 
     private fun removeItemFromPlayerInventory(player: Player) {
