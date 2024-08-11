@@ -23,7 +23,7 @@ import net.rk4z.beacon.EventProcessingType
 import net.rk4z.bulletinBoard.events.BulletinBoardOnCommandEvent
 import net.rk4z.bulletinBoard.events.BulletinBoardOnTabCompleteEvent
 import net.rk4z.bulletinBoard.listeners.BBListener
-import net.rk4z.bulletinBoard.listeners.BBListenerActions
+import net.rk4z.bulletinBoard.listeners.BBListenerHandlers
 import net.rk4z.bulletinBoard.managers.BBCommandManager
 import net.rk4z.bulletinBoard.utils.DataBase
 import org.bukkit.Bukkit
@@ -67,7 +67,7 @@ class BulletinBoard : JavaPlugin() {
         namespacedKey = NamespacedKey(this, ID)
         EventBus.initialize()
         BBCommandManager()
-        BBListenerActions()
+        BBListenerHandlers()
 
         if (!dataFolder.exists()) {
             dataFolder.mkdir()

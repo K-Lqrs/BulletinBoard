@@ -200,6 +200,72 @@ class DataBase(private val plugin: BulletinBoard) {
         }
     }
 
+    fun deletePostPermanently(id: String) {
+        val deleteSQL = "DELETE FROM deletedPosts WHERE id = ?"
+
+        try {
+            connection?.prepareStatement(deleteSQL)?.use { stateMent ->
+                stateMent.setString(1, id)
+                val rowsAffected = stateMent.executeUpdate()
+                if (rowsAffected > 0) {
+                    plugin.logger.info("Post with id $id deleted permanently.")
+                } else {
+                    plugin.logger.warn("No post found with the given ID.")
+                }
+            }
+        } catch (e: SQLException) {
+            plugin.logger.error("Could not delete post permanently from database!")
+            e.printStackTrace()
+        }
+    }
+
+    fun restorePost(id: String) {
+        val selectSQL = "SELECT * FROM deletedPosts WHERE id = ?"
+        val insertSQL = "INSERT INTO posts (id, author, title, content, date) VALUES (?, ?, ?, ?, ?)"
+        val deleteSQL = "DELETE FROM deletedPosts WHERE id = ?"
+
+        try {
+            connection?.prepareStatement(selectSQL)?.use { selectStatement ->
+                selectStatement.setString(1, id)
+                val resultSet = selectStatement.executeQuery()
+                if (resultSet.next()) {
+                    val postId = resultSet.getString("id")
+                    val author = UUID.fromString(resultSet.getString("author"))
+                    val title = GsonComponentSerializer.gson().deserialize(resultSet.getString("title"))
+                    val content = GsonComponentSerializer.gson().deserialize(resultSet.getString("content"))
+                    val rawDate = resultSet.getString("date")
+                    val parsedDate = try {
+                        ZonedDateTime.parse(rawDate, DateTimeFormatter.ISO_DATE_TIME).toInstant()
+                    } catch (e: Exception) {
+                        val formatter = SimpleDateFormat("yyyy:MM:dd_HH:mm:ss")
+                        formatter.parse(rawDate).toInstant()
+                    }
+
+                    connection?.prepareStatement(insertSQL)?.use { insertStatement ->
+                        insertStatement.setString(1, postId)
+                        insertStatement.setString(2, author.toString())
+                        insertStatement.setString(3, GsonComponentSerializer.gson().serialize(title))
+                        insertStatement.setString(4, GsonComponentSerializer.gson().serialize(content))
+                        insertStatement.setString(5, DateTimeFormatter.ISO_DATE_TIME.format(parsedDate))
+                        insertStatement.executeUpdate()
+                    }
+
+                    connection?.prepareStatement(deleteSQL)?.use { deleteStatement ->
+                        deleteStatement.setString(1, id)
+                        deleteStatement.executeUpdate()
+                    }
+
+                    plugin.logger.info("Post with ID $id has been restored from deletedPosts to posts.")
+                } else {
+                    plugin.logger.warn("No post found with the given ID in deletedPosts.")
+                }
+            }
+        } catch (e: SQLException) {
+            plugin.logger.error("Could not restore post from deletedPosts to posts!")
+            e.printStackTrace()
+        }
+    }
+
     fun getAllPosts(): List<Post> {
         val posts = mutableListOf<Post>()
         val selectSQL = "SELECT * FROM posts"

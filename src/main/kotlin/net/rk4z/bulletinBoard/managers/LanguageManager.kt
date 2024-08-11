@@ -19,6 +19,10 @@ object LanguageManager {
             MessageKey.DELETE_POST_SELECTION to "削除する投稿を選択してください",
             MessageKey.DELETE_POST_PERMANENTLY_SELECTION to "完全に削除する投稿を選択してください",
             MessageKey.DELETE_POST_CONFIRMATION to "投稿を削除しますか？",
+            MessageKey.EDIT_POST_SELECTION to "編集する投稿を選択してください",
+            MessageKey.DELETE_POST_PERMANENTLY_CONFIRMATION to "投稿を完全に削除しますか？",
+            MessageKey.CANCEL_DELETE_POST_PERMANENTLY to "完全な削除をキャンセル",
+            MessageKey.CONFIRM_DELETE_POST_PERMANENTLY to "投稿を完全に削除",
             //endregion
 
             //region Button
@@ -54,6 +58,7 @@ object LanguageManager {
             MessageKey.POST_SAVED to "投稿が保存されました。",
             MessageKey.POST_DELETED to "投稿が削除されました。",
             MessageKey.CANCELLED_POST to "投稿がキャンセルされました。",
+            MessageKey.POST_DELETED_PERMANENTLY to "投稿が完全に削除されました。",
             //endregion
 
             //region Others

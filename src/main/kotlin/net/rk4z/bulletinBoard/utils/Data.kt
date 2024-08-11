@@ -33,11 +33,11 @@ data class PlayerState(
     var selectedDeletingPostId: String? = null,
     var selectedEditingPostId: String? = null,
 
-    var isInputting: Boolean? = false,
-    var isEditInputting: Boolean? = false,
-    var isPreviewing: Boolean? = false,
-    var isOpeningConfirmation: Boolean? = false,
-    var isChoosingConfirmationAnswer: Boolean? = false,
+    var isInputting: Boolean? = null,
+    var isEditInputting: Boolean? = null,
+    var isPreviewing: Boolean? = null,
+    var isOpeningConfirmation: Boolean? = null,
+    var isChoosingConfirmationAnswer: Boolean? = null,
 
     var inputType: InputType? = null,
     var editInputType: InputType? = null,
@@ -236,7 +236,10 @@ enum class MessageKey {
     DELETE_POST_PERMANENTLY_CONFIRMATION,
     CANCEL_DELETE_POST_PERMANENTLY,
     CONFIRM_DELETE_POST_PERMANENTLY,
-    EDIT_POST_SELECTION
+    EDIT_POST_SELECTION,
+    POST_DELETED_PERMANENTLY,
+    RESTORE_POST_SELECTION,
+    POST_RESTORED,
 }
 
 enum class TitleType(val key: MessageKey) {
@@ -245,7 +248,8 @@ enum class TitleType(val key: MessageKey) {
     DELETED_POSTS(MessageKey.DELETED_POSTS),
     DELETE_POST_SELECTION(MessageKey.DELETE_POST_SELECTION),
     DELETE_POST_PERMANENTLY_SELECTION(MessageKey.DELETE_POST_PERMANENTLY_SELECTION),
-    EDIT_POST_SELECTION(MessageKey.EDIT_POST_SELECTION)
+    EDIT_POST_SELECTION(MessageKey.EDIT_POST_SELECTION),
+    RESTORE_POST_SELECTION(MessageKey.RESTORE_POST_SELECTION)
 }
 
 enum class Commands(val execute: (Player) -> Unit) {

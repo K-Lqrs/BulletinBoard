@@ -156,6 +156,13 @@ object BulletinBoardManager {
         }
     }
 
+    fun openRestorePostSelection(player: Player, page: Int = 0) {
+        runTaskAsynchronous(p) {
+            val deletedPosts = BulletinBoard.database.getDeletedPostsByAuthor(player.uniqueId)
+            openPostsInventory(player, RESTORE_POST_SELECTION, deletedPosts, page)
+        }
+    }
+
     fun openDeletePostPermanentlySelection(player: Player, page: Int = 0) {
         runTaskAsynchronous(p) {
             val deletedPosts = BulletinBoard.database.getDeletedPostsByAuthor(player.uniqueId)
@@ -302,17 +309,11 @@ object BulletinBoardManager {
                 )
                 addButtonsToInventory(inventory, buttons, player)
             }
-            ALL_POSTS -> {
-                // no additional buttons
-            }
-            DELETE_POST_SELECTION -> {
-                // no additional buttons
-            }
-            DELETE_POST_PERMANENTLY_SELECTION -> {
-                // no additional buttons
-            }
-
-            EDIT_POST_SELECTION -> {
+            ALL_POSTS,
+            DELETE_POST_SELECTION,
+            DELETE_POST_PERMANENTLY_SELECTION,
+            EDIT_POST_SELECTION,
+            RESTORE_POST_SELECTION -> {
                 // no additional buttons
             }
         }
