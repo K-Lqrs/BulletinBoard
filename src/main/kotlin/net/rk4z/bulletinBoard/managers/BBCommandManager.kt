@@ -6,7 +6,6 @@ import net.kyori.adventure.text.format.TextDecoration
 import net.rk4z.beacon.IEventHandler
 import net.rk4z.beacon.returnableHandler
 import net.rk4z.bulletinBoard.BulletinBoard
-import net.rk4z.bulletinBoard.BulletinBoard.Companion.runTask
 import net.rk4z.bulletinBoard.events.BulletinBoardOnCommandEvent
 import net.rk4z.bulletinBoard.events.BulletinBoardOnTabCompleteEvent
 import net.rk4z.bulletinBoard.utils.Commands
@@ -16,29 +15,34 @@ import org.bukkit.SoundCategory
 import org.bukkit.entity.Player
 
 @Suppress("unused")
-object BBCommandManager : IEventHandler {
+class BBCommandManager : IEventHandler {
     private val p = BulletinBoard.instance
     private val subCommandsList: List<String> = Commands.entries.map { it.name }
 
-    val onCommand: Unit = returnableHandler<BulletinBoardOnCommandEvent, Boolean> { event ->
+    val onCommand = returnableHandler<BulletinBoardOnCommandEvent, Boolean> { event ->
         val sender = event.sender
         val command = event.command
         val args = event.args
 
         if (command.name.equals("bb", ignoreCase = true)) {
-            if (sender !is Player) {
-                sender.sendMessage("This command can only be run by a player.")
-                return@returnableHandler true
-            }
-
-            if (args.isNullOrEmpty() || subCommandsList.contains(args[0].lowercase()).not()) {
-                runTask(p) {
-                    sender.performCommand("bb help")
+            if (args.isNullOrEmpty() || subCommandsList.map { it.lowercase() }.contains(args[0]).not()) {
+                if (sender is Player) {
+                    val player: Player = sender
+                    displayHelp(player)
+                    return@returnableHandler true
+                } else {
+                    sender.sendMessage("This Command can only be run by a player.")
+                    return@returnableHandler true
                 }
-                return@returnableHandler true
             }
 
-            Commands.fromString(args[0])?.execute?.invoke(sender) ?: run {
+            val commandEnum = Commands.fromString(args[0])
+            if (commandEnum != null && sender is Player) {
+                with(commandEnum) {
+                    execute(sender)
+                    return@returnableHandler true
+                }
+            } else {
                 sender.sendMessage("Unknown command.")
                 return@returnableHandler true
             }
@@ -46,17 +50,18 @@ object BBCommandManager : IEventHandler {
         return@returnableHandler false
     }
 
-    val onTabComplete: Unit = returnableHandler<BulletinBoardOnTabCompleteEvent, List<String>?> { event ->
+    val onTabComplete = returnableHandler<BulletinBoardOnTabCompleteEvent, List<String>?> { event ->
         val command = event.command
         val args = event.args
 
         if (command.name.equals("bb", ignoreCase = true)) {
             if (args.isNullOrEmpty()) {
-                return@returnableHandler subCommandsList
+                return@returnableHandler subCommandsList.map { it.lowercase() }
             }
 
             if (args.size == 1) {
                 return@returnableHandler subCommandsList
+                    .map { it.lowercase() }
                     .filter { it.startsWith(args[0].lowercase()) }
             }
         }
@@ -64,9 +69,13 @@ object BBCommandManager : IEventHandler {
     }
 
     fun displayHelp(player: Player) {
+
         val headerComponent = LanguageManager.getMessage(player, MessageKey.USAGE_HEADER)
             .color(NamedTextColor.GOLD)
             .decorate(TextDecoration.BOLD)
+
+        val hStartComponent = Component.text("=======").color(NamedTextColor.GOLD)
+        val hEndComponent = Component.text("=======").color(NamedTextColor.GOLD)
 
         val commandsDescription = listOf(
             "openboard" to MessageKey.USAGE_OPENBOARD,
@@ -78,7 +87,7 @@ object BBCommandManager : IEventHandler {
             "previewclose" to MessageKey.USAGE_PREVIEWCLOSE
         )
 
-        player.sendMessage(headerComponent)
+        player.sendMessage(hStartComponent.append(headerComponent).append(hEndComponent))
 
         commandsDescription.forEach { (command, key) ->
             player.sendMessage(
@@ -112,6 +121,7 @@ object BBCommandManager : IEventHandler {
         player.sendMessage(Component.text("===================")
             .color(NamedTextColor.DARK_GREEN)
             .decorate(TextDecoration.BOLD))
+        BulletinBoard.instance.logger.info("About command executed by ${player.name}")
     }
 
     fun displayHowToUse(player: Player) {

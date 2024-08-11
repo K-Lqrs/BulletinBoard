@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package net.rk4z.bulletinBoard.listeners
 
 import net.kyori.adventure.text.Component
@@ -11,59 +13,109 @@ import net.rk4z.bulletinBoard.BulletinBoard.Companion.runTaskAsynchronous
 import net.rk4z.bulletinBoard.events.BulletinBoardClickEvent
 import net.rk4z.bulletinBoard.events.BulletinBoardCloseEvent
 import net.rk4z.bulletinBoard.events.BulletinBoardOnChatEvent
+import net.rk4z.bulletinBoard.managers.BBCommandManager
 import net.rk4z.bulletinBoard.managers.BulletinBoardManager
 import net.rk4z.bulletinBoard.managers.LanguageManager
 import net.rk4z.bulletinBoard.utils.*
 import org.bukkit.entity.Player
+import org.bukkit.event.player.AsyncPlayerChatEvent
 import java.util.*
 
 @Suppress("unused", "DuplicatedCode")
 class BBListenerActions : IEventHandler {
     private val p = BulletinBoard.instance
+    private val bbCommand = BBCommandManager()
 
-    val onBBClick = handler<BulletinBoardClickEvent>(priority = Priority.HIGHEST) {
+    val onBBClick = handler<BulletinBoardClickEvent>(
+        priority = Priority.HIGHEST
+    ) {
         val player = it.player
         val event = it.event
         val state = it.state
         val customId = it.customId
-        val inventory = it.inventoryTitle
+        when (val inventory = it.inventoryTitle) {
+            LanguageManager.getMessage(player, MessageKey.MAIN_BOARD) -> {
+                event.isCancelled = true
+                handleMainBoardClick(player, customId)
+            }
 
-        event.isCancelled = true
-
-        when (inventory) {
-            LanguageManager.getMessage(player, MessageKey.MAIN_BOARD) -> handleMainBoardClick(player, customId)
             LanguageManager.getMessage(player, MessageKey.MY_POSTS),
             LanguageManager.getMessage(player, MessageKey.ALL_POSTS),
-            LanguageManager.getMessage(player, MessageKey.DELETED_POSTS) -> handlePostsClick(player, inventory, customId)
-            LanguageManager.getMessage(player, MessageKey.POST_EDITOR) -> handlePostEditorClick(player, state, customId)
-            LanguageManager.getMessage(player, MessageKey.SAVE_POST_CONFIRMATION) -> handleSavePostConfirmation(player, state, customId)
-            LanguageManager.getMessage(player, MessageKey.DELETE_POST_SELECTION) -> handleDeletePostSelection(player, customId)
+            LanguageManager.getMessage(player, MessageKey.DELETED_POSTS) -> {
+                event.isCancelled = true
+                handlePostsClick(player, inventory, customId)
+            }
+
+            LanguageManager.getMessage(player, MessageKey.POST_EDITOR) -> {
+                event.isCancelled = true
+                handlePostEditorClick(player, state, customId)
+            }
+
+            LanguageManager.getMessage(player, MessageKey.SAVE_POST_CONFIRMATION) -> {
+                event.isCancelled = true
+                handleSavePostConfirmation(player, state, customId)
+            }
+
+            LanguageManager.getMessage(player, MessageKey.DELETE_POST_SELECTION) -> {
+                event.isCancelled = true
+                handleDeletePostSelection(player, customId, state)
+            }
+
+            LanguageManager.getMessage(player, MessageKey.DELETE_POST_CONFIRMATION) -> {
+                event.isCancelled = true
+                handleDeletePostConfirmation(player, customId, state)
+            }
+
+            LanguageManager.getMessage(player, MessageKey.CANCEL_POST_CONFIRMATION) -> {
+                event.isCancelled = true
+                handleCancelPostConfirmation(player, state, customId)
+            }
+
+            LanguageManager.getMessage(player, MessageKey.DELETE_POST_PERMANENTLY_SELECTION) -> {
+                event.isCancelled = true
+                handleDeletePostPermanentSelection(player, customId, state)
+            }
+
+            LanguageManager.getMessage(player, MessageKey.EDIT_POST_SELECTION) -> {
+                event.isCancelled = true
+                handleEditPostSelection(player, customId, state)
+            }
         }
     }
 
-    val onChat = handler<BulletinBoardOnChatEvent>(priority = Priority.HIGHEST) {
+    val onChat = handler<BulletinBoardOnChatEvent>(
+        priority = Priority.LOWEST
+    ) {
         val player = it.player
         val state = it.state
         val event = it.event
 
-        event.isCancelled = true
+        if (state.inputType != null || state.editInputType != null) {
+            event.isCancelled = true
+            event.recipients.clear()
 
-        when (val inputType = state.inputType ?: state.editInputType) {
-            InputType.TITLE -> updateDraft(player, state, inputType, event.message, true)
-            InputType.CONTENT -> updateDraft(player, state, inputType, event.message, false)
-            else -> return@handler
+            when (val inputType = state.inputType ?: state.editInputType) {
+                InputType.TITLE -> updateDraft(player, event, state, inputType, event.message, true)
+                InputType.CONTENT -> updateDraft(player, event, state, inputType, event.message, false)
+                else -> return@handler
+            }
         }
     }
 
-    val onInvClose = handler<BulletinBoardCloseEvent> {
+    val onInvClose = handler<BulletinBoardCloseEvent>(
+        priority = Priority.LOWEST
+    ) {
         val player = it.player
         val title = it.inventoryTitle
         val state = it.state
 
         when (title) {
             LanguageManager.getMessage(player, MessageKey.POST_EDITOR) -> handlePostEditorClose(state)
+
             LanguageManager.getMessage(player, MessageKey.SAVE_POST_CONFIRMATION),
-            LanguageManager.getMessage(player, MessageKey.CANCEL_POST_CONFIRMATION) -> clearConfirmationState(state)
+            LanguageManager.getMessage(player, MessageKey.CANCEL_POST_CONFIRMATION),
+            LanguageManager.getMessage(player, MessageKey.DELETE_POST_CONFIRMATION),
+            LanguageManager.getMessage(player, MessageKey.DELETE_POST_PERMANENTLY_CONFIRMATION) -> handleConfirmationClose(state)
         }
     }
 
@@ -73,8 +125,18 @@ class BBListenerActions : IEventHandler {
             CustomID.ALL_POSTS.name -> BulletinBoardManager.openAllPosts(player)
             CustomID.MY_POSTS.name -> BulletinBoardManager.openMyPosts(player)
             CustomID.DELETED_POSTS.name -> BulletinBoardManager.openDeletedPosts(player)
-            CustomID.ABOUT_PLUGIN.name -> BulletinBoardManager.performAbout(player)
-            CustomID.HELP.name -> BulletinBoardManager.performHelp(player)
+            CustomID.ABOUT_PLUGIN.name -> {
+                runTask(p) {
+                    player.closeInventory()
+                }
+                bbCommand.displayAbout(player)
+            }
+            CustomID.HELP.name -> {
+                runTask(p) {
+                    player.closeInventory()
+                }
+                bbCommand.displayHelp(player)
+            }
         }
     }
 
@@ -84,15 +146,24 @@ class BBListenerActions : IEventHandler {
         when (customId?.split(":")?.getOrNull(0)) {
             CustomID.PREV_PAGE.name -> openPage(player, inventory, currentPage - 1)
             CustomID.NEXT_PAGE.name -> openPage(player, inventory, currentPage + 1)
-            CustomID.BACK_BUTTON.name -> BulletinBoardManager.openMainBoard(player)
+            CustomID.BACK_BUTTON.name -> {
+                if (inventory == LanguageManager.getMessage(player, MessageKey.ALL_POSTS) ||
+                    inventory == LanguageManager.getMessage(player, MessageKey.MY_POSTS) ||
+                    inventory == LanguageManager.getMessage(player, MessageKey.DELETED_POSTS)
+                ) {
+                    BulletinBoardManager.openMainBoard(player)
+                }
+            }
             CustomID.DELETE_POST.name -> BulletinBoardManager.openDeletePostSelection(player)
+            CustomID.DELETE_POST_PERMANENTLY.name -> BulletinBoardManager.openDeletePostPermanentlySelection(player)
+            CustomID.EDIT_POST.name -> BulletinBoardManager.openEditPostSelection(player)
             else -> {
                 if (inventory != LanguageManager.getMessage(player, MessageKey.DELETED_POSTS) && customId != null) {
                     val post = database.getPost(customId)
                     post?.let { BulletinBoardManager.displayPost(player, it) }
                 } else if (inventory == LanguageManager.getMessage(player, MessageKey.DELETED_POSTS) && customId != null) {
                     val post = database.getDeletedPostsByID(customId)
-                    post?.let { BulletinBoardManager.openConfirmation(player, ConfirmationType.DELETING_POST) }
+                    post?.let { BulletinBoardManager.displayPost(player, it) }
                 }
             }
         }
@@ -102,6 +173,10 @@ class BBListenerActions : IEventHandler {
         when (inventory) {
             LanguageManager.getMessage(player, MessageKey.ALL_POSTS) -> BulletinBoardManager.openAllPosts(player, page)
             LanguageManager.getMessage(player, MessageKey.MY_POSTS) -> BulletinBoardManager.openMyPosts(player, page)
+            LanguageManager.getMessage(
+                player,
+                MessageKey.DELETED_POSTS
+            ) -> BulletinBoardManager.openDeletedPosts(player, page)
             else -> BulletinBoardManager.openDeletedPosts(player, page)
         }
     }
@@ -115,10 +190,25 @@ class BBListenerActions : IEventHandler {
         }
     }
 
+    private fun handleEditPostSelection(player: Player, customId: String?, state: PlayerState) {
+        when (customId) {
+            CustomID.BACK_BUTTON.name -> BulletinBoardManager.openMyPosts(player)
+            else -> {
+                if (customId != null) {
+                    val post = database.getPost(customId)
+                    post?.let { BulletinBoardManager.openPostEditorForEdit(player, post) }
+                    state.selectedEditingPostId = customId
+                }
+            }
+        }
+    }
+
     private fun beginInput(player: Player, state: PlayerState, inputType: InputType) {
         state.isInputting = true
         state.inputType = inputType
-        runTask(p) { player.closeInventory() }
+        runTask(p) {
+            player.closeInventory()
+        }
         player.sendMessage(LanguageManager.getMessage(player, if (inputType == InputType.TITLE) MessageKey.PLEASE_ENTER_TITLE else MessageKey.PLEASE_ENTER_CONTENT))
     }
 
@@ -151,23 +241,85 @@ class BBListenerActions : IEventHandler {
                     player.closeInventory()
                     player.sendMessage(LanguageManager.getMessage(player, MessageKey.POST_SAVED))
                 }
+
             }
         }
     }
 
-    private fun handleDeletePostSelection(player: Player, customId: String?) {
+    private fun handleDeletePostSelection(player: Player, customId: String?, state: PlayerState) {
         when (customId) {
-            CustomID.BACK_BUTTON.name -> BulletinBoardManager.openMainBoard(player)
+            CustomID.BACK_BUTTON.name -> BulletinBoardManager.openMyPosts(player)
             else -> {
                 if (customId != null) {
                     val post = database.getPost(customId)
                     post?.let { BulletinBoardManager.openConfirmation(player, ConfirmationType.DELETING_POST) }
+                    state.selectedDeletingPostId = customId
                 }
             }
         }
     }
 
-    private fun updateDraft(player: Player, state: PlayerState, inputType: InputType, message: String, isTitle: Boolean) {
+    private fun handleDeletePostPermanentSelection(player: Player, customId: String?, state: PlayerState) {
+        when (customId) {
+            CustomID.BACK_BUTTON.name -> BulletinBoardManager.openDeletedPosts(player)
+            else -> {
+                if (customId != null) {
+                    val post = database.getDeletedPostsByID(customId)
+                    post?.let {
+                        BulletinBoardManager.openConfirmation(
+                            player,
+                            ConfirmationType.DELETING_POST_PERMANENTLY
+                        )
+                    }
+                    state.selectedDeletingPostId = customId
+                }
+            }
+        }
+    }
+
+    private fun handleDeletePostConfirmation(player: Player, customId: String?, state: PlayerState) {
+        when (customId) {
+            CustomID.CONFIRM_DELETE_POST.name -> {
+                val selectedDeletingPostId = state.selectedDeletingPostId
+                if (selectedDeletingPostId == null) {
+                    deletePostStateNull(player)
+                    return
+                }
+                database.deletePost(selectedDeletingPostId)
+                state.selectedDeletingPostId = null
+                runTask(p) {
+                    player.closeInventory()
+                    player.sendMessage(LanguageManager.getMessage(player, MessageKey.POST_DELETED))
+                }
+            }
+        }
+    }
+
+    private fun handleCancelPostConfirmation(player: Player, state: PlayerState, customId: String?) {
+        when (customId) {
+            CustomID.CONFIRM_CANCEL_POST.name -> {
+                state.draft = null
+                runTask(p) {
+                    player.closeInventory()
+                    player.sendMessage(LanguageManager.getMessage(player, MessageKey.CANCELLED_POST))
+                }
+            }
+
+            CustomID.CONTINUE_POST.name -> {
+                BulletinBoardManager.openPostEditor(player)
+            }
+        }
+    }
+
+    private fun updateDraft(
+        player: Player,
+        event: AsyncPlayerChatEvent,
+        state: PlayerState,
+        inputType: InputType,
+        message: String,
+        isTitle: Boolean
+    ) {
+        event.isCancelled = true
         if (state.inputType != null) {
             val draft = state.draft ?: PostDraft()
             val updatedDraft = if (isTitle) draft.copy(title = Component.text(message)) else draft.copy(content = Component.text(message))
@@ -229,22 +381,29 @@ class BBListenerActions : IEventHandler {
 
     private fun handlePostEditorClose(state: PlayerState) {
         when {
-            state.isInputting -> state.isInputting = false
-            state.isOpeningConfirmation -> state.isOpeningConfirmation = false
-            state.isPreviewing -> state.isPreviewing = false
-            else -> state.draft = null
+            state.isInputting == true -> state.isInputting = null
+            state.isOpeningConfirmation == true -> state.isOpeningConfirmation = null
+            state.isPreviewing == true -> state.isPreviewing = null
+            else -> state.clear()
         }
     }
 
-    private fun clearConfirmationState(state: PlayerState) {
-        state.confirmationType = null
-        state.isOpeningConfirmation = false
+    private fun handleConfirmationClose(state: PlayerState) {
+        state.isOpeningConfirmation = null
+        state.isChoosingConfirmationAnswer = null
     }
 
     private fun savePostStateNull(player: Player) {
         runTask(p) {
             player.closeInventory()
             player.sendMessage(LanguageManager.getMessage(player, MessageKey.WHEN_POST_DRAFT_NULL))
+        }
+    }
+
+    private fun deletePostStateNull(player: Player) {
+        runTask(p) {
+            player.closeInventory()
+            player.sendMessage(LanguageManager.getMessage(player, MessageKey.WHEN_DELETE_POST_NULL))
         }
     }
 }

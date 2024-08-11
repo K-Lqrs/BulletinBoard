@@ -9,7 +9,6 @@ import net.rk4z.bulletinBoard.events.BulletinBoardCloseEvent
 import net.rk4z.bulletinBoard.events.BulletinBoardOnChatEvent
 import net.rk4z.bulletinBoard.managers.BulletinBoardManager
 import net.rk4z.bulletinBoard.utils.CustomID
-import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -39,9 +38,7 @@ class BBListener : Listener {
 
         EventBus.postAsync(BulletinBoardClickEvent.get(player, customId, inventoryTitle, state, event))
 
-        Bukkit.getScheduler().runTaskLater(BulletinBoard.instance, Runnable {
-            removeItemFromPlayerInventory(player)
-        }, 2L)
+        removeItemFromPlayerInventory(player)
     }
 
     @EventHandler
@@ -60,24 +57,22 @@ class BBListener : Listener {
 
         EventBus.postAsync(BulletinBoardCloseEvent.get(player, inventoryTitle, state))
 
-        Bukkit.getScheduler().runTaskLater(BulletinBoard.instance, Runnable {
-            removeItemFromPlayerInventory(player)
-        }, 2L)
+        removeItemFromPlayerInventory(player)
     }
 
     private fun removeItemFromPlayerInventory(player: Player) {
         val inventory = player.inventory
+        val allIds = BulletinBoard.database.getAllIds()
+
         for (item in inventory.contents) {
             if (item != null && item.itemMeta != null) {
                 val itemMeta = item.itemMeta
                 val itemCustomIdName = itemMeta.persistentDataContainer.get(BulletinBoard.namespacedKey, PersistentDataType.STRING)
-                if (itemCustomIdName != null) {
-                    val itemCustomId = CustomID.entries.find { it.name == itemCustomIdName }
-                    if (itemCustomId != null) {
-                        inventory.remove(item)
-                    }
+                if (itemCustomIdName != null && allIds.contains(itemCustomIdName)) {
+                    inventory.remove(item)
                 }
             }
         }
     }
+
 }

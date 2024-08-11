@@ -54,6 +54,7 @@ class BulletinBoard : JavaPlugin() {
         val runTaskAsynchronous: TaskRunner = { plugin, runnable ->
             Bukkit.getScheduler().runTaskAsynchronously(plugin, runnable)
         }
+
     }
 
     val version: String = description.version
@@ -65,7 +66,7 @@ class BulletinBoard : JavaPlugin() {
         instance = this
         namespacedKey = NamespacedKey(this, ID)
         EventBus.initialize()
-        BBCommandManager
+        BBCommandManager()
         BBListenerActions()
 
         if (!dataFolder.exists()) {

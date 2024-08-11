@@ -9,21 +9,46 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import java.util.*
 
+// This method provides a way to clear all state of a player.
+private fun clearPlayerState(state: PlayerState) {
+    state.draft = null
+    state.editDraft = null
+    state.selectedDeletingPostId = null
+    state.selectedEditingPostId = null
+    state.isInputting = null
+    state.isEditInputting = null
+    state.isPreviewing = null
+    state.isOpeningConfirmation = null
+    state.isChoosingConfirmationAnswer = null
+    state.inputType = null
+    state.editInputType = null
+    state.confirmationType = null
+    state.preview = null
+}
+
 data class PlayerState(
     var draft: PostDraft? = null,
     var editDraft: EditPostData? = null,
 
-    var isInputting: Boolean = false,
-    var isEditInputting: Boolean = false,
-    var isPreviewing: Boolean = false,
-    var isOpeningConfirmation: Boolean = false,
+    var selectedDeletingPostId: String? = null,
+    var selectedEditingPostId: String? = null,
+
+    var isInputting: Boolean? = false,
+    var isEditInputting: Boolean? = false,
+    var isPreviewing: Boolean? = false,
+    var isOpeningConfirmation: Boolean? = false,
+    var isChoosingConfirmationAnswer: Boolean? = false,
 
     var inputType: InputType? = null,
     var editInputType: InputType? = null,
     var confirmationType: ConfirmationType? = null,
 
     var preview: Pair<Component, Component>? = null,
-)
+) {
+    fun clear() {
+        clearPlayerState(this)
+    }
+}
 
 data class PostDraft(
     val title: Component? = null,
@@ -124,6 +149,14 @@ enum class CustomID {
     DELETE_POST_PERMANENTLY,
     CONFIRM_DELETE_POST,
     CANCEL_DELETE_POST,
+    CANCEL_DELETE_POST_PERMANENTLY,
+    CONFIRM_DELETE_POST_PERMANENTLY;
+
+    companion object {
+        val dynamicIds = mutableSetOf<String>()
+
+        fun getAllEnumNames(): Set<String> = entries.map { it.name }.toSet()
+    }
 }
 
 enum class InputType {
@@ -135,6 +168,7 @@ enum class ConfirmationType {
     SAVE_POST,
     CANCEL_POST,
     DELETING_POST,
+    DELETING_POST_PERMANENTLY
 }
 
 enum class MessageKey {
@@ -176,10 +210,12 @@ enum class MessageKey {
     DELETE_POST_CONFIRMATION,
     CONFIRM_SAVE_POST,
     CANCEL_CONFIRM_SAVE_POST,
+    CANCELLED_POST,
     PREVIEW_POST,
     CONTINUE_POST,
     CONFIRM_CANCEL_POST,
     WHEN_POST_DRAFT_NULL,
+    WHEN_DELETE_POST_NULL,
     POST_SAVED,
     PREV_PAGE,
     NEXT_PAGE,
@@ -192,9 +228,15 @@ enum class MessageKey {
     AUTHOR_LABEL,
     RESTORE_POST,
     DELETE_POST_PERMANENTLY,
+    DELETE_POST_PERMANENTLY_SELECTION,
     DELETE_POST_SELECTION,
     CANCEL_DELETE_POST,
     CONFIRM_DELETE_POST,
+    POST_DELETED,
+    DELETE_POST_PERMANENTLY_CONFIRMATION,
+    CANCEL_DELETE_POST_PERMANENTLY,
+    CONFIRM_DELETE_POST_PERMANENTLY,
+    EDIT_POST_SELECTION
 }
 
 enum class TitleType(val key: MessageKey) {
@@ -202,6 +244,8 @@ enum class TitleType(val key: MessageKey) {
     MY_POSTS(MessageKey.MY_POSTS),
     DELETED_POSTS(MessageKey.DELETED_POSTS),
     DELETE_POST_SELECTION(MessageKey.DELETE_POST_SELECTION),
+    DELETE_POST_PERMANENTLY_SELECTION(MessageKey.DELETE_POST_PERMANENTLY_SELECTION),
+    EDIT_POST_SELECTION(MessageKey.EDIT_POST_SELECTION)
 }
 
 enum class Commands(val execute: (Player) -> Unit) {
@@ -210,9 +254,9 @@ enum class Commands(val execute: (Player) -> Unit) {
     MYPOSTS({ player -> BulletinBoardManager.openMyPosts(player) }),
     POSTS({ player -> BulletinBoardManager.openAllPosts(player) }),
     DELETEDPOSTS({ player -> BulletinBoardManager.openDeletedPosts(player) }),
-    HELP({ player -> BBCommandManager.displayHelp(player) }),
-    ABOUT({ player -> BBCommandManager.displayAbout(player)}),
-    HOWTOUSE({ player -> BBCommandManager.displayHowToUse(player) });
+    HELP({ player -> BBCommandManager().displayHelp(player) }),
+    ABOUT({ player -> BBCommandManager().displayAbout(player)}),
+    HOWTOUSE({ player -> BBCommandManager().displayHowToUse(player) });
 
     companion object {
         fun fromString(name: String): Commands? {

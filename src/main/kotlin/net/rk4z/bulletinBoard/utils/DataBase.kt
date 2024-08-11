@@ -2,6 +2,7 @@ package net.rk4z.bulletinBoard.utils
 
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
 import net.rk4z.bulletinBoard.BulletinBoard
+import net.rk4z.bulletinBoard.utils.CustomID.Companion.dynamicIds
 import java.io.File
 import java.sql.Connection
 import java.sql.DriverManager
@@ -160,19 +161,18 @@ class DataBase(private val plugin: BulletinBoard) {
                 selectStatement.setString(1, id)
                 val resultSet = selectStatement.executeQuery()
                 if (resultSet.next()) {
-                    val postIdString = resultSet.getString("id")
-                    val postId = if (postIdString.length == 36) {
-                        postIdString
-                    } else {
-                        ShortUUID.fromShortString(postIdString).toString()
-                    }
+                    val postId = resultSet.getString("id")
+
+                    val dateString = resultSet.getString("date")
+
+                    val parsedDate = ZonedDateTime.parse(dateString, DateTimeFormatter.ISO_DATE_TIME).toInstant()
 
                     val post = Post(
                         id = postId,
                         author = UUID.fromString(resultSet.getString("author")),
                         title = GsonComponentSerializer.gson().deserialize(resultSet.getString("title")),
                         content = GsonComponentSerializer.gson().deserialize(resultSet.getString("content")),
-                        date = resultSet.getDate("date")
+                        date = Date.from(parsedDate)
                     )
 
                     connection?.prepareStatement(insertDeletedSQL)?.use { insertStatement ->
@@ -180,7 +180,7 @@ class DataBase(private val plugin: BulletinBoard) {
                         insertStatement.setString(2, post.author.toString())
                         insertStatement.setString(3, GsonComponentSerializer.gson().serialize(post.title))
                         insertStatement.setString(4, GsonComponentSerializer.gson().serialize(post.content))
-                        insertStatement.setString(5, post.date.toString())
+                        insertStatement.setString(5, dateString)
                         insertStatement.executeUpdate()
                     }
 
@@ -405,6 +405,27 @@ class DataBase(private val plugin: BulletinBoard) {
             e.printStackTrace()
             null
         }
+    }
+
+    private fun loadAllPostIds() {
+        val selectSQL = "SELECT id FROM posts UNION SELECT id FROM deletedPosts"
+
+        try {
+            connection?.prepareStatement(selectSQL)?.use { statement ->
+                val resultSet = statement.executeQuery()
+                while (resultSet.next()) {
+                    dynamicIds.add(resultSet.getString("id"))
+                }
+            }
+        } catch (e: SQLException) {
+            plugin.logger.error("Could not retrieve post ids from database!")
+            e.printStackTrace()
+        }
+    }
+
+    fun getAllIds(): Set<String> {
+        loadAllPostIds()
+        return CustomID.getAllEnumNames() + dynamicIds
     }
 
 }

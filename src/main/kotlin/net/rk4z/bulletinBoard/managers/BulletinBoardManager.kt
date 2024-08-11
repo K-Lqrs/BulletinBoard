@@ -9,6 +9,8 @@ import net.rk4z.bulletinBoard.utils.*
 import net.rk4z.bulletinBoard.utils.BBUtil.createCustomItem
 import net.rk4z.bulletinBoard.utils.BBUtil.getPlayerTimeZone
 import net.rk4z.bulletinBoard.utils.BBUtil.setGlassPane
+import net.rk4z.bulletinBoard.utils.ConfirmationType.*
+import net.rk4z.bulletinBoard.utils.TitleType.*
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -70,24 +72,28 @@ object BulletinBoardManager {
         }
     }
 
+    fun openPostEditorForEdit(player: Player, post: Post) {
+
+    }
+
     fun openMyPosts(player: Player, page: Int = 0) {
         runTaskAsynchronous(p) {
             val playerPosts = BulletinBoard.database.getPostsByAuthor(player.uniqueId)
-            openPostsInventory(player, TitleType.MY_POSTS, playerPosts, page)
+            openPostsInventory(player, MY_POSTS, playerPosts, page)
         }
     }
 
     fun openAllPosts(player: Player, page: Int = 0) {
         runTaskAsynchronous(p) {
             val posts = BulletinBoard.database.getAllPosts()
-            openPostsInventory(player, TitleType.ALL_POSTS, posts, page)
+            openPostsInventory(player, ALL_POSTS, posts, page)
         }
     }
 
     fun openDeletedPosts(player: Player, page: Int = 0) {
         runTaskAsynchronous(p) {
             val deletedPosts = BulletinBoard.database.getDeletedPostsByAuthor(player.uniqueId)
-            openPostsInventory(player, TitleType.DELETED_POSTS, deletedPosts, page)
+            openPostsInventory(player, DELETED_POSTS, deletedPosts, page)
         }
     }
 
@@ -97,9 +103,10 @@ object BulletinBoardManager {
         state.confirmationType = type
 
         val title = when (type) {
-            ConfirmationType.SAVE_POST -> MessageKey.SAVE_POST_CONFIRMATION
-            ConfirmationType.CANCEL_POST -> MessageKey.CANCEL_POST_CONFIRMATION
-            ConfirmationType.DELETING_POST -> MessageKey.DELETE_POST_CONFIRMATION
+            SAVE_POST -> MessageKey.SAVE_POST_CONFIRMATION
+            CANCEL_POST -> MessageKey.CANCEL_POST_CONFIRMATION
+            DELETING_POST -> MessageKey.DELETE_POST_CONFIRMATION
+            DELETING_POST_PERMANENTLY -> MessageKey.DELETE_POST_PERMANENTLY_CONFIRMATION
         }
 
         val confirmation = Bukkit.createInventory(null, 27, LanguageManager.getMessage(player, title))
@@ -107,18 +114,23 @@ object BulletinBoardManager {
         setGlassPane(confirmation, 0..26)
 
         val buttons = when (type) {
-            ConfirmationType.SAVE_POST -> listOf(
+            SAVE_POST -> listOf(
                 Button(11, Material.RED_WOOL, MessageKey.CANCEL_CONFIRM_SAVE_POST, CustomID.CANCEL_CONFIRM_SAVE_POST),
                 Button(13, Material.BLUE_WOOL, MessageKey.PREVIEW_POST, CustomID.PREVIEW_POST),
                 Button(15, Material.GREEN_WOOL, MessageKey.CONFIRM_SAVE_POST, CustomID.CONFIRM_SAVE_POST)
             )
-            ConfirmationType.CANCEL_POST -> listOf(
+            CANCEL_POST -> listOf(
                 Button(11, Material.RED_WOOL, MessageKey.CONTINUE_POST, CustomID.CONTINUE_POST),
                 Button(15, Material.GREEN_WOOL, MessageKey.CONFIRM_CANCEL_POST, CustomID.CONFIRM_CANCEL_POST)
             )
-            ConfirmationType.DELETING_POST -> listOf(
+            DELETING_POST -> listOf(
                 Button(11, Material.RED_WOOL, MessageKey.CANCEL_DELETE_POST, CustomID.CANCEL_DELETE_POST),
                 Button(15, Material.GREEN_WOOL, MessageKey.CONFIRM_DELETE_POST, CustomID.CONFIRM_DELETE_POST)
+            )
+
+            DELETING_POST_PERMANENTLY -> listOf(
+                Button(11, Material.RED_WOOL, MessageKey.CANCEL_DELETE_POST_PERMANENTLY, CustomID.CANCEL_DELETE_POST_PERMANENTLY),
+                Button(15, Material.GREEN_WOOL, MessageKey.CONFIRM_DELETE_POST_PERMANENTLY, CustomID.CONFIRM_DELETE_POST_PERMANENTLY)
             )
         }
 
@@ -126,27 +138,28 @@ object BulletinBoardManager {
 
         runTask(p) {
             player.openInventory(confirmation)
+            state.isChoosingConfirmationAnswer = true
+        }
+    }
+
+    fun openEditPostSelection(player: Player, page: Int = 0) {
+        runTaskAsynchronous(p) {
+            val playerPosts = BulletinBoard.database.getPostsByAuthor(player.uniqueId)
+            openPostsInventory(player, EDIT_POST_SELECTION, playerPosts, page)
         }
     }
 
     fun openDeletePostSelection(player: Player, page: Int = 0) {
         runTaskAsynchronous(p) {
             val playerPosts = BulletinBoard.database.getPostsByAuthor(player.uniqueId)
-            openPostsInventory(player, TitleType.DELETE_POST_SELECTION, playerPosts, page)
+            openPostsInventory(player, DELETE_POST_SELECTION, playerPosts, page)
         }
     }
 
-    fun performAbout(player: Player) {
-        runTask(p) {
-            player.closeInventory()
-            player.performCommand("bb about")
-        }
-    }
-
-    fun performHelp(player: Player) {
-        runTask(p) {
-            player.closeInventory()
-            player.performCommand("bb help")
+    fun openDeletePostPermanentlySelection(player: Player, page: Int = 0) {
+        runTaskAsynchronous(p) {
+            val deletedPosts = BulletinBoard.database.getDeletedPostsByAuthor(player.uniqueId)
+            openPostsInventory(player, DELETE_POST_PERMANENTLY_SELECTION, deletedPosts, page)
         }
     }
 
@@ -243,7 +256,6 @@ object BulletinBoardManager {
             }
         }
 
-        // Pagination controls
         if (currentPage > 0) {
             inventory.setItem(
                 18,
@@ -266,7 +278,6 @@ object BulletinBoardManager {
             )
         }
 
-        // Common back button
         inventory.setItem(
             22,
             createCustomItem(
@@ -276,29 +287,37 @@ object BulletinBoardManager {
             )
         )
 
-        // Specific buttons based on the title
         when (titleType) {
-            TitleType.MY_POSTS -> {
+            MY_POSTS -> {
                 val buttons = listOf(
                     Button(20, Material.WRITABLE_BOOK, MessageKey.EDIT_POST, CustomID.EDIT_POST),
                     Button(24, Material.CAULDRON, MessageKey.DELETE_POST, CustomID.DELETE_POST)
                 )
                 addButtonsToInventory(inventory, buttons, player)
             }
-            TitleType.DELETED_POSTS -> {
+            DELETED_POSTS -> {
                 val buttons = listOf(
                     Button(20, Material.RESPAWN_ANCHOR, MessageKey.RESTORE_POST, CustomID.RESTORE_POST),
                     Button(24, Material.LAVA_BUCKET, MessageKey.DELETE_POST_PERMANENTLY, CustomID.DELETE_POST_PERMANENTLY)
                 )
                 addButtonsToInventory(inventory, buttons, player)
             }
-            else -> {
-                // 他のタイプに特別な処理が必要な場合はここに追加
+            ALL_POSTS -> {
+                // no additional buttons
+            }
+            DELETE_POST_SELECTION -> {
+                // no additional buttons
+            }
+            DELETE_POST_PERMANENTLY_SELECTION -> {
+                // no additional buttons
+            }
+
+            EDIT_POST_SELECTION -> {
+                // no additional buttons
             }
         }
 
         runTask(p) {
-            player.sendMessage("Opening $title page $currentPage")
             player.openInventory(inventory)
         }
     }

@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package net.rk4z.bulletinBoard.managers
 
 import net.kyori.adventure.text.Component
@@ -15,6 +17,8 @@ object LanguageManager {
             MessageKey.CANCEL_POST_CONFIRMATION to "投稿をキャンセルしますか？",
             MessageKey.SAVE_POST_CONFIRMATION to "投稿を保存しますか？",
             MessageKey.DELETE_POST_SELECTION to "削除する投稿を選択してください",
+            MessageKey.DELETE_POST_PERMANENTLY_SELECTION to "完全に削除する投稿を選択してください",
+            MessageKey.DELETE_POST_CONFIRMATION to "投稿を削除しますか？",
             //endregion
 
             //region Button
@@ -34,6 +38,10 @@ object LanguageManager {
             MessageKey.PREVIEW_POST to "投稿をプレビュー",
             MessageKey.DELETE_POST to "投稿を削除",
             MessageKey.DELETE_POST_PERMANENTLY to "投稿を完全に削除",
+            MessageKey.PREV_PAGE to "前のページ",
+            MessageKey.NEXT_PAGE to "次のページ",
+            MessageKey.CONFIRM_DELETE_POST to "投稿を削除",
+            MessageKey.CANCEL_DELETE_POST to "削除をキャンセル",
             //endregion
 
             //region Messages
@@ -42,6 +50,10 @@ object LanguageManager {
             MessageKey.INPUT_SET to "{inputType}が{input}に設定されました",
             MessageKey.WHEN_POST_DRAFT_NULL to "内部データから投稿のドラフトを見つけられませんでした。もう一度お試しください : タイトル、コンテンツの両方共を空にできません。",
             MessageKey.RESTORE_POST to "投稿を復元",
+            MessageKey.WHEN_DELETE_POST_NULL to "内部データから、削除しようとしている投稿を見つけられませんでした。もう一度お試しください。",
+            MessageKey.POST_SAVED to "投稿が保存されました。",
+            MessageKey.POST_DELETED to "投稿が削除されました。",
+            MessageKey.CANCELLED_POST to "投稿がキャンセルされました。",
             //endregion
 
             //region Others
