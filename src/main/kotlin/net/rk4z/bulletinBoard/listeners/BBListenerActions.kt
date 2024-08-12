@@ -93,12 +93,7 @@ object BBListenerActions {
             LanguageManager.getMessage(player, MessageKey.DELETE_POST_PERMANENTLY_SELECTION) -> {
                 if (customId != null) {
                     val post = database.getDeletedPostsByID(customId)
-                    post?.let {
-                        BulletinBoardManager.openConfirmation(
-                            player,
-                            ConfirmationType.DELETING_POST_PERMANENTLY
-                        )
-                    }
+                    post?.let { BulletinBoardManager.openConfirmation(player, ConfirmationType.DELETING_POST_PERMANENTLY) }
                     state.selectedDeletingPostId = customId
                 }
             }
@@ -119,13 +114,8 @@ object BBListenerActions {
             LanguageManager.getMessage(player, MessageKey.RESTORE_POST_SELECTION) -> {
                 if (customId != null) {
                     val post = database.getDeletedPostsByID(customId)
-                    post?.let {
-                        database.restorePost(customId)
-                        runTask(p) {
-                            player.closeInventory()
-                            player.sendMessage(LanguageManager.getMessage(player, MessageKey.POST_RESTORED))
-                        }
-                    }
+                    post?.let { BulletinBoardManager.openConfirmation(player, ConfirmationType.RESTORING_POST) }
+                    state.selectedRestoringPostId = customId
                 }
             }
         }
@@ -138,6 +128,8 @@ object BBListenerActions {
             LanguageManager.getMessage(player, MessageKey.DELETED_POSTS) -> BulletinBoardManager.openDeletedPosts(player, page)
             LanguageManager.getMessage(player, MessageKey.DELETE_POST_SELECTION) -> BulletinBoardManager.openDeletePostSelection(player, page)
             LanguageManager.getMessage(player, MessageKey.EDIT_POST_SELECTION) -> BulletinBoardManager.openEditPostSelection(player, page)
+            LanguageManager.getMessage(player, MessageKey.DELETE_POST_PERMANENTLY_SELECTION) -> BulletinBoardManager.openDeletePostPermanentlySelection(player, page)
+            LanguageManager.getMessage(player, MessageKey.RESTORE_POST_SELECTION) -> BulletinBoardManager.openRestorePostSelection(player, page)
         }
     }
 
@@ -188,12 +180,11 @@ object BBListenerActions {
                 )
                 runTaskAsynchronous(p) {
                     database.insertPost(post)
-                    state.draft = null
-                    state.preview = null
-                    state.confirmationType = null
+                    state.clear()
                 }
                 runTask(p) {
                     player.closeInventory()
+
                     player.sendMessage(LanguageManager.getMessage(player, MessageKey.POST_SAVED))
                 }
 
@@ -235,6 +226,28 @@ object BBListenerActions {
 
             CustomID.CONTINUE_POST.name -> {
                 BulletinBoardManager.openPostEditor(player)
+            }
+        }
+    }
+
+    internal fun handleRestorePostConfirmation(player: Player, state: PlayerState, customId: String?) {
+        when (customId) {
+            CustomID.CONFIRM_RESTORE_POST.name -> {
+                val selectedRestoringPostId = state.selectedRestoringPostId
+                if (selectedRestoringPostId == null) {
+                    deletePostStateNull(player)
+                    return
+                }
+                database.restorePost(selectedRestoringPostId)
+                runTask(p) {
+                    player.closeInventory()
+                    state.clear()
+                    player.sendMessage(LanguageManager.getMessage(player, MessageKey.POST_RESTORED))
+                }
+            }
+            CustomID.CANCEL_RESTORE_POST.name -> {
+                state.clear()
+                BulletinBoardManager.openDeletedPosts(player)
             }
         }
     }

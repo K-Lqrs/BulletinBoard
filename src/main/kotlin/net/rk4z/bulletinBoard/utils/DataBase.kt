@@ -8,11 +8,12 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
 import java.text.SimpleDateFormat
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-@Suppress("DuplicatedCode", "LoggingSimilarMessage")
+@Suppress("DuplicatedCode", "LoggingSimilarMessage", "SqlNoDataSourceInspection")
 class DataBase(private val plugin: BulletinBoard) {
     private var connection: Connection? = null
 
@@ -65,12 +66,22 @@ class DataBase(private val plugin: BulletinBoard) {
             );
         """.trimIndent()
 
+        val createSettingsTableSQL ="""
+            CREATE TABLE IF NOT EXISTS playerSettings (
+                uuid TEXT NOT NULL,
+                settingKey TEXT NOT NULL,
+                settingValue TEXT NOT NULL,
+                PRIMARY KEY (uuid, settingKey)
+            );
+        """.trimIndent()
+
         try {
             connection?.createStatement()?.use { statement ->
                 statement.execute(createPostsTableSQL)
                 statement.execute(createPermissionsTableSQL)
                 statement.execute(createDeletedPostsTableSQL)
                 statement.execute(createConfigTableSQL)
+                statement.execute(createSettingsTableSQL)
                 plugin.logger.info("Requirement tables created successfully!")
             }
         } catch (e: SQLException) {
@@ -168,7 +179,7 @@ class DataBase(private val plugin: BulletinBoard) {
                     val parsedDate = ZonedDateTime.parse(dateString, DateTimeFormatter.ISO_DATE_TIME).toInstant()
 
                     val post = Post(
-                        id = postId,
+                        id = ShortUUID.fromUUID(UUID.fromString(postId)).toShortString(),
                         author = UUID.fromString(resultSet.getString("author")),
                         title = GsonComponentSerializer.gson().deserialize(resultSet.getString("title")),
                         content = GsonComponentSerializer.gson().deserialize(resultSet.getString("content")),
@@ -204,9 +215,9 @@ class DataBase(private val plugin: BulletinBoard) {
         val deleteSQL = "DELETE FROM deletedPosts WHERE id = ?"
 
         try {
-            connection?.prepareStatement(deleteSQL)?.use { stateMent ->
-                stateMent.setString(1, id)
-                val rowsAffected = stateMent.executeUpdate()
+            connection?.prepareStatement(deleteSQL)?.use { statement ->
+                statement.setString(1, id)
+                val rowsAffected = statement.executeUpdate()
                 if (rowsAffected > 0) {
                     plugin.logger.info("Post with id $id deleted permanently.")
                 } else {
@@ -241,12 +252,15 @@ class DataBase(private val plugin: BulletinBoard) {
                         formatter.parse(rawDate).toInstant()
                     }
 
+                    val zonedDateTime = ZonedDateTime.ofInstant(parsedDate, ZoneId.of("UTC"))
+                    val formattedDate = DateTimeFormatter.ISO_DATE_TIME.format(zonedDateTime)
+
                     connection?.prepareStatement(insertSQL)?.use { insertStatement ->
                         insertStatement.setString(1, postId)
                         insertStatement.setString(2, author.toString())
                         insertStatement.setString(3, GsonComponentSerializer.gson().serialize(title))
                         insertStatement.setString(4, GsonComponentSerializer.gson().serialize(content))
-                        insertStatement.setString(5, DateTimeFormatter.ISO_DATE_TIME.format(parsedDate))
+                        insertStatement.setString(5, formattedDate)
                         insertStatement.executeUpdate()
                     }
 
@@ -320,7 +334,7 @@ class DataBase(private val plugin: BulletinBoard) {
                     val postId = if (postIdString.length == 36) {
                         postIdString
                     } else {
-                        ShortUUID.fromShortString(postIdString).toShortString()
+                        ShortUUID.fromShortString(postIdString).toString()
                     }
 
                     val rawDate = resultSet.getString("date")
@@ -403,7 +417,7 @@ class DataBase(private val plugin: BulletinBoard) {
                     val postId = if (postIdString.length == 36) {
                         postIdString
                     } else {
-                        ShortUUID.fromShortString(postIdString).toShortString()
+                        ShortUUID.fromShortString(postIdString).toString()
                     }
 
                     val rawDate = resultSet.getString("date")

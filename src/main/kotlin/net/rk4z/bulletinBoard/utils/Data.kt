@@ -6,6 +6,7 @@ import net.kyori.adventure.text.Component
 import net.rk4z.bulletinBoard.managers.BBCommandManager
 import net.rk4z.bulletinBoard.managers.BulletinBoardManager
 import org.bukkit.Material
+import org.bukkit.Sound
 import org.bukkit.entity.Player
 import java.util.*
 
@@ -32,6 +33,7 @@ data class PlayerState(
 
     var selectedDeletingPostId: String? = null,
     var selectedEditingPostId: String? = null,
+    var selectedRestoringPostId: String? = null,
 
     var isInputting: Boolean? = null,
     var isEditInputting: Boolean? = null,
@@ -150,7 +152,9 @@ enum class CustomID {
     CONFIRM_DELETE_POST,
     CANCEL_DELETE_POST,
     CANCEL_DELETE_POST_PERMANENTLY,
-    CONFIRM_DELETE_POST_PERMANENTLY;
+    CONFIRM_DELETE_POST_PERMANENTLY,
+    CANCEL_RESTORE_POST,
+    CONFIRM_RESTORE_POST;
 
     companion object {
         val dynamicIds = mutableSetOf<String>()
@@ -168,7 +172,8 @@ enum class ConfirmationType {
     SAVE_POST,
     CANCEL_POST,
     DELETING_POST,
-    DELETING_POST_PERMANENTLY
+    DELETING_POST_PERMANENTLY,
+    RESTORING_POST,
 }
 
 enum class MessageKey {
@@ -240,6 +245,9 @@ enum class MessageKey {
     POST_DELETED_PERMANENTLY,
     RESTORE_POST_SELECTION,
     POST_RESTORED,
+    CANCEL_RESTORE_POST,
+    CONFIRM_RESTORE_POST,
+    RESTORE_POST_CONFIRMATION
 }
 
 enum class TitleType(val key: MessageKey) {
@@ -253,7 +261,10 @@ enum class TitleType(val key: MessageKey) {
 }
 
 enum class Commands(val execute: (Player) -> Unit) {
-    OPENBOARD({ player -> BulletinBoardManager.openMainBoard(player) }),
+    OPENBOARD({ player ->
+        BulletinBoardManager.openMainBoard(player)
+        player.playSound(player.location, Sound.BLOCK_ANVIL_PLACE, 0.5f, 2.0f)
+    }),
     NEWPOST({ player -> BulletinBoardManager.openPostEditor(player) }),
     MYPOSTS({ player -> BulletinBoardManager.openMyPosts(player) }),
     POSTS({ player -> BulletinBoardManager.openAllPosts(player) }),
@@ -267,4 +278,11 @@ enum class Commands(val execute: (Player) -> Unit) {
             return entries.find { it.name.equals(name, ignoreCase = true) }
         }
     }
+}
+
+enum class Settings {
+    // 0 -> Normal (Just Close Inventory),
+    // 1 -> Cancel Close,
+    // 2 -> Show Confirmation GUI
+    INVENTORY_CLOSE_ACTION_TYPE
 }

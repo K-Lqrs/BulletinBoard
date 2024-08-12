@@ -125,7 +125,7 @@ class BBCommandManager : IEventHandler {
     }
 
     fun displayHowToUse(player: Player) {
-        player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1.0f, 1.0f)
+        player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 0.5f, 2.0f)
 
         val headerComponent = LanguageManager.getMessage(player, MessageKey.HTU_HEADER)
             .color(NamedTextColor.GOLD)

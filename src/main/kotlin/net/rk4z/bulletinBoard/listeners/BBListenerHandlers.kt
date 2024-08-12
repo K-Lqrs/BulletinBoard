@@ -14,6 +14,7 @@ import net.rk4z.bulletinBoard.listeners.BBListenerActions.handleMainBoardClick
 import net.rk4z.bulletinBoard.listeners.BBListenerActions.handlePostEditorClick
 import net.rk4z.bulletinBoard.listeners.BBListenerActions.handlePostEditorClose
 import net.rk4z.bulletinBoard.listeners.BBListenerActions.handlePostsClick
+import net.rk4z.bulletinBoard.listeners.BBListenerActions.handleRestorePostConfirmation
 import net.rk4z.bulletinBoard.listeners.BBListenerActions.handleSavePostConfirmation
 import net.rk4z.bulletinBoard.listeners.BBListenerActions.handleSelectionClick
 import net.rk4z.bulletinBoard.listeners.BBListenerActions.updateDraft
@@ -74,6 +75,11 @@ class BBListenerHandlers : IEventHandler {
             LanguageManager.getMessage(player, MessageKey.DELETE_POST_PERMANENTLY_CONFIRMATION) -> {
                 event.isCancelled = true
                 handleDeletePostPermanentlyConfirmation(player, state, customId)
+            }
+
+            LanguageManager.getMessage(player, MessageKey.RESTORE_POST_CONFIRMATION) -> {
+                event.isCancelled = true
+                handleRestorePostConfirmation(player, state, customId)
             }
         }
     }

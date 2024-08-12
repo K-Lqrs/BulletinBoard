@@ -107,6 +107,7 @@ object BulletinBoardManager {
             CANCEL_POST -> MessageKey.CANCEL_POST_CONFIRMATION
             DELETING_POST -> MessageKey.DELETE_POST_CONFIRMATION
             DELETING_POST_PERMANENTLY -> MessageKey.DELETE_POST_PERMANENTLY_CONFIRMATION
+            RESTORING_POST -> MessageKey.RESTORE_POST_CONFIRMATION
         }
 
         val confirmation = Bukkit.createInventory(null, 27, LanguageManager.getMessage(player, title))
@@ -127,10 +128,14 @@ object BulletinBoardManager {
                 Button(11, Material.RED_WOOL, MessageKey.CANCEL_DELETE_POST, CustomID.CANCEL_DELETE_POST),
                 Button(15, Material.GREEN_WOOL, MessageKey.CONFIRM_DELETE_POST, CustomID.CONFIRM_DELETE_POST)
             )
-
             DELETING_POST_PERMANENTLY -> listOf(
                 Button(11, Material.RED_WOOL, MessageKey.CANCEL_DELETE_POST_PERMANENTLY, CustomID.CANCEL_DELETE_POST_PERMANENTLY),
                 Button(15, Material.GREEN_WOOL, MessageKey.CONFIRM_DELETE_POST_PERMANENTLY, CustomID.CONFIRM_DELETE_POST_PERMANENTLY)
+            )
+
+            RESTORING_POST -> listOf(
+                Button(11, Material.RED_WOOL, MessageKey.CANCEL_RESTORE_POST, CustomID.CANCEL_RESTORE_POST),
+                Button(15, Material.GREEN_WOOL, MessageKey.CONFIRM_RESTORE_POST, CustomID.CONFIRM_RESTORE_POST)
             )
         }
 

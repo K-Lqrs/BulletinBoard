@@ -14,6 +14,7 @@ object LanguageManager {
             MessageKey.POST_EDITOR to "投稿エディタ",
             MessageKey.ALL_POSTS to "投稿一覧",
             MessageKey.MY_POSTS to "自分の投稿",
+            MessageKey.POST_EDITOR_FOR_EDIT to "投稿編集",
             MessageKey.CANCEL_POST_CONFIRMATION to "投稿をキャンセルしますか？",
             MessageKey.SAVE_POST_CONFIRMATION to "投稿を保存しますか？",
             MessageKey.DELETE_POST_SELECTION to "削除する投稿を選択してください",
@@ -22,7 +23,9 @@ object LanguageManager {
             MessageKey.EDIT_POST_SELECTION to "編集する投稿を選択してください",
             MessageKey.DELETE_POST_PERMANENTLY_CONFIRMATION to "投稿を完全に削除しますか？",
             MessageKey.CANCEL_DELETE_POST_PERMANENTLY to "完全な削除をキャンセル",
-            MessageKey.CONFIRM_DELETE_POST_PERMANENTLY to "投稿を完全に削除",
+            MessageKey.CONFIRM_DELETE_POST_PERMANENTLY to "投稿を完全に削除する",
+            MessageKey.RESTORE_POST_CONFIRMATION to "投稿を復元しますか？",
+            MessageKey.RESTORE_POST_SELECTION to "復元する投稿を選択してください",
             //endregion
 
             //region Button
@@ -46,6 +49,8 @@ object LanguageManager {
             MessageKey.NEXT_PAGE to "次のページ",
             MessageKey.CONFIRM_DELETE_POST to "投稿を削除",
             MessageKey.CANCEL_DELETE_POST to "削除をキャンセル",
+            MessageKey.CANCEL_RESTORE_POST to "復元をキャンセル",
+            MessageKey.CONFIRM_RESTORE_POST to "投稿を復元",
             //endregion
 
             //region Messages
@@ -59,6 +64,7 @@ object LanguageManager {
             MessageKey.POST_DELETED to "投稿が削除されました。",
             MessageKey.CANCELLED_POST to "投稿がキャンセルされました。",
             MessageKey.POST_DELETED_PERMANENTLY to "投稿が完全に削除されました。",
+            MessageKey.POST_RESTORED to "投稿が復元されました。",
             //endregion
 
             //region Others
@@ -101,6 +107,17 @@ object LanguageManager {
             MessageKey.POST_EDITOR to "Post Editor",
             MessageKey.ALL_POSTS to "Posts",
             MessageKey.MY_POSTS to "My Posts",
+            MessageKey.POST_EDITOR_FOR_EDIT to "Post Editor for Edit",
+            MessageKey.CANCEL_POST_CONFIRMATION to "Cancel the post?",
+            MessageKey.SAVE_POST_CONFIRMATION to "Save the post?",
+            MessageKey.DELETE_POST_SELECTION to "Select a post to delete",
+            MessageKey.DELETE_POST_PERMANENTLY_SELECTION to "Select a post to delete permanently",
+            MessageKey.DELETE_POST_CONFIRMATION to "Delete the post?",
+            MessageKey.EDIT_POST_SELECTION to "Select a post to edit",
+            MessageKey.DELETE_POST_PERMANENTLY_CONFIRMATION to "Delete the post permanently?",
+            MessageKey.CANCEL_DELETE_POST_PERMANENTLY to "Cancel the deletion",
+            MessageKey.CONFIRM_DELETE_POST_PERMANENTLY to "Delete the post permanently",
+            MessageKey.RESTORE_POST_CONFIRMATION to "Restore the post?",
             //endregion
 
             //region Button
@@ -114,6 +131,32 @@ object LanguageManager {
             MessageKey.BACK_BUTTON to "Back",
             MessageKey.EDIT_POST to "Edit Post",
             MessageKey.RESTORE_POST to "Restore Post",
+            MessageKey.CONTINUE_POST to "Continue Post",
+            MessageKey.CONFIRM_CANCEL_POST to "Cancel Post",
+            MessageKey.CONFIRM_SAVE_POST to "Save Post",
+            MessageKey.CANCEL_CONFIRM_SAVE_POST to "Cancel Save Post",
+            MessageKey.PREVIEW_POST to "Preview Post",
+            MessageKey.DELETE_POST to "Delete Post",
+            MessageKey.DELETE_POST_PERMANENTLY to "Delete Post Permanently",
+            MessageKey.PREV_PAGE to "Previous Page",
+            MessageKey.NEXT_PAGE to "Next Page",
+            MessageKey.CONFIRM_DELETE_POST to "Delete Post",
+            MessageKey.CANCEL_DELETE_POST to "Cancel Delete Post",
+            MessageKey.CANCEL_RESTORE_POST to "Cancel Restore Post",
+            MessageKey.CONFIRM_RESTORE_POST to "Restore Post",
+            //endregion
+
+            //region Messages
+            MessageKey.PLEASE_ENTER_TITLE to "Please enter a title: ",
+            MessageKey.PLEASE_ENTER_CONTENT to "Please enter content: ",
+            MessageKey.INPUT_SET to "{inputType} set to {input}",
+            MessageKey.WHEN_POST_DRAFT_NULL to "Could not find the draft from internal data. Please try again.",
+            MessageKey.WHEN_DELETE_POST_NULL to "Could not find the post you are trying to delete from internal data. Please try again.",
+            MessageKey.POST_SAVED to "Post saved.",
+            MessageKey.POST_DELETED to "Post deleted.",
+            MessageKey.CANCELLED_POST to "Post cancelled.",
+            MessageKey.POST_DELETED_PERMANENTLY to "Post deleted permanently.",
+            MessageKey.POST_RESTORED to "Post restored.",
             //endregion
 
             //region Others
@@ -122,19 +165,14 @@ object LanguageManager {
             MessageKey.NO_POSTS to "Nothing to see here...",
             //endregion
 
-            //region Messages
-            MessageKey.PLEASE_ENTER_TITLE to "Please enter a title: ",
-            MessageKey.PLEASE_ENTER_CONTENT to "Please enter content: ",
-            MessageKey.INPUT_SET to "{inputType} set to {input}",
-            MessageKey.WHEN_POST_DRAFT_NULL to "Could not find the draft from internal data. Please try again.",
-            //endregion
-
             //region Help
             MessageKey.USAGE_HEADER to "Subcommands",
             MessageKey.USAGE_OPENBOARD to "Open the main board",
             MessageKey.USAGE_NEWPOST to "Open the post editor",
+            MessageKey.USAGE_SETTINGS to "Open the settings",
             MessageKey.USAGE_MYPOSTS to "View your own posts",
             MessageKey.USAGE_POSTS to "View all posts",
+            MessageKey.USAGE_DELETED_POSTS to "View deleted posts",
             MessageKey.USAGE_PREVIEWCLOSE to "Close the post preview (if previewing)",
             //endregion
 
@@ -153,6 +191,98 @@ object LanguageManager {
             MessageKey.HTU_POSTS to "To view all posts, use /bb posts or click the icon on the main board. All posts will be displayed, and you can click on them to view more details.",
             MessageKey.HTU_PREVIEW to "To preview a post, click on the \"Preview\" button in the post editor. The post content will be displayed in the chat. To close the preview, use /bb previewclose.",
             MessageKey.HTU_PREVIEW_CLOSE to "To close the post preview, use /bb previewclose. This command can only be used when previewing a post in the post editor."
+            //endregion
+        ),
+        "fr" to mutableMapOf(
+            //region GUI
+            MessageKey.MAIN_BOARD to "Tableau principal",
+            MessageKey.POST_EDITOR to "Éditeur de publication",
+            MessageKey.ALL_POSTS to "Tous les messages",
+            MessageKey.MY_POSTS to "Mes messages",
+            MessageKey.POST_EDITOR_FOR_EDIT to "Éditeur de publication pour modification",
+            MessageKey.CANCEL_POST_CONFIRMATION to "Annuler la publication?",
+            MessageKey.SAVE_POST_CONFIRMATION to "Enregistrer la publication?",
+            MessageKey.DELETE_POST_SELECTION to "Sélectionner un message à supprimer",
+            MessageKey.DELETE_POST_PERMANENTLY_SELECTION to "Sélectionner un message à supprimer définitivement",
+            MessageKey.DELETE_POST_CONFIRMATION to "Supprimer le message?",
+            MessageKey.EDIT_POST_SELECTION to "Sélectionner un message à modifier",
+            MessageKey.DELETE_POST_PERMANENTLY_CONFIRMATION to "Supprimer définitivement le message?",
+            MessageKey.CANCEL_DELETE_POST_PERMANENTLY to "Annuler la suppression",
+            MessageKey.CONFIRM_DELETE_POST_PERMANENTLY to "Supprimer le message définitivement",
+            MessageKey.RESTORE_POST_CONFIRMATION to "Restaurer le message?",
+            //endregion
+
+            //region Button
+            MessageKey.NEW_POST to "Nouveau message",
+            MessageKey.DELETED_POSTS to "Messages supprimés",
+            MessageKey.ABOUT_PLUGIN to "À propos du plugin",
+            MessageKey.SETTINGS to "Paramètres",
+            MessageKey.HELP to "Aide",
+            MessageKey.SAVE_POST to "Enregistrer le message",
+            MessageKey.CANCEL_POST to "Annuler le message",
+            MessageKey.BACK_BUTTON to "Retour",
+            MessageKey.EDIT_POST to "Modifier le message",
+            MessageKey.RESTORE_POST to "Restaurer le message",
+            MessageKey.CONTINUE_POST to "Continuer le message",
+            MessageKey.CONFIRM_CANCEL_POST to "Annuler le message",
+            MessageKey.CONFIRM_SAVE_POST to "Enregistrer le message",
+            MessageKey.CANCEL_CONFIRM_SAVE_POST to "Annuler l'enregistrement",
+            MessageKey.PREVIEW_POST to "Aperçu du message",
+            MessageKey.DELETE_POST to "Supprimer le message",
+            MessageKey.DELETE_POST_PERMANENTLY to "Supprimer définitivement le message",
+            MessageKey.PREV_PAGE to "Page précédente",
+            MessageKey.NEXT_PAGE to "Page suivante",
+            MessageKey.CONFIRM_DELETE_POST to "Supprimer le message",
+            MessageKey.CANCEL_DELETE_POST to "Annuler la suppression",
+            MessageKey.CANCEL_RESTORE_POST to "Annuler la restauration",
+            MessageKey.CONFIRM_RESTORE_POST to "Restaurer le message",
+            //endregion
+
+            //region Messages
+            MessageKey.PLEASE_ENTER_TITLE to "Veuillez entrer un titre: ",
+            MessageKey.PLEASE_ENTER_CONTENT to "Veuillez entrer du contenu: ",
+            MessageKey.INPUT_SET to "{inputType} défini sur {input}",
+            MessageKey.WHEN_POST_DRAFT_NULL to "Impossible de trouver le brouillon dans les données internes. Veuillez réessayer.",
+            MessageKey.WHEN_DELETE_POST_NULL to "Impossible de trouver le message que vous essayez de supprimer dans les données internes. Veuillez réessayer.",
+            MessageKey.POST_SAVED to "Message enregistré.",
+            MessageKey.POST_DELETED to "Message supprimé.",
+            MessageKey.CANCELLED_POST to "Message annulé.",
+            MessageKey.POST_DELETED_PERMANENTLY to "Message supprimé définitivement.",
+            MessageKey.POST_RESTORED to "Message restauré.",
+            //endregion
+
+            //region Others
+            MessageKey.NO_TITLE to "Pas de titre",
+            MessageKey.NO_CONTENT to "Pas de contenu",
+            MessageKey.NO_POSTS to "Rien à voir ici...",
+            //endregion
+
+            //region Help
+            MessageKey.USAGE_HEADER to "Sous-commandes",
+            MessageKey.USAGE_OPENBOARD to "Ouvrir le tableau principal",
+            MessageKey.USAGE_NEWPOST to "Ouvrir l'éditeur de messages",
+            MessageKey.USAGE_SETTINGS to "Ouvrir les paramètres",
+            MessageKey.USAGE_MYPOSTS to "Voir vos propres messages",
+            MessageKey.USAGE_POSTS to "Voir tous les messages",
+            MessageKey.USAGE_DELETED_POSTS to "Voir les messages supprimés",
+            MessageKey.USAGE_PREVIEWCLOSE to "Fermer l'aperçu du message (si aperçu)",
+            //endregion
+
+            //region Label
+            MessageKey.TITLE_LABEL to "Titre: ",
+            MessageKey.CONTENT_LABEL to "Contenu: ",
+            MessageKey.AUTHOR_LABEL to "Auteur: ",
+            MessageKey.DATE_LABEL to "Date: ",
+            //endregion
+
+            //region How to Use
+            MessageKey.HTU_HEADER to "Comment utiliser le Tableau principal",
+            MessageKey.HTU_OPENBOARD to "Pour ouvrir le tableau principal, utilisez /bb openboard. Le tableau principal comporte des icônes pour créer un nouveau message, voir tous les messages et voir vos propres messages.",
+            MessageKey.HTU_NEWPOST to "Pour créer un nouveau message, utilisez /bb newpost ou cliquez sur l'icône du tableau principal. Vous serez invité à entrer un titre et un contenu dans le chat. Cliquer sur les éléments de l'interface fermera l'interface et vous invitera à entrer les informations. Une fois que vous avez entré toutes les informations, vous pouvez les enregistrer depuis l'interface.",
+            MessageKey.HTU_MYPOSTS to "Pour voir vos propres messages, utilisez /bb myposts ou cliquez sur l'icône du tableau principal. Vos messages seront affichés, et vous pourrez les supprimer. Vous pouvez également cliquer sur un message pour voir plus de détails.",
+            MessageKey.HTU_POSTS to "Pour voir tous les messages, utilisez /bb posts ou cliquez sur l'icône du tableau principal. Tous les messages seront affichés, et vous pourrez cliquer dessus pour voir plus de détails.",
+            MessageKey.HTU_PREVIEW to "Pour prévisualiser un message, cliquez sur le bouton \"Aperçu\" dans l'éditeur de messages. Le contenu du message sera affiché dans le chat. Pour fermer l'aperçu, utilisez /bb previewclose.",
+            MessageKey.HTU_PREVIEW_CLOSE to "Pour fermer l'aperçu du message, utilisez /bb previewclose. Cette commande ne peut être utilisée que lorsque vous prévisualisez un message dans l'éditeur de messages."
             //endregion
         )
     )
