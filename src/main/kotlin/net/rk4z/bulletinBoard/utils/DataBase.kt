@@ -136,20 +136,20 @@ class DataBase(private val plugin: BulletinBoard) {
 
 //>-----------------------------------------------<\\
 
-    fun insertPost(post: Post, useOriginalUUID: Boolean = false) {
+    fun insertPost(post: Post, isOldData: Boolean = false) {
         val insertSQL = "INSERT INTO posts (id, author, title, content, date) VALUES (?, ?, ?, ?, ?)"
         val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
         dateFormat.timeZone = TimeZone.getTimeZone("UTC")
 
         try {
             connection?.prepareStatement(insertSQL)?.use { statement ->
-                val idString = if (useOriginalUUID) {
-                    post.id
+                val idString: ShortUUID = if (isOldData) {
+                    ShortUUID.fromString(post.id.toString())
                 } else {
-                    ShortUUID.fromUUID(UUID.fromString(post.id)).toShortString()
+                    ShortUUID.fromShortString(post.id.toShortString())
                 }
 
-                statement.setString(1, idString)
+                statement.setString(1, idString.toShortString())
                 statement.setString(2, post.author.toString())
                 statement.setString(3, GsonComponentSerializer.gson().serialize(post.title))
                 statement.setString(4, GsonComponentSerializer.gson().serialize(post.content))
@@ -172,14 +172,15 @@ class DataBase(private val plugin: BulletinBoard) {
                 selectStatement.setString(1, id)
                 val resultSet = selectStatement.executeQuery()
                 if (resultSet.next()) {
-                    val postId = resultSet.getString("id")
+                    val postIdResult = resultSet.getString("id")
+                    val postId = ShortUUID.fromShortString(postIdResult)
 
                     val dateString = resultSet.getString("date")
 
                     val parsedDate = ZonedDateTime.parse(dateString, DateTimeFormatter.ISO_DATE_TIME).toInstant()
 
                     val post = Post(
-                        id = ShortUUID.fromUUID(UUID.fromString(postId)).toShortString(),
+                        id = postId,
                         author = UUID.fromString(resultSet.getString("author")),
                         title = GsonComponentSerializer.gson().deserialize(resultSet.getString("title")),
                         content = GsonComponentSerializer.gson().deserialize(resultSet.getString("content")),
@@ -187,7 +188,7 @@ class DataBase(private val plugin: BulletinBoard) {
                     )
 
                     connection?.prepareStatement(insertDeletedSQL)?.use { insertStatement ->
-                        insertStatement.setString(1, post.id)
+                        insertStatement.setString(1, post.id.toString())
                         insertStatement.setString(2, post.author.toString())
                         insertStatement.setString(3, GsonComponentSerializer.gson().serialize(post.title))
                         insertStatement.setString(4, GsonComponentSerializer.gson().serialize(post.content))
@@ -289,11 +290,7 @@ class DataBase(private val plugin: BulletinBoard) {
                 val resultSet = statement.executeQuery()
                 while (resultSet.next()) {
                     val postIdString = resultSet.getString("id")
-                    val postId = if (postIdString.length == 36) {
-                        postIdString
-                    } else {
-                        ShortUUID.fromShortString(postIdString).toShortString()
-                    }
+                    val postId = ShortUUID.fromShortString(postIdString)
 
                     val rawDate = resultSet.getString("date")
                     val parsedDate = try {
@@ -331,11 +328,7 @@ class DataBase(private val plugin: BulletinBoard) {
                 val resultSet = statement.executeQuery()
                 while (resultSet.next()) {
                     val postIdString = resultSet.getString("id")
-                    val postId = if (postIdString.length == 36) {
-                        postIdString
-                    } else {
-                        ShortUUID.fromShortString(postIdString).toString()
-                    }
+                    val postId = ShortUUID.fromShortString(postIdString)
 
                     val rawDate = resultSet.getString("date")
                     val parsedDate = try {
@@ -372,11 +365,7 @@ class DataBase(private val plugin: BulletinBoard) {
                 val resultSet = statement.executeQuery()
                 if (resultSet.next()) {
                     val postIdString = resultSet.getString("id")
-                    val postId = if (postIdString.length == 36) {
-                        postIdString
-                    } else {
-                        ShortUUID.fromShortString(postIdString).toString()
-                    }
+                    val postId = ShortUUID.fromShortString(postIdString)
 
                     val rawDate = resultSet.getString("date")
                     val parsedDate = try {
@@ -414,11 +403,7 @@ class DataBase(private val plugin: BulletinBoard) {
                 val resultSet = statement.executeQuery()
                 while (resultSet.next()) {
                     val postIdString = resultSet.getString("id")
-                    val postId = if (postIdString.length == 36) {
-                        postIdString
-                    } else {
-                        ShortUUID.fromShortString(postIdString).toString()
-                    }
+                    val postId = ShortUUID.fromShortString(postIdString)
 
                     val rawDate = resultSet.getString("date")
                     val parsedDate = try {
@@ -455,11 +440,7 @@ class DataBase(private val plugin: BulletinBoard) {
                 val resultSet = statement.executeQuery()
                 if (resultSet.next()) {
                     val postIdString = resultSet.getString("id")
-                    val postId = if (postIdString.length == 36) {
-                        postIdString
-                    } else {
-                        ShortUUID.fromShortString(postIdString).toString()
-                    }
+                    val postId = ShortUUID.fromShortString(postIdString)
 
                     val rawDate = resultSet.getString("date")
                     val parsedDate = try {
@@ -507,5 +488,4 @@ class DataBase(private val plugin: BulletinBoard) {
         loadAllPostIds()
         return CustomID.getAllEnumNames() + dynamicIds
     }
-
 }

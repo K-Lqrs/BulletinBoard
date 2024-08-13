@@ -73,7 +73,27 @@ object BulletinBoardManager {
     }
 
     fun openPostEditorForEdit(player: Player, post: Post) {
+        val state = getPlayerState(player.uniqueId)
+        state.editDraft = EditPostData(
+            id = post.id,
+            title = post.title,
+            content = post.content
+        )
 
+        val postEditor = createPostEditorInventory(
+            player,
+            post.title,
+            post.content,
+            LanguageManager.getMessage(player, MessageKey.POST_EDITOR_FOR_EDIT),
+            CustomID.EDIT_POST_TITLE,
+            CustomID.EDIT_POST_CONTENT,
+            CustomID.CANCEL_EDIT,
+            CustomID.SAVE_EDIT
+        )
+
+        runTask(p) {
+            player.openInventory(postEditor)
+        }
     }
 
     fun openMyPosts(player: Player, page: Int = 0) {
@@ -132,7 +152,6 @@ object BulletinBoardManager {
                 Button(11, Material.RED_WOOL, MessageKey.CANCEL_DELETE_POST_PERMANENTLY, CustomID.CANCEL_DELETE_POST_PERMANENTLY),
                 Button(15, Material.GREEN_WOOL, MessageKey.CONFIRM_DELETE_POST_PERMANENTLY, CustomID.CONFIRM_DELETE_POST_PERMANENTLY)
             )
-
             RESTORING_POST -> listOf(
                 Button(11, Material.RED_WOOL, MessageKey.CANCEL_RESTORE_POST, CustomID.CANCEL_RESTORE_POST),
                 Button(15, Material.GREEN_WOOL, MessageKey.CONFIRM_RESTORE_POST, CustomID.CONFIRM_RESTORE_POST)
@@ -143,8 +162,8 @@ object BulletinBoardManager {
 
         runTask(p) {
             player.openInventory(confirmation)
-            state.isChoosingConfirmationAnswer = true
         }
+        state.isChoosingConfirmationAnswer = true
     }
 
     fun openEditPostSelection(player: Player, page: Int = 0) {
@@ -245,7 +264,8 @@ object BulletinBoardManager {
     }
 
     private fun openPostsInventory(player: Player, titleType: TitleType, posts: List<Post>, page: Int) {
-        val itemsPerPage = 4
+        val middleRowSlots = listOf(10, 12, 14, 16)
+        val itemsPerPage = middleRowSlots.size
         val totalPages = (posts.size + itemsPerPage - 1) / itemsPerPage
         val currentPage = page.coerceIn(0, if (totalPages == 0) 0 else totalPages - 1)
         val startIndex = currentPage * itemsPerPage
@@ -256,14 +276,12 @@ object BulletinBoardManager {
 
         setGlassPane(inventory, 0..26)
 
-        val middleRowSlots = listOf(10, 12, 14, 16)
-
         if (posts.isEmpty()) {
             val noPostsItem = createCustomItem(Material.PAPER, LanguageManager.getMessage(player, MessageKey.NO_POSTS), customId = CustomID.NO_POSTS)
             inventory.setItem(13, noPostsItem)
         } else {
             posts.subList(startIndex, endIndex).forEachIndexed { index, (postId, _, title, _, _) ->
-                val postItem = createCustomItem(Material.WRITTEN_BOOK, title, customId = postId)
+                val postItem = createCustomItem(Material.WRITTEN_BOOK, title, customId = postId.toString())
                 inventory.setItem(middleRowSlots[index], postItem)
             }
         }

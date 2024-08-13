@@ -131,6 +131,12 @@ class BBCommandManager : IEventHandler {
             .color(NamedTextColor.GOLD)
             .decorate(TextDecoration.BOLD)
 
+        val hStartComponent = Component.text("==============")
+            .color(NamedTextColor.GOLD)
+
+        val hEndComponent = Component.text("==============")
+            .color(NamedTextColor.GOLD)
+
         val contentKeys = listOf(
             MessageKey.HTU_OPENBOARD,
             MessageKey.HTU_NEWPOST,
@@ -140,7 +146,7 @@ class BBCommandManager : IEventHandler {
             MessageKey.HTU_PREVIEW_CLOSE
         )
 
-        player.sendMessage(headerComponent)
+        player.sendMessage(hStartComponent.append(headerComponent).append(hEndComponent))
 
         contentKeys.forEach { key ->
             player.sendMessage(

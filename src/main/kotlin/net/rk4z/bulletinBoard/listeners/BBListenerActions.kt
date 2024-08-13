@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION", "DuplicatedCode")
+
 package net.rk4z.bulletinBoard.listeners
 
 import net.kyori.adventure.text.Component
@@ -142,6 +144,10 @@ object BBListenerActions {
         }
     }
 
+    internal fun handlePostEditorForEditClick(player: Player, state: PlayerState, customId: String?) {
+
+    }
+
     private fun beginInput(player: Player, state: PlayerState, inputType: InputType) {
         state.isInputting = true
         state.inputType = inputType
@@ -172,7 +178,7 @@ object BBListenerActions {
                 state.clear()
             } else {
                 val post = Post(
-                    id = ShortUUID.randomUUID().toString(),
+                    id = ShortUUID.randomUUID(),
                     title = draft.title ?: LanguageManager.getMessage(player, MessageKey.NO_TITLE),
                     author = player.uniqueId,
                     content = draft.content ?: LanguageManager.getMessage(player, MessageKey.NO_CONTENT),

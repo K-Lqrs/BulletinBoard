@@ -13,6 +13,7 @@ import net.rk4z.bulletinBoard.listeners.BBListenerActions.handleDeletePostPerman
 import net.rk4z.bulletinBoard.listeners.BBListenerActions.handleMainBoardClick
 import net.rk4z.bulletinBoard.listeners.BBListenerActions.handlePostEditorClick
 import net.rk4z.bulletinBoard.listeners.BBListenerActions.handlePostEditorClose
+import net.rk4z.bulletinBoard.listeners.BBListenerActions.handlePostEditorForEditClick
 import net.rk4z.bulletinBoard.listeners.BBListenerActions.handlePostsClick
 import net.rk4z.bulletinBoard.listeners.BBListenerActions.handleRestorePostConfirmation
 import net.rk4z.bulletinBoard.listeners.BBListenerActions.handleSavePostConfirmation
@@ -81,6 +82,11 @@ class BBListenerHandlers : IEventHandler {
                 event.isCancelled = true
                 handleRestorePostConfirmation(player, state, customId)
             }
+
+            LanguageManager.getMessage(player, MessageKey.POST_EDITOR_FOR_EDIT) -> {
+                event.isCancelled = true
+                handlePostEditorForEditClick(player, state, customId)
+            }
         }
     }
 
@@ -111,6 +117,8 @@ class BBListenerHandlers : IEventHandler {
         val state = it.state
 
         when (title) {
+            LanguageManager.getMessage(player, MessageKey.MAIN_BOARD) -> state.clear()
+
             LanguageManager.getMessage(player, MessageKey.POST_EDITOR) -> handlePostEditorClose(state)
 
             LanguageManager.getMessage(player, MessageKey.SAVE_POST_CONFIRMATION),

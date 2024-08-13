@@ -9,6 +9,7 @@ import net.rk4z.bulletinBoard.events.BulletinBoardCloseEvent
 import net.rk4z.bulletinBoard.events.BulletinBoardOnChatEvent
 import net.rk4z.bulletinBoard.managers.BulletinBoardManager
 import net.rk4z.bulletinBoard.utils.CustomID
+import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -19,7 +20,6 @@ import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.persistence.PersistentDataType
 
 class BBListener : Listener {
-
     @EventHandler
     fun onBulletinBoardClick(event: InventoryClickEvent) {
         val clickedItem = event.currentItem ?: return
@@ -38,7 +38,9 @@ class BBListener : Listener {
 
         EventBus.postAsync(BulletinBoardClickEvent.get(player, customId, inventoryTitle, state, event))
 
-        removeItemFromPlayerInventory(player)
+        Bukkit.getScheduler().runTaskLater(BulletinBoard.instance, Runnable {
+            removeItemFromPlayerInventory(player)
+        }, 2L)
     }
 
     @EventHandler
@@ -74,5 +76,4 @@ class BBListener : Listener {
             }
         }
     }
-
 }

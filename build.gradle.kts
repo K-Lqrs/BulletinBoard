@@ -21,10 +21,13 @@ repositories {
 dependencies {
     paperweight.paperDevBundle("1.21-R0.1-SNAPSHOT")
     compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
+
     implementation("org.xerial:sqlite-jdbc:3.46.0.1")
     // Original Event API
-    implementation("net.rk4z:beacon:1.3.8")
+    implementation("net.rk4z:beacon:1.3.9")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
+    implementation("org.reflections:reflections:0.10.2")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:2.0.0")
 }
 
 val targetJavaVersion: Int = 21

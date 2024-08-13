@@ -60,7 +60,7 @@ data class PostDraft(
 @Serializable
 data class Post(
     @Contextual
-    val id: String,
+    val id: ShortUUID,
     @Contextual
     val author: UUID,
     @Serializable(with = ComponentSerializer::class)
@@ -78,7 +78,7 @@ data class EditPostData(
 ) {
     fun toPost(author: UUID, date: Date): Post {
         return Post(
-            id = this.id.toString(),
+            id = this.id ?: ShortUUID.randomUUID(),
             title = this.title ?: Component.text(""),
             author = author,
             content = this.content ?: Component.text(""),
@@ -263,7 +263,7 @@ enum class TitleType(val key: MessageKey) {
 enum class Commands(val execute: (Player) -> Unit) {
     OPENBOARD({ player ->
         BulletinBoardManager.openMainBoard(player)
-        player.playSound(player.location, Sound.BLOCK_ANVIL_PLACE, 0.5f, 2.0f)
+        player.playSound(player.location, Sound.BLOCK_ANVIL_PLACE, 0.2f, 2.0f)
     }),
     NEWPOST({ player -> BulletinBoardManager.openPostEditor(player) }),
     MYPOSTS({ player -> BulletinBoardManager.openMyPosts(player) }),

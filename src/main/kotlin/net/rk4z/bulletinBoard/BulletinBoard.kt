@@ -35,6 +35,8 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
 
+typealias TaskRunner = (JavaPlugin, Runnable) -> Unit
+
 @Suppress("DEPRECATION")
 class BulletinBoard : JavaPlugin() {
     companion object {
@@ -54,7 +56,6 @@ class BulletinBoard : JavaPlugin() {
         val runTaskAsynchronous: TaskRunner = { plugin, runnable ->
             Bukkit.getScheduler().runTaskAsynchronously(plugin, runnable)
         }
-
     }
 
     val version: String = description.version
@@ -85,9 +86,7 @@ class BulletinBoard : JavaPlugin() {
                 }
             }
         }
-    }
 
-    override fun onEnable() {
         server.pluginManager.apply {
             registerEvents(BBListener(), this@BulletinBoard)
         }
@@ -115,5 +114,3 @@ class BulletinBoard : JavaPlugin() {
         return EventBus.postReturnable(BulletinBoardOnTabCompleteEvent.get(command, args), EventProcessingType.Sync)
     }
 }
-
-typealias TaskRunner = (JavaPlugin, Runnable) -> Unit
