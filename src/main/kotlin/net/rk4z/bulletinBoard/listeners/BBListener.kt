@@ -17,6 +17,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.player.AsyncPlayerChatEvent
+import org.bukkit.event.player.PlayerCommandPreprocessEvent
 import org.bukkit.persistence.PersistentDataType
 
 class BBListener : Listener {
@@ -60,6 +61,11 @@ class BBListener : Listener {
         EventBus.postAsync(BulletinBoardCloseEvent.get(player, inventoryTitle, state))
 
         removeItemFromPlayerInventory(player)
+    }
+
+    @EventHandler
+    fun onCommandPreProcess(event: PlayerCommandPreprocessEvent) {
+
     }
 
     private fun removeItemFromPlayerInventory(player: Player) {

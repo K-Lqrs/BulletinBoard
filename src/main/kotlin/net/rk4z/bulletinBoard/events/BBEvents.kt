@@ -114,3 +114,20 @@ class BulletinBoardCloseEvent(
         }
     }
 }
+
+class BulletinBoardCommandPreProcessEvent(
+    val player: Player,
+    val command: String
+) : Event() {
+    companion object {
+        fun get(
+            player: Player,
+            command: String
+        ): BulletinBoardCommandPreProcessEvent {
+            return BulletinBoardCommandPreProcessEvent(
+                player,
+                command
+            )
+        }
+    }
+}
