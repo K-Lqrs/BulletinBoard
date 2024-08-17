@@ -488,4 +488,24 @@ class DataBase(private val plugin: BulletinBoard) {
         loadAllPostIds()
         return CustomID.getAllEnumNames() + dynamicIds
     }
+
+    fun getPlayerPermission(uuid: UUID): List<String> {
+        val permissions = mutableListOf<String>()
+        val selectSQL = "SELECT acquiredPermission FROM permissions WHERE uuid = ?"
+
+        try {
+            connection?.prepareStatement(selectSQL)?.use { statement ->
+                statement.setString(1, uuid.toString())
+                val resultSet = statement.executeQuery()
+                while (resultSet.next()) {
+                    permissions.add(resultSet.getString("acquiredPermission"))
+                }
+            }
+        } catch (e: SQLException) {
+            plugin.logger.error("Could not retrieve permissions from database!")
+            e.printStackTrace()
+        }
+
+        return permissions
+    }
 }

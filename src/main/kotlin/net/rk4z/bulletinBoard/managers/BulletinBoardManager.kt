@@ -332,7 +332,15 @@ object BulletinBoardManager {
                 )
                 addButtonsToInventory(inventory, buttons, player)
             }
-            ALL_POSTS,
+            ALL_POSTS -> {
+                val hasPermission = PermissionManager.hasPermission(player, "deleteOthers")
+                if (hasPermission) {
+                    val buttons = listOf(
+                        Button(24, Material.CAULDRON, MessageKey.DELETE_POST_OTHERS, CustomID.DELETE_POST_OTHERS)
+                    )
+                    addButtonsToInventory(inventory, buttons, player)
+                }
+            }
             DELETE_POST_SELECTION,
             DELETE_POST_PERMANENTLY_SELECTION,
             EDIT_POST_SELECTION,
