@@ -1,11 +1,6 @@
 package net.rk4z.bulletinBoard.listeners
 
-import net.rk4z.beacon.IEventHandler
-import net.rk4z.beacon.Priority
-import net.rk4z.beacon.handler
-import net.rk4z.bulletinBoard.events.BulletinBoardClickEvent
-import net.rk4z.bulletinBoard.events.BulletinBoardCloseEvent
-import net.rk4z.bulletinBoard.events.BulletinBoardOnChatEvent
+import net.kyori.adventure.text.Component
 import net.rk4z.bulletinBoard.listeners.BBListenerActions.handleCancelPostConfirmation
 import net.rk4z.bulletinBoard.listeners.BBListenerActions.handleConfirmationClose
 import net.rk4z.bulletinBoard.listeners.BBListenerActions.handleDeletePostConfirmation
@@ -22,17 +17,22 @@ import net.rk4z.bulletinBoard.listeners.BBListenerActions.updateDraft
 import net.rk4z.bulletinBoard.managers.LanguageManager
 import net.rk4z.bulletinBoard.utils.InputType
 import net.rk4z.bulletinBoard.utils.MessageKey
+import net.rk4z.bulletinBoard.utils.PlayerState
+import org.bukkit.entity.Player
+import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.player.AsyncPlayerChatEvent
 
 @Suppress("unused", "DuplicatedCode")
-class BBListenerHandlers : IEventHandler {
-    val onBBClick = handler<BulletinBoardClickEvent>(
-        priority = Priority.HIGHEST
+object BBListenerHandlers {
+
+    fun onBBClick(
+        player: Player,
+        customId: String?,
+        inventoryTitle: Component,
+        state: PlayerState,
+        event: InventoryClickEvent
     ) {
-        val player = it.player
-        val event = it.event
-        val state = it.state
-        val customId = it.customId
-        when (val inventory = it.inventoryTitle) {
+        when (inventoryTitle) {
             LanguageManager.getMessage(player, MessageKey.MAIN_BOARD) -> {
                 event.isCancelled = true
                 handleMainBoardClick(player, customId)
@@ -42,7 +42,7 @@ class BBListenerHandlers : IEventHandler {
             LanguageManager.getMessage(player, MessageKey.ALL_POSTS),
             LanguageManager.getMessage(player, MessageKey.DELETED_POSTS), -> {
                 event.isCancelled = true
-                handlePostsClick(player, inventory, customId)
+                handlePostsClick(player, inventoryTitle, customId)
             }
 
             LanguageManager.getMessage(player, MessageKey.DELETE_POST_SELECTION),
@@ -50,7 +50,7 @@ class BBListenerHandlers : IEventHandler {
             LanguageManager.getMessage(player, MessageKey.DELETE_POST_PERMANENTLY_SELECTION),
             LanguageManager.getMessage(player, MessageKey.RESTORE_POST_SELECTION)-> {
                 event.isCancelled = true
-                handleSelectionClick(player, inventory, customId, state)
+                handleSelectionClick(player, inventoryTitle, customId, state)
             }
 
             LanguageManager.getMessage(player, MessageKey.POST_EDITOR) -> {
@@ -90,13 +90,11 @@ class BBListenerHandlers : IEventHandler {
         }
     }
 
-    val onChat = handler<BulletinBoardOnChatEvent>(
-        priority = Priority.LOWEST
+    fun onChat(
+        player: Player,
+        state: PlayerState,
+        event: AsyncPlayerChatEvent
     ) {
-        val player = it.player
-        val state = it.state
-        val event = it.event
-
         if (state.inputType != null || state.editInputType != null) {
             event.isCancelled = true
             event.recipients.clear()
@@ -104,19 +102,17 @@ class BBListenerHandlers : IEventHandler {
             when (val inputType = state.inputType ?: state.editInputType) {
                 InputType.TITLE -> updateDraft(player, event, state, inputType, event.message, true)
                 InputType.CONTENT -> updateDraft(player, event, state, inputType, event.message, false)
-                else -> return@handler
+                else -> return
             }
         }
     }
 
-    val onInvClose = handler<BulletinBoardCloseEvent>(
-        priority = Priority.LOWEST
+    fun onInvClose(
+        player: Player,
+        inventoryTitle: Component,
+        state: PlayerState
     ) {
-        val player = it.player
-        val title = it.inventoryTitle
-        val state = it.state
-
-        when (title) {
+        when (inventoryTitle) {
             LanguageManager.getMessage(player, MessageKey.MAIN_BOARD) -> state.clear()
 
             LanguageManager.getMessage(player, MessageKey.POST_EDITOR) -> handlePostEditorClose(state)
@@ -129,5 +125,11 @@ class BBListenerHandlers : IEventHandler {
                 MessageKey.DELETE_POST_PERMANENTLY_CONFIRMATION
             ) -> handleConfirmationClose(state)
         }
+    }
+
+    fun onCommandPreProcess(player: Player, message: String) {
+
+
+
     }
 }

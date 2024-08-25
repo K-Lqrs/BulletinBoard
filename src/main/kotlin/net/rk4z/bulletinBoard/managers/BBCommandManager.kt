@@ -8,10 +8,10 @@ import net.rk4z.beacon.returnableHandler
 import net.rk4z.bulletinBoard.BulletinBoard
 import net.rk4z.bulletinBoard.events.BulletinBoardOnCommandEvent
 import net.rk4z.bulletinBoard.events.BulletinBoardOnTabCompleteEvent
+import net.rk4z.bulletinBoard.utils.BBUtil.playSoundMaster
 import net.rk4z.bulletinBoard.utils.Commands
 import net.rk4z.bulletinBoard.utils.MessageKey
 import org.bukkit.Sound
-import org.bukkit.SoundCategory
 import org.bukkit.entity.Player
 
 @Suppress("unused")
@@ -99,6 +99,8 @@ class BBCommandManager : IEventHandler {
     }
 
     fun displayAbout(player: Player) {
+        player.playSoundMaster(Sound.BLOCK_NOTE_BLOCK_BELL, 0.5f, 2.0f)
+
         val header = Component.text("=== BulletinBoard ===")
             .color(NamedTextColor.DARK_GREEN)
             .decorate(TextDecoration.BOLD)
@@ -125,7 +127,7 @@ class BBCommandManager : IEventHandler {
     }
 
     fun displayHowToUse(player: Player) {
-        player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 0.5f, 2.0f)
+        player.playSoundMaster(Sound.ENTITY_PLAYER_LEVELUP, 0.5f, 2.0f)
 
         val headerComponent = LanguageManager.getMessage(player, MessageKey.HTU_HEADER)
             .color(NamedTextColor.GOLD)

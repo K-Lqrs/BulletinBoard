@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 import net.kyori.adventure.text.Component
 import net.rk4z.bulletinBoard.managers.BBCommandManager
 import net.rk4z.bulletinBoard.managers.BulletinBoardManager
+import net.rk4z.bulletinBoard.utils.BBUtil.playSoundMaster
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.entity.Player
@@ -265,7 +266,7 @@ enum class TitleType(val key: MessageKey) {
 enum class Commands(val execute: (Player) -> Unit) {
     OPENBOARD({ player ->
         BulletinBoardManager.openMainBoard(player)
-        player.playSound(player.location, Sound.BLOCK_ANVIL_PLACE, 0.2f, 2.0f)
+        player.playSoundMaster(Sound.BLOCK_ANVIL_PLACE, 0.2f, 2.0f)
     }),
     NEWPOST({ player -> BulletinBoardManager.openPostEditor(player) }),
     MYPOSTS({ player -> BulletinBoardManager.openMyPosts(player) }),

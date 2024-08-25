@@ -3,6 +3,8 @@ package net.rk4z.bulletinBoard.utils
 import net.kyori.adventure.text.Component
 import net.rk4z.bulletinBoard.BulletinBoard
 import org.bukkit.Material
+import org.bukkit.Sound
+import org.bukkit.SoundCategory
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
@@ -91,5 +93,7 @@ object BBUtil {
         "NZ" to "Pacific/Auckland"  // ニュージーランド
     )
 
-
+    internal fun Player.playSoundMaster(sound: Sound, volume: Float = 1.0f, pitch: Float = 1.0f) {
+        playSound(location, sound, SoundCategory.MASTER, volume, pitch)
+    }
 }

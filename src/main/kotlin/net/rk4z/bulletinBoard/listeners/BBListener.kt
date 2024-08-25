@@ -2,11 +2,7 @@
 
 package net.rk4z.bulletinBoard.listeners
 
-import net.rk4z.beacon.EventBus
 import net.rk4z.bulletinBoard.BulletinBoard
-import net.rk4z.bulletinBoard.events.BulletinBoardClickEvent
-import net.rk4z.bulletinBoard.events.BulletinBoardCloseEvent
-import net.rk4z.bulletinBoard.events.BulletinBoardOnChatEvent
 import net.rk4z.bulletinBoard.managers.BulletinBoardManager
 import net.rk4z.bulletinBoard.utils.CustomID
 import org.bukkit.Bukkit
@@ -37,7 +33,7 @@ class BBListener : Listener {
 
         val state = BulletinBoardManager.getPlayerState(player.uniqueId)
 
-        EventBus.postAsync(BulletinBoardClickEvent.get(player, customId, inventoryTitle, state, event))
+        BBListenerHandlers.onBBClick(player, customId, inventoryTitle, state, event)
 
         Bukkit.getScheduler().runTaskLater(BulletinBoard.instance, Runnable {
             removeItemFromPlayerInventory(player)
@@ -49,7 +45,7 @@ class BBListener : Listener {
         val player = event.player
         val state = BulletinBoardManager.getPlayerState(player.uniqueId)
 
-        EventBus.postAsync(BulletinBoardOnChatEvent.get(player, state, event))
+        BBListenerHandlers.onChat(player, state, event)
     }
 
     @EventHandler
@@ -58,14 +54,17 @@ class BBListener : Listener {
         val state = BulletinBoardManager.getPlayerState(player.uniqueId)
         val inventoryTitle = event.view.title()
 
-        EventBus.postAsync(BulletinBoardCloseEvent.get(player, inventoryTitle, state))
+        BBListenerHandlers.onInvClose(player, inventoryTitle, state)
 
         removeItemFromPlayerInventory(player)
     }
 
     @EventHandler
     fun onCommandPreProcess(event: PlayerCommandPreprocessEvent) {
+        val player = event.player
+        val message = event.message
 
+        BBListenerHandlers.onCommandPreProcess(player, message)
     }
 
     private fun removeItemFromPlayerInventory(player: Player) {
