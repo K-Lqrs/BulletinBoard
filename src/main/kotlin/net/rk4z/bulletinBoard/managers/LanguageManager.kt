@@ -89,6 +89,7 @@ object LanguageManager {
             MessageKey.CONTENT_LABEL to "コンテンツ: ",
             MessageKey.AUTHOR_LABEL to "投稿者: ",
             MessageKey.DATE_LABEL to "投稿日時: ",
+            MessageKey.ANONYMOUS_USER to "匿名",
             //endregion
 
             //region How to Use
@@ -181,6 +182,7 @@ object LanguageManager {
             MessageKey.CONTENT_LABEL to "Content: ",
             MessageKey.AUTHOR_LABEL to "Author: ",
             MessageKey.DATE_LABEL to "Date: ",
+            MessageKey.ANONYMOUS_USER to "Anonymous",
             //endregion
 
             //region How to Use
@@ -273,6 +275,7 @@ object LanguageManager {
             MessageKey.CONTENT_LABEL to "Contenu: ",
             MessageKey.AUTHOR_LABEL to "Auteur: ",
             MessageKey.DATE_LABEL to "Date: ",
+            MessageKey.ANONYMOUS_USER to "Anonyme",
             //endregion
 
             //region How to Use

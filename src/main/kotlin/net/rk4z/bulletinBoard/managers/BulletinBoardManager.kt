@@ -63,6 +63,7 @@ object BulletinBoardManager {
             LanguageManager.getMessage(player, MessageKey.POST_EDITOR),
             CustomID.POST_TITLE,
             CustomID.POST_CONTENT,
+            CustomID.ANONYMOUS,
             CustomID.CANCEL_POST,
             CustomID.SAVE_POST
         )
@@ -87,6 +88,7 @@ object BulletinBoardManager {
             LanguageManager.getMessage(player, MessageKey.POST_EDITOR_FOR_EDIT),
             CustomID.EDIT_POST_TITLE,
             CustomID.EDIT_POST_CONTENT,
+            CustomID.ANONYMOUS,
             CustomID.CANCEL_EDIT,
             CustomID.SAVE_EDIT
         )
@@ -218,6 +220,7 @@ object BulletinBoardManager {
         editorTitle: Component,
         titleCustomId: CustomID,
         contentCustomId: CustomID,
+        anonymousCustomId: CustomID,
         cancelCustomId: CustomID,
         saveCustomId: CustomID
     ): Inventory {
@@ -228,6 +231,10 @@ object BulletinBoardManager {
         postEditor.setItem(
             19,
             createCustomItem(Material.RED_WOOL, LanguageManager.getMessage(player, MessageKey.CANCEL_POST), customId = cancelCustomId)
+        )
+        postEditor.setItem(
+            21,
+            createCustomItem(Material.WIND_CHARGE, LanguageManager.getMessage(player, MessageKey.ANONYMOUS), customId = anonymousCustomId)
         )
         postEditor.setItem(
             25,
@@ -249,8 +256,13 @@ object BulletinBoardManager {
         val dateComponent = LanguageManager.getMessage(player, MessageKey.DATE_LABEL)
             .append(Component.text(zonedDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z"))))
 
-        val authorComponent = LanguageManager.getMessage(player, MessageKey.AUTHOR_LABEL)
-            .append(Component.text(Bukkit.getOfflinePlayer(post.author).name ?: "Unknown"))
+        val authorComponent = if (post.isAnonymous) {
+            LanguageManager.getMessage(player, MessageKey.AUTHOR_LABEL)
+                .append(LanguageManager.getMessage(player, MessageKey.ANONYMOUS_USER))
+        } else {
+            LanguageManager.getMessage(player, MessageKey.AUTHOR_LABEL)
+                .append(Component.text(Bukkit.getOfflinePlayer(post.author).name ?: "Unknown"))
+        }
 
         runTask(p) {
             player.closeInventory()
@@ -262,6 +274,7 @@ object BulletinBoardManager {
             player.sendMessage(Component.text("---------------------------------", NamedTextColor.DARK_GRAY))
         }
     }
+
 
     private fun openPostsInventory(player: Player, titleType: TitleType, posts: List<Post>, page: Int) {
         val middleRowSlots = listOf(10, 12, 14, 16)
@@ -280,7 +293,7 @@ object BulletinBoardManager {
             val noPostsItem = createCustomItem(Material.PAPER, LanguageManager.getMessage(player, MessageKey.NO_POSTS), customId = CustomID.NO_POSTS)
             inventory.setItem(13, noPostsItem)
         } else {
-            posts.subList(startIndex, endIndex).forEachIndexed { index, (postId, _, title, _, _) ->
+            posts.subList(startIndex, endIndex).forEachIndexed { index, (postId, _, title, _, _, _) ->
                 val postItem = createCustomItem(Material.WRITTEN_BOOK, title, customId = postId.toString())
                 inventory.setItem(middleRowSlots[index], postItem)
             }

@@ -41,6 +41,7 @@ data class PlayerState(
     var isPreviewing: Boolean? = null,
     var isOpeningConfirmation: Boolean? = null,
     var isChoosingConfirmationAnswer: Boolean? = null,
+    var isAnonymous: Boolean? = null,
 
     var inputType: InputType? = null,
     var editInputType: InputType? = null,
@@ -55,7 +56,8 @@ data class PlayerState(
 
 data class PostDraft(
     val title: Component? = null,
-    val content: Component? = null
+    val content: Component? = null,
+    val isAnonymous: Boolean? = null
 )
 
 @Serializable
@@ -68,6 +70,7 @@ data class Post(
     val title: Component,
     @Serializable(with = ComponentSerializer::class)
     val content: Component,
+    val isAnonymous: Boolean = false,
     @Contextual
     val date: Date
 )
@@ -75,7 +78,8 @@ data class Post(
 data class EditPostData(
     val id: ShortUUID? = null,
     val title: Component? = null,
-    val content: Component? = null
+    val content: Component? = null,
+    val isAnonymous: Boolean = false // Add the isAnonymous field
 ) {
     fun toPost(author: UUID, date: Date): Post {
         return Post(
@@ -83,10 +87,12 @@ data class EditPostData(
             title = this.title ?: Component.text(""),
             author = author,
             content = this.content ?: Component.text(""),
+            isAnonymous = this.isAnonymous,
             date = date
         )
     }
 }
+
 
 @Serializable
 data class BulletinBoardData(
@@ -156,7 +162,8 @@ enum class CustomID {
     CONFIRM_DELETE_POST_PERMANENTLY,
     CANCEL_RESTORE_POST,
     DELETE_POST_OTHERS,
-    CONFIRM_RESTORE_POST;
+    CONFIRM_RESTORE_POST,
+    ANONYMOUS;
 
     companion object {
         val dynamicIds = mutableSetOf<String>()
@@ -250,7 +257,9 @@ enum class MessageKey {
     CANCEL_RESTORE_POST,
     CONFIRM_RESTORE_POST,
     RESTORE_POST_CONFIRMATION,
-    DELETE_POST_OTHERS
+    DELETE_POST_OTHERS,
+    ANONYMOUS,
+    ANONYMOUS_USER,
 }
 
 enum class TitleType(val key: MessageKey) {

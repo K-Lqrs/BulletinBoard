@@ -38,6 +38,7 @@ class DataBase(private val plugin: BulletinBoard) {
                 author TEXT NOT NULL,
                 title TEXT NOT NULL,
                 content TEXT NOT NULL,
+                isAnonymous BOOLEAN NOT NULL DEFAULT FALSE,
                 date DATE NOT NULL
             );
         """.trimIndent()
@@ -55,6 +56,7 @@ class DataBase(private val plugin: BulletinBoard) {
                 author TEXT NOT NULL,
                 title TEXT NOT NULL,
                 content TEXT NOT NULL,
+                isAnonymous BOOLEAN NOT NULL DEFAULT FALSE,
                 date DATE NOT NULL
             );
         """.trimIndent()
@@ -137,7 +139,7 @@ class DataBase(private val plugin: BulletinBoard) {
 //>-----------------------------------------------<\\
 
     fun insertPost(post: Post, isOldData: Boolean = false) {
-        val insertSQL = "INSERT INTO posts (id, author, title, content, date) VALUES (?, ?, ?, ?, ?)"
+        val insertSQL = "INSERT INTO posts (id, author, title, content, isAnonymous, date) VALUES (?, ?, ?, ?, ?, ?)"
         val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
         dateFormat.timeZone = TimeZone.getTimeZone("UTC")
 
@@ -153,7 +155,8 @@ class DataBase(private val plugin: BulletinBoard) {
                 statement.setString(2, post.author.toString())
                 statement.setString(3, GsonComponentSerializer.gson().serialize(post.title))
                 statement.setString(4, GsonComponentSerializer.gson().serialize(post.content))
-                statement.setString(5, dateFormat.format(post.date))
+                statement.setBoolean(5, post.isAnonymous)
+                statement.setString(6, dateFormat.format(post.date))
                 statement.executeUpdate()
             }
         } catch (e: SQLException) {
@@ -184,6 +187,7 @@ class DataBase(private val plugin: BulletinBoard) {
                         author = UUID.fromString(resultSet.getString("author")),
                         title = GsonComponentSerializer.gson().deserialize(resultSet.getString("title")),
                         content = GsonComponentSerializer.gson().deserialize(resultSet.getString("content")),
+                        isAnonymous = resultSet.getBoolean("isAnonymous"),
                         date = Date.from(parsedDate)
                     )
 
@@ -192,7 +196,8 @@ class DataBase(private val plugin: BulletinBoard) {
                         insertStatement.setString(2, post.author.toString())
                         insertStatement.setString(3, GsonComponentSerializer.gson().serialize(post.title))
                         insertStatement.setString(4, GsonComponentSerializer.gson().serialize(post.content))
-                        insertStatement.setString(5, dateString)
+                        insertStatement.setBoolean(5, post.isAnonymous)
+                        insertStatement.setString(6, dateString)
                         insertStatement.executeUpdate()
                     }
 
@@ -233,7 +238,7 @@ class DataBase(private val plugin: BulletinBoard) {
 
     fun restorePost(id: String) {
         val selectSQL = "SELECT * FROM deletedPosts WHERE id = ?"
-        val insertSQL = "INSERT INTO posts (id, author, title, content, date) VALUES (?, ?, ?, ?, ?)"
+        val insertSQL = "INSERT INTO posts (id, author, title, content, isAnonymous, date) VALUES (?, ?, ?, ?, ?, ?)"  // isAnonymousを追加
         val deleteSQL = "DELETE FROM deletedPosts WHERE id = ?"
 
         try {
@@ -245,6 +250,7 @@ class DataBase(private val plugin: BulletinBoard) {
                     val author = UUID.fromString(resultSet.getString("author"))
                     val title = GsonComponentSerializer.gson().deserialize(resultSet.getString("title"))
                     val content = GsonComponentSerializer.gson().deserialize(resultSet.getString("content"))
+                    val isAnonymous = resultSet.getBoolean("isAnonymous")  // isAnonymousを取得
                     val rawDate = resultSet.getString("date")
                     val parsedDate = try {
                         ZonedDateTime.parse(rawDate, DateTimeFormatter.ISO_DATE_TIME).toInstant()
@@ -261,7 +267,8 @@ class DataBase(private val plugin: BulletinBoard) {
                         insertStatement.setString(2, author.toString())
                         insertStatement.setString(3, GsonComponentSerializer.gson().serialize(title))
                         insertStatement.setString(4, GsonComponentSerializer.gson().serialize(content))
-                        insertStatement.setString(5, formattedDate)
+                        insertStatement.setBoolean(5, isAnonymous)  // isAnonymousを挿入
+                        insertStatement.setString(6, formattedDate)
                         insertStatement.executeUpdate()
                     }
 
