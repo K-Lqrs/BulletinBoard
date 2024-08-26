@@ -291,7 +291,8 @@ object LanguageManager {
     )
 
     private fun getLanguage(player: Player): String {
-        return player.locale.substring(0, 2)
+        return player.locale().language
+        //player.locale.substring(0, 2)
     }
 
     // getMessage() returns a Component object
