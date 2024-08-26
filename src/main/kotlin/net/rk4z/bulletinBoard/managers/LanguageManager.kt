@@ -1,5 +1,3 @@
-@file:Suppress("DEPRECATION")
-
 package net.rk4z.bulletinBoard.managers
 
 import net.kyori.adventure.text.Component

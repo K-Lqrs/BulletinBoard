@@ -225,6 +225,9 @@ object BulletinBoardManager {
         saveCustomId: CustomID
     ): Inventory {
         val postEditor = Bukkit.createInventory(null, 27, editorTitle)
+        val state = getPlayerState(player.uniqueId)
+        val isAnonymous = state.draft?.isAnonymous ?: false
+        val anonymousItem = if (isAnonymous) Material.LIME_WOOL else Material.RED_WOOL
         setGlassPane(postEditor, 0..26)
         postEditor.setItem(11, createCustomItem(Material.PAPER, title, customId = titleCustomId))
         postEditor.setItem(15, createCustomItem(Material.BOOK, content, customId = contentCustomId))
@@ -234,7 +237,7 @@ object BulletinBoardManager {
         )
         postEditor.setItem(
             21,
-            createCustomItem(Material.WIND_CHARGE, LanguageManager.getMessage(player, MessageKey.ANONYMOUS), customId = anonymousCustomId)
+            createCustomItem(anonymousItem, LanguageManager.getMessage(player, MessageKey.ANONYMOUS), customId = anonymousCustomId)
         )
         postEditor.setItem(
             25,
