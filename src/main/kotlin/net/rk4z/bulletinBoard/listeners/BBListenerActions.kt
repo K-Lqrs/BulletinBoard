@@ -11,13 +11,10 @@ import net.rk4z.bulletinBoard.managers.BBCommandManager
 import net.rk4z.bulletinBoard.managers.BulletinBoardManager
 import net.rk4z.bulletinBoard.managers.LanguageManager
 import net.rk4z.bulletinBoard.utils.*
-import net.rk4z.bulletinBoard.utils.BBUtil.createCustomItem
 import net.rk4z.bulletinBoard.utils.BBUtil.playSoundMaster
-import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.player.AsyncPlayerChatEvent
-import org.bukkit.inventory.Inventory
 import java.util.*
 
 object BBListenerActions {
@@ -144,24 +141,6 @@ object BBListenerActions {
         when (customId) {
             CustomID.POST_TITLE.name -> beginInput(player, state, InputType.TITLE)
             CustomID.POST_CONTENT.name -> beginInput(player, state, InputType.CONTENT)
-            CustomID.ANONYMOUS.name -> {
-                state.isAnonymous = !(state.isAnonymous ?: false)
-                val postEditor = BulletinBoardManager.createPostEditorInventory(
-                    player,
-                    state.draft?.title ?: LanguageManager.getMessage(player, MessageKey.NO_TITLE),
-                    state.draft?.content ?: LanguageManager.getMessage(player, MessageKey.NO_CONTENT),
-                    LanguageManager.getMessage(player, MessageKey.POST_EDITOR),
-                    CustomID.POST_TITLE,
-                    CustomID.POST_CONTENT,
-                    CustomID.ANONYMOUS,
-                    CustomID.CANCEL_POST,
-                    CustomID.SAVE_POST
-                )
-                updateAnonymousButton(state, postEditor)
-                runTask(p) {
-                    player.openInventory(postEditor)
-                }
-            }
             CustomID.CANCEL_POST.name -> BulletinBoardManager.openConfirmation(player, ConfirmationType.CANCEL_POST)
             CustomID.SAVE_POST.name -> prepareSavePost(player, state)
             CustomID.PREVIEW_POST.name -> {
@@ -188,11 +167,9 @@ object BBListenerActions {
                     LanguageManager.getMessage(player, MessageKey.POST_EDITOR_FOR_EDIT),
                     CustomID.EDIT_POST_TITLE,
                     CustomID.EDIT_POST_CONTENT,
-                    CustomID.ANONYMOUS,
                     CustomID.CANCEL_EDIT,
                     CustomID.SAVE_EDIT
                 )
-                updateAnonymousButton(state, postEditor)
                 runTask(p) {
                     player.openInventory(postEditor)
                 }
@@ -365,7 +342,6 @@ object BBListenerActions {
                 LanguageManager.getMessage(player, MessageKey.POST_EDITOR),
                 CustomID.POST_TITLE,
                 CustomID.POST_CONTENT,
-                CustomID.ANONYMOUS, // Ensure to pass the custom ID for the anonymous toggle
                 CustomID.CANCEL_POST,
                 CustomID.SAVE_POST
             )
@@ -398,7 +374,6 @@ object BBListenerActions {
                 LanguageManager.getMessage(player, MessageKey.POST_EDITOR_FOR_EDIT),
                 CustomID.EDIT_POST_TITLE,
                 CustomID.EDIT_POST_CONTENT,
-                CustomID.ANONYMOUS, // Ensure to pass the custom ID for the anonymous toggle
                 CustomID.CANCEL_EDIT,
                 CustomID.SAVE_EDIT
             )
@@ -413,7 +388,6 @@ object BBListenerActions {
             )
         }
     }
-
 
     internal fun handlePostEditorClose(state: PlayerState) {
         when {
@@ -451,14 +425,6 @@ object BBListenerActions {
             player.closeInventory()
             player.sendMessage(LanguageManager.getMessage(player, MessageKey.WHEN_DELETE_POST_NULL))
         }
-    }
-
-    private fun updateAnonymousButton(state: PlayerState, postEditor: Inventory) {
-        val isAnonymous = state.isAnonymous ?: false
-        val material = if (isAnonymous) Material.LIME_WOOL else Material.RED_WOOL
-        val label = if (isAnonymous) "Anonymous: ON" else "Anonymous: OFF"
-
-        postEditor.setItem(21, createCustomItem(material, Component.text(label), customId = CustomID.ANONYMOUS))
     }
 
 }

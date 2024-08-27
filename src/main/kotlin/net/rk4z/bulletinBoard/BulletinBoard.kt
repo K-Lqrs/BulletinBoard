@@ -46,6 +46,7 @@ class BulletinBoard : JavaPlugin() {
             private set
 
         private const val ID: String = "bulletinboard"
+        var fullyInitialized: Boolean = false
 
         val runTask: TaskRunner = { plugin, runnable ->
             Bukkit.getScheduler().runTask(plugin, runnable)
@@ -88,6 +89,7 @@ class BulletinBoard : JavaPlugin() {
         server.pluginManager.apply {
             registerEvents(BBListener(), this@BulletinBoard)
         }
+        fullyInitialized = true
     }
 
     override fun onDisable() {
