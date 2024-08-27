@@ -12,7 +12,9 @@ import net.rk4z.bulletinBoard.managers.BulletinBoardManager
 import net.rk4z.bulletinBoard.managers.LanguageManager
 import net.rk4z.bulletinBoard.utils.*
 import net.rk4z.bulletinBoard.utils.BBUtil.createCustomItem
+import net.rk4z.bulletinBoard.utils.BBUtil.playSoundMaster
 import org.bukkit.Material
+import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.inventory.Inventory
@@ -162,11 +164,42 @@ object BBListenerActions {
             }
             CustomID.CANCEL_POST.name -> BulletinBoardManager.openConfirmation(player, ConfirmationType.CANCEL_POST)
             CustomID.SAVE_POST.name -> prepareSavePost(player, state)
+            CustomID.PREVIEW_POST.name -> {
+                state.isPreviewing = true
+                state.preview = Pair(
+                    state.draft?.title ?: LanguageManager.getMessage(player, MessageKey.NO_TITLE),
+                    state.draft?.content ?: LanguageManager.getMessage(player, MessageKey.NO_CONTENT)
+                )
+                showPostPreviewInChat(player, state)
+            }
         }
     }
 
     internal fun handlePostEditorForEditClick(player: Player, state: PlayerState, customId: String?) {
-
+        when (customId) {
+            CustomID.EDIT_POST_TITLE.name -> beginInput(player, state, InputType.TITLE)
+            CustomID.EDIT_POST_CONTENT.name -> beginInput(player, state, InputType.CONTENT)
+            CustomID.ANONYMOUS.name -> {
+                state.isAnonymous = !(state.isAnonymous ?: false)
+                val postEditor = BulletinBoardManager.createPostEditorInventory(
+                    player,
+                    state.editDraft?.title ?: LanguageManager.getMessage(player, MessageKey.NO_TITLE),
+                    state.editDraft?.content ?: LanguageManager.getMessage(player, MessageKey.NO_CONTENT),
+                    LanguageManager.getMessage(player, MessageKey.POST_EDITOR_FOR_EDIT),
+                    CustomID.EDIT_POST_TITLE,
+                    CustomID.EDIT_POST_CONTENT,
+                    CustomID.ANONYMOUS,
+                    CustomID.CANCEL_EDIT,
+                    CustomID.SAVE_EDIT
+                )
+                updateAnonymousButton(state, postEditor)
+                runTask(p) {
+                    player.openInventory(postEditor)
+                }
+            }
+            CustomID.CANCEL_EDIT.name -> BulletinBoardManager.openConfirmation(player, ConfirmationType.CANCEL_POST)
+            CustomID.SAVE_EDIT.name -> prepareSavePost(player, state)
+        }
     }
 
     private fun beginInput(player: Player, state: PlayerState, inputType: InputType) {
@@ -212,6 +245,7 @@ object BBListenerActions {
                 runTask(p) {
                     player.closeInventory()
 
+                    player.playSoundMaster(Sound.ENTITY_VILLAGER_WORK_LIBRARIAN, 1.5f)
                     player.sendMessage(LanguageManager.getMessage(player, MessageKey.POST_SAVED))
                 }
 
@@ -388,6 +422,16 @@ object BBListenerActions {
             state.isPreviewing == true -> state.isPreviewing = null
             else -> state.clear()
         }
+    }
+
+    private fun showPostPreviewInChat(player: Player, state: PlayerState) {
+        val title = state.preview?.first ?: LanguageManager.getMessage(player, MessageKey.NO_TITLE)
+        val content = state.preview?.second ?: LanguageManager.getMessage(player, MessageKey.NO_CONTENT)
+
+        player.sendMessage(Component.text("-----[ Preview ]-----"))
+        player.sendMessage(LanguageManager.getMessage(player, MessageKey.TITLE_LABEL).append(title))
+        player.sendMessage(LanguageManager.getMessage(player, MessageKey.CONTENT_LABEL).append(content))
+        player.sendMessage(Component.text("--------------------"))
     }
 
     internal fun handleConfirmationClose(state: PlayerState) {

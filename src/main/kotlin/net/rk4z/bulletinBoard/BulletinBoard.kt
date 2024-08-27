@@ -20,7 +20,6 @@ package net.rk4z.bulletinBoard
 
 import net.rk4z.beacon.EventBus
 import net.rk4z.beacon.EventProcessingType
-import net.rk4z.bulletinBoard.dev.Main
 import net.rk4z.bulletinBoard.events.BulletinBoardOnCommandEvent
 import net.rk4z.bulletinBoard.events.BulletinBoardOnTabCompleteEvent
 import net.rk4z.bulletinBoard.listeners.BBListener
@@ -88,7 +87,6 @@ class BulletinBoard : JavaPlugin() {
     override fun onEnable() {
         server.pluginManager.apply {
             registerEvents(BBListener(), this@BulletinBoard)
-            registerEvents(Main(), this@BulletinBoard)
         }
     }
 

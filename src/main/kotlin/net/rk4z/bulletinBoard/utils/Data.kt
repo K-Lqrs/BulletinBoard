@@ -31,28 +31,54 @@ private fun clearPlayerState(state: PlayerState) {
 data class PlayerState(
     var draft: PostDraft? = null,
     var editDraft: EditPostData? = null,
-
     var selectedDeletingPostId: String? = null,
     var selectedEditingPostId: String? = null,
     var selectedRestoringPostId: String? = null,
-
     var isInputting: Boolean? = null,
     var isEditInputting: Boolean? = null,
     var isPreviewing: Boolean? = null,
     var isOpeningConfirmation: Boolean? = null,
     var isChoosingConfirmationAnswer: Boolean? = null,
     var isAnonymous: Boolean? = null,
-
     var inputType: InputType? = null,
     var editInputType: InputType? = null,
     var confirmationType: ConfirmationType? = null,
-
     var preview: Pair<Component, Component>? = null,
 ) {
     fun clear() {
         clearPlayerState(this)
     }
+
+    fun clearDraft() {
+        draft = null
+        isAnonymous = null
+    }
+
+    fun clearEditDraft() {
+        editDraft = null
+        isAnonymous = null
+    }
+
+    fun clearSelection() {
+        selectedDeletingPostId = null
+        selectedEditingPostId = null
+        selectedRestoringPostId = null
+    }
+
+    fun clearInputFlags() {
+        isInputting = null
+        isEditInputting = null
+        isPreviewing = null
+    }
+
+    fun clearConfirmation() {
+        isOpeningConfirmation = null
+        isChoosingConfirmationAnswer = null
+        confirmationType = null
+        preview = null
+    }
 }
+
 
 data class PostDraft(
     val title: Component? = null,

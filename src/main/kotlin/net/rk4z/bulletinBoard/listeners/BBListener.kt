@@ -12,6 +12,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
+import org.bukkit.event.inventory.InventoryCloseEvent.Reason.*
 import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.event.player.PlayerCommandPreprocessEvent
 import org.bukkit.persistence.PersistentDataType
@@ -54,7 +55,24 @@ class BBListener : Listener {
         val state = BulletinBoardManager.getPlayerState(player.uniqueId)
         val inventoryTitle = event.view.title()
 
-        BBListenerHandlers.onInvClose(player, inventoryTitle, state)
+        when (event.reason) {
+            PLAYER,
+            TELEPORT,
+            DISCONNECT,
+            DEATH,
+            UNLOADED,
+            CANT_USE
+                -> state.clear()
+
+            PLUGIN, OPEN_NEW -> {
+                BBListenerHandlers.onInvClose(player, inventoryTitle, state)
+            }
+
+            UNKNOWN  -> {
+                BulletinBoard.instance.logger.warn("Unknown InventoryCloseEvent.Reason: ${event.reason}")
+                state.clear()
+            }
+        }
 
         removeItemFromPlayerInventory(player)
     }
@@ -71,14 +89,15 @@ class BBListener : Listener {
         val inventory = player.inventory
         val allIds = BulletinBoard.database.getAllIds()
 
-        for (item in inventory.contents) {
-            if (item != null && item.itemMeta != null) {
+        inventory.contents
+            .filterNotNull()  // Nullチェック
+            .filter { item ->
                 val itemMeta = item.itemMeta
-                val itemCustomIdName = itemMeta.persistentDataContainer.get(BulletinBoard.namespacedKey, PersistentDataType.STRING)
-                if (itemCustomIdName != null && allIds.contains(itemCustomIdName)) {
-                    inventory.remove(item)
-                }
+                val itemCustomIdName = itemMeta?.persistentDataContainer?.get(BulletinBoard.namespacedKey, PersistentDataType.STRING)
+                itemCustomIdName != null && allIds.contains(itemCustomIdName)
             }
-        }
+            .forEach { item ->
+                inventory.remove(item)
+            }
     }
 }
