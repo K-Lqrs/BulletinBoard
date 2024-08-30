@@ -1,0 +1,26 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="VulnerableLibrariesLocal" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="isIgnoringEnabled" value="true" />
+      <option name="ignoredModules">
+        <list>
+          <option value="BulletinBoard.integrations.velocity" />
+          <option value="BulletinBoard.integrations.velocity" />
+        </list>
+      </option>
+      <option name="ignoredPackages">
+        <list>
+          <option value="org.yaml:snakeyaml:1.33" />
+          <option value="com.google.guava:guava:31.0.1-jre" />
+        </list>
+      </option>
+      <option name="ignoredReasons">
+        <list>
+          <option value="ブランチで修正済み" />
+          <option value="ブランチで修正済み" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>

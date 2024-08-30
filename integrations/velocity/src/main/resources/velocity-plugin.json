@@ -1,0 +1,10 @@
+{
+  "id": "bulletinboard",
+  "name": "BulletinBoard",
+  "description": "A simple bulletin board plugin",
+  "version": "1.0.0",
+  "main": "net.rk4z.bulletinboard.BulletinBoard",
+  "authors": [
+    "Ruxy"
+  ]
+}
