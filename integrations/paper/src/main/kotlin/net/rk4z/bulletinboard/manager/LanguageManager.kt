@@ -6,6 +6,10 @@ import org.bukkit.entity.Player
 
 object LanguageManager {
     private val messages: MutableMap<String, MutableMap<MessageKey, String>> = mutableMapOf(
+         "ja" to mutableMapOf(
+             //region Usage
+             MessageKey.USAGE_HEADER to ""
+         )
     )
 
     // getMessage() returns a Component object
@@ -18,12 +22,5 @@ object LanguageManager {
         val language = getLanguage(player)
         val message = messages[language]?.get(key) ?: messages["en"]?.get(key) ?: key.name
         return Component.text(message)
-    }
-
-    // getContentFromMessage() returns a String object
-    fun getContentFromMessage(player: Player, key: MessageKey): String {
-        val language = getLanguage(player)
-        val message = messages[language]?.get(key) ?: messages["en"]?.get(key) ?: key.name
-        return message
     }
 }

@@ -14,7 +14,6 @@ rootProject.name = "BulletinBoard"
 
 include("integrations")
 
-include("integrations:core")
 include("integrations:bungee")
 include("integrations:paper")
 include("integrations:velocity")

@@ -10,7 +10,6 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/integrations" />
             <option value="$PROJECT_DIR$/integrations/bungee" />
-            <option value="$PROJECT_DIR$/integrations/core" />
             <option value="$PROJECT_DIR$/integrations/paper" />
             <option value="$PROJECT_DIR$/integrations/velocity" />
           </set>
