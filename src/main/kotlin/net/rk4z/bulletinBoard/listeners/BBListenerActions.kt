@@ -43,12 +43,18 @@ object BBListenerActions {
         }
     }
 
-    internal fun handlePostsClick(player: Player, inventory: Component, customId: String?) {
+    internal fun handlePostsClick(player: Player, inventory: Component, customId: String?)  {
         val currentPage = customId?.split(":")?.getOrNull(1)?.toIntOrNull() ?: 0
 
         when (customId?.split(":")?.getOrNull(0)) {
-            CustomID.PREV_PAGE.name -> openPage(player, inventory, currentPage - 1)
-            CustomID.NEXT_PAGE.name -> openPage(player, inventory, currentPage + 1)
+            CustomID.PREV_PAGE.name -> {
+                player.playSoundMaster(Sound.ITEM_BOOK_PAGE_TURN, 0.5f)
+                openPage(player, inventory, currentPage - 1)
+            }
+            CustomID.NEXT_PAGE.name -> {
+                player.playSoundMaster(Sound.ITEM_BOOK_PAGE_TURN, 0.5f)
+                openPage(player, inventory, currentPage + 1)
+            }
             CustomID.BACK_BUTTON.name -> {
                 if (inventory == LanguageManager.getMessage(player, MessageKey.ALL_POSTS) ||
                     inventory == LanguageManager.getMessage(player, MessageKey.MY_POSTS) ||
@@ -78,8 +84,14 @@ object BBListenerActions {
         val currentPage = customId?.split(":")?.getOrNull(1)?.toIntOrNull() ?: 0
 
         when (customId?.split(":")?.getOrNull(0)) {
-            CustomID.PREV_PAGE.name -> openPage(player, inventory, currentPage - 1)
-            CustomID.NEXT_PAGE.name -> openPage(player, inventory, currentPage + 1)
+            CustomID.PREV_PAGE.name -> {
+                player.playSoundMaster(Sound.ITEM_BOOK_PAGE_TURN, 0.5f)
+                openPage(player, inventory, currentPage - 1)
+            }
+            CustomID.NEXT_PAGE.name -> {
+                player.playSoundMaster(Sound.ITEM_BOOK_PAGE_TURN, 0.5f)
+                openPage(player, inventory, currentPage + 1)
+            }
             CustomID.BACK_BUTTON.name -> {
                 if (inventory == LanguageManager.getMessage(player, MessageKey.DELETE_POST_SELECTION) ||
                     inventory == LanguageManager.getMessage(player, MessageKey.EDIT_POST_SELECTION)
@@ -222,7 +234,7 @@ object BBListenerActions {
                 runTask(p) {
                     player.closeInventory()
 
-                    player.playSoundMaster(Sound.ENTITY_VILLAGER_WORK_LIBRARIAN, 1.5f)
+                    player.playSoundMaster(Sound.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, 1.5f)
                     player.sendMessage(LanguageManager.getMessage(player, MessageKey.POST_SAVED))
                 }
 
@@ -246,6 +258,7 @@ object BBListenerActions {
                 runTask(p) {
                     player.closeInventory()
                     state.clear()
+                    player.playSoundMaster(Sound.BLOCK_LAVA_EXTINGUISH, 0.2f)
                     player.sendMessage(LanguageManager.getMessage(player, MessageKey.POST_DELETED))
                 }
             }
@@ -258,6 +271,7 @@ object BBListenerActions {
                 state.draft = null
                 runTask(p) {
                     player.closeInventory()
+                    state.clear()
                     player.sendMessage(LanguageManager.getMessage(player, MessageKey.CANCELLED_POST))
                 }
             }
@@ -280,6 +294,7 @@ object BBListenerActions {
                 runTask(p) {
                     player.closeInventory()
                     state.clear()
+                    player.playSoundMaster(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f)
                     player.sendMessage(LanguageManager.getMessage(player, MessageKey.POST_RESTORED))
                 }
             }
@@ -301,6 +316,7 @@ object BBListenerActions {
                 database.deletePostPermanently(selectedDeletingPostId)
                 runTask(p) {
                     player.closeInventory()
+                    player.playSoundMaster(Sound.BLOCK_LAVA_EXTINGUISH, 0.5f)
                     state.clear()
                     player.sendMessage(LanguageManager.getMessage(player, MessageKey.POST_DELETED_PERMANENTLY))
                 }
@@ -426,5 +442,4 @@ object BBListenerActions {
             player.sendMessage(LanguageManager.getMessage(player, MessageKey.WHEN_DELETE_POST_NULL))
         }
     }
-
 }

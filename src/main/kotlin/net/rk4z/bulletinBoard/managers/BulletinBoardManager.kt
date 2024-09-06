@@ -222,7 +222,6 @@ object BulletinBoardManager {
         saveCustomId: CustomID
     ): Inventory {
         val postEditor = Bukkit.createInventory(null, 27, editorTitle)
-        val state = getPlayerState(player.uniqueId)
         setGlassPane(postEditor, 0..26)
         postEditor.setItem(11, createCustomItem(Material.PAPER, title, customId = titleCustomId))
         postEditor.setItem(15, createCustomItem(Material.BOOK, content, customId = contentCustomId))
@@ -269,7 +268,6 @@ object BulletinBoardManager {
             player.sendMessage(Component.text("---------------------------------", NamedTextColor.DARK_GRAY))
         }
     }
-
 
     private fun openPostsInventory(player: Player, titleType: TitleType, posts: List<Post>, page: Int) {
         val middleRowSlots = listOf(10, 12, 14, 16)

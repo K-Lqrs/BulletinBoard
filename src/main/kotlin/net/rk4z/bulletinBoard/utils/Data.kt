@@ -3,6 +3,8 @@ package net.rk4z.bulletinBoard.utils
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextDecoration
 import net.rk4z.bulletinBoard.managers.BBCommandManager
 import net.rk4z.bulletinBoard.managers.BulletinBoardManager
 import net.rk4z.bulletinBoard.utils.BBUtil.playSoundMaster
@@ -77,8 +79,61 @@ data class PlayerState(
         confirmationType = null
         preview = null
     }
-}
 
+    fun sendDebugMessage(player: Player) {
+        val stateMessage = Component.text()
+            .append(Component.text("Player State:", NamedTextColor.GOLD, TextDecoration.BOLD))
+            .append(Component.newline())
+            .append(Component.text("Draft: ", NamedTextColor.GRAY))
+            .append(Component.text(draft?.toString() ?: "None", NamedTextColor.WHITE))
+            .append(Component.newline())
+            .append(Component.text("Edit Draft: ", NamedTextColor.GRAY))
+            .append(Component.text(editDraft?.toString() ?: "None", NamedTextColor.WHITE))
+            .append(Component.newline())
+            .append(Component.text("Selected Deleting Post ID: ", NamedTextColor.GRAY))
+            .append(Component.text(selectedDeletingPostId ?: "None", NamedTextColor.WHITE))
+            .append(Component.newline())
+            .append(Component.text("Selected Editing Post ID: ", NamedTextColor.GRAY))
+            .append(Component.text(selectedEditingPostId ?: "None", NamedTextColor.WHITE))
+            .append(Component.newline())
+            .append(Component.text("Selected Restoring Post ID: ", NamedTextColor.GRAY))
+            .append(Component.text(selectedRestoringPostId ?: "None", NamedTextColor.WHITE))
+            .append(Component.newline())
+            .append(Component.text("Is Inputting: ", NamedTextColor.GRAY))
+            .append(Component.text(isInputting?.toString() ?: "None", NamedTextColor.WHITE))
+            .append(Component.newline())
+            .append(Component.text("Is Edit Inputting: ", NamedTextColor.GRAY))
+            .append(Component.text(isEditInputting?.toString() ?: "None", NamedTextColor.WHITE))
+            .append(Component.newline())
+            .append(Component.text("Is Previewing: ", NamedTextColor.GRAY))
+            .append(Component.text(isPreviewing?.toString() ?: "None", NamedTextColor.WHITE))
+            .append(Component.newline())
+            .append(Component.text("Is Opening Confirmation: ", NamedTextColor.GRAY))
+            .append(Component.text(isOpeningConfirmation?.toString() ?: "None", NamedTextColor.WHITE))
+            .append(Component.newline())
+            .append(Component.text("Is Choosing Confirmation Answer: ", NamedTextColor.GRAY))
+            .append(Component.text(isChoosingConfirmationAnswer?.toString() ?: "None", NamedTextColor.WHITE))
+            .append(Component.newline())
+            .append(Component.text("Is Anonymous: ", NamedTextColor.GRAY))
+            .append(Component.text(isAnonymous?.toString() ?: "None", NamedTextColor.WHITE))
+            .append(Component.newline())
+            .append(Component.text("Input Type: ", NamedTextColor.GRAY))
+            .append(Component.text(inputType?.toString() ?: "None", NamedTextColor.WHITE))
+            .append(Component.newline())
+            .append(Component.text("Edit Input Type: ", NamedTextColor.GRAY))
+            .append(Component.text(editInputType?.toString() ?: "None", NamedTextColor.WHITE))
+            .append(Component.newline())
+            .append(Component.text("Confirmation Type: ", NamedTextColor.GRAY))
+            .append(Component.text(confirmationType?.toString() ?: "None", NamedTextColor.WHITE))
+            .append(Component.newline())
+            .append(Component.text("Preview: ", NamedTextColor.GRAY))
+            .append(preview?.let {
+                Component.text(it.first.toString() + " | " + it.second.toString(), NamedTextColor.WHITE)
+            } ?: Component.text("None", NamedTextColor.WHITE))
+
+        player.sendMessage(stateMessage)
+    }
+}
 
 data class PostDraft(
     val title: Component? = null,
@@ -200,7 +255,9 @@ enum class CustomID {
 
 enum class InputType {
     TITLE,
-    CONTENT
+    CONTENT,
+    EDIT_TITLE,
+    EDIT_CONTENT,
 }
 
 enum class ConfirmationType {
@@ -309,7 +366,11 @@ enum class Commands(val execute: (Player) -> Unit) {
     DELETEDPOSTS({ player -> BulletinBoardManager.openDeletedPosts(player) }),
     HELP({ player -> BBCommandManager().displayHelp(player) }),
     ABOUT({ player -> BBCommandManager().displayAbout(player)}),
-    HOWTOUSE({ player -> BBCommandManager().displayHowToUse(player) });
+    HOWTOUSE({ player -> BBCommandManager().displayHowToUse(player) }),
+    DEBUG({ player ->
+        val state = BulletinBoardManager.getPlayerState(player.uniqueId)
+        state.sendDebugMessage(player)
+    });
 
     companion object {
         fun fromString(name: String): Commands? {

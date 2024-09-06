@@ -24,7 +24,7 @@ dependencies {
 
     implementation("org.xerial:sqlite-jdbc:3.46.0.1")
     // Original Event API
-    implementation("net.rk4z:beacon:1.4.0")
+    implementation("net.rk4z:beacon:1.4.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
     implementation("org.reflections:reflections:0.10.2")
     implementation("org.jetbrains.kotlin:kotlin-reflect:2.0.0")

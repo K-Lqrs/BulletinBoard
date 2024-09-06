@@ -254,7 +254,7 @@ class DataBase(private val plugin: BulletinBoard) {
                     val rawDate = resultSet.getString("date")
                     val parsedDate = try {
                         ZonedDateTime.parse(rawDate, DateTimeFormatter.ISO_DATE_TIME).toInstant()
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         val formatter = SimpleDateFormat("yyyy:MM:dd_HH:mm:ss")
                         formatter.parse(rawDate).toInstant()
                     }
@@ -302,7 +302,7 @@ class DataBase(private val plugin: BulletinBoard) {
                     val rawDate = resultSet.getString("date")
                     val parsedDate = try {
                         Date.from(ZonedDateTime.parse(rawDate, DateTimeFormatter.ISO_DATE_TIME).toInstant())
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         val formatter = SimpleDateFormat("yyyy:MM:dd_HH:mm:ss")
                         formatter.parse(rawDate)
                     }
@@ -340,7 +340,7 @@ class DataBase(private val plugin: BulletinBoard) {
                     val rawDate = resultSet.getString("date")
                     val parsedDate = try {
                         ZonedDateTime.parse(rawDate, DateTimeFormatter.ISO_DATE_TIME).toInstant()
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         val formatter = SimpleDateFormat("yyyy:MM:dd_HH:mm:ss")
                         formatter.parse(rawDate).toInstant()
                     }
@@ -377,7 +377,7 @@ class DataBase(private val plugin: BulletinBoard) {
                     val rawDate = resultSet.getString("date")
                     val parsedDate = try {
                         Date.from(ZonedDateTime.parse(rawDate, DateTimeFormatter.ISO_DATE_TIME).toInstant())
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         val formatter = SimpleDateFormat("yyyy:MM:dd_HH:mm:ss")
                         formatter.parse(rawDate)
                     }
@@ -415,7 +415,7 @@ class DataBase(private val plugin: BulletinBoard) {
                     val rawDate = resultSet.getString("date")
                     val parsedDate = try {
                         ZonedDateTime.parse(rawDate, DateTimeFormatter.ISO_DATE_TIME).toInstant()
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         val formatter = SimpleDateFormat("yyyy:MM:dd_HH:mm:ss")
                         formatter.parse(rawDate).toInstant()
                     }
@@ -452,7 +452,7 @@ class DataBase(private val plugin: BulletinBoard) {
                     val rawDate = resultSet.getString("date")
                     val parsedDate = try {
                         Date.from(ZonedDateTime.parse(rawDate, DateTimeFormatter.ISO_DATE_TIME).toInstant())
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         val formatter = SimpleDateFormat("yyyy:MM:dd_HH:mm:ss")
                         formatter.parse(rawDate)
                     }
