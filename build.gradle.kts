@@ -15,6 +15,7 @@ subprojects {
         mavenLocal()
         maven("https://repo.papermc.io/repository/maven-public/")
         maven("https://repo.md-5.net/content/groups/public/")
+        maven("https://oss.sonatype.org/content/repositories/snapshots")
     }
 }
 
