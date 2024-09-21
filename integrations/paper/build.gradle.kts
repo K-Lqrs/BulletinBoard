@@ -17,6 +17,8 @@ paper {
     generateLibrariesJson = false
     foliaSupported = false
     apiVersion = "1.21"
+    version = rootProject.version.toString()
+    name = rootProject.name
     load = BukkitPluginDescription.PluginLoadOrder.STARTUP
     authors = listOf("Lars", "cotrin_d8")
 

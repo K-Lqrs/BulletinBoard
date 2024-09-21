@@ -20,5 +20,5 @@ subprojects {
 }
 
 tasks.register("buildAll") {
-    dependsOn(":integrations:buildAllPlatform")
+    dependsOn("integrations:buildAllPlatform")
 }

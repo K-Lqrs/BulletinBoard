@@ -20,4 +20,4 @@ You can check the how-to-use guide by typing `/bb howtouse` in the chat.
 
 ## License
 This project is licensed under the MIT License.
-See the [LICENSE](https://github.com/KT-Ruxy/BulletinBoard/blob/v2/LICENSE) file for details
+See the [LICENSE](https://github.com/KT-Ruxy/BulletinBoard/blob/v3-proxied/LICENSE) file for details

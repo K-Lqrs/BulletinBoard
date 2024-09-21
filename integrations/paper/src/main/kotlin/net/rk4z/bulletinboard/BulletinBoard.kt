@@ -44,7 +44,6 @@ class BulletinBoard : JavaPlugin() {
 
     val systemLang: String = Locale.getDefault().language
 
-    val name = description.name
     val version = description.version
     val log: Logger = LoggerFactory.getLogger(BulletinBoard::class.java.simpleName)
     val configFile = dataFolder.resolve("config.yml").toPath()
