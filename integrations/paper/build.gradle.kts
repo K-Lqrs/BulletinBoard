@@ -18,7 +18,7 @@ paper {
     foliaSupported = false
     apiVersion = "1.21"
     load = BukkitPluginDescription.PluginLoadOrder.STARTUP
-    authors = listOf("Lars")
+    authors = listOf("Lars", "cotrin_d8")
 
     serverDependencies {
         register("Kotlin") {

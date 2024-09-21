@@ -4,7 +4,7 @@ import net.rk4z.bulletinboard.utils.MessageKey
 import org.bukkit.entity.Player
 import java.util.Locale
 
-@Suppress("unused")
+@Suppress("unused", "UNCHECKED_CAST")
 object LanguageManager {
     private val messages: MutableMap<String, MutableMap<MessageKey, String>> = mutableMapOf()
 
@@ -16,16 +16,13 @@ object LanguageManager {
         map.forEach { (key, value) ->
             val newPath = if (path.isEmpty()) key else "$path.$key"
 
-            if (value is Map<*, *>) {
-                @Suppress("UNCHECKED_CAST")
-                processMap(value as Map<String, Any>, lang, newPath)
-            } else if (value is String) {
-                val messageKey = mapKey(newPath)
-                if (messageKey != null) {
-                    if (!messages.containsKey(lang)) {
-                        messages[lang] = mutableMapOf()
+            when (value) {
+                is Map<*, *> -> processMap(value as Map<String, Any>, lang, newPath)
+                is String -> {
+                    val messageKey = mapKey(newPath)
+                    messageKey?.let {
+                        messages.computeIfAbsent(lang) { mutableMapOf() }[messageKey] = value
                     }
-                    messages[lang]?.put(messageKey, value)
                 }
             }
         }
@@ -34,27 +31,31 @@ object LanguageManager {
     private fun mapKey(path: String): MessageKey? {
         val parts = path.split(".")
 
-        val className = parts.dropLast(1).joinToString(".") {
-            it.replaceFirstChar { char ->
-                if (char.isLowerCase()) char.titlecase(Locale.getDefault())
-                else char.toString()
-            }
-        }
+        if (parts.size < 2) return null
 
+        val className = parts.dropLast(1).joinToString(".") {
+            it.replaceFirstChar { char -> char.titlecase(Locale.getDefault()) }
+        }
         val enumName = parts.last().uppercase()
 
-        return when (className) {
-            "System.Log" -> MessageKey.System.Log.valueOf(enumName).let { MessageKey.System() }
-            "Main.GUI" -> MessageKey.Main.GUI.valueOf(enumName).let { MessageKey.Main() }
-            else -> null
-        }
+        return MessageKey.fromString(className, enumName)
     }
 
-    fun getMessage(player: Player, key: MessageKey) {
-
+    private fun Player.getLanguage(): String {
+        return this.locale().language ?: "en"
+        //player.locale.substring(0, 2)
     }
 
-    fun getSysMessage(loc: String, key: MessageKey) {
+    fun getMessage(player: Player, key: MessageKey, vararg args: Any): String? {
+        val lang = player.getLanguage()
+        val message = messages[lang]?.get(key)
 
+        return message?.let { String.format(it, *args) }
     }
+
+    fun getSysMessage(lang: String, key: MessageKey, vararg args: Any): String? {
+        val message = messages[lang]?.get(key)
+        return message?.let { String.format(it, *args) }
+    }
+
 }

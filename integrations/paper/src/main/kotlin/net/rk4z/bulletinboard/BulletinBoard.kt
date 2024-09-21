@@ -1,6 +1,8 @@
 package net.rk4z.bulletinboard
 
 import net.rk4z.bulletinboard.manager.LanguageManager
+import net.rk4z.bulletinboard.utils.MessageKey
+import net.rk4z.bulletinboard.utils.System
 import net.rk4z.bulletinboard.utils.getNullableBoolean
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
@@ -12,6 +14,7 @@ import org.yaml.snakeyaml.Yaml
 import java.net.HttpURLConnection
 import java.net.URI
 import java.nio.file.Files
+import java.util.Locale
 import kotlin.io.path.notExists
 
 typealias TaskRunner = (JavaPlugin, Runnable) -> Unit
@@ -39,21 +42,24 @@ class BulletinBoard : JavaPlugin() {
 
     var isProxied: Boolean? = false
 
+    val systemLang: String = Locale.getDefault().language
+
     val name = description.name
     val version = description.version
     val log: Logger = LoggerFactory.getLogger(BulletinBoard::class.java.simpleName)
     val configFile = dataFolder.resolve("config.yml").toPath()
     val langDir = dataFolder.resolve("lang").toPath()
+    val yaml = Yaml()
     val availableLang = listOf(
         "ja",
         "en",
     )
-    val yaml = Yaml()
 
     override fun onLoad() {
-        log.info("Loading $name v$version")
+        log.info(LanguageManager.getSysMessage(systemLang, System.Log.LOADING, name, version))
         instance = getPlugin(BulletinBoard::class.java)
         key = NamespacedKey(this, ID)
+        systemLang
 
         dataBase = DataBase(this)
 
@@ -91,7 +97,7 @@ class BulletinBoard : JavaPlugin() {
                     LanguageManager.loadLanguage(yamlData, lang)
                 }
             } else {
-                log.warn("Language file for $lang not found!")
+                log.warn(LanguageManager.getSysMessage(systemLang, System.Log.LANGUAGE_FILE_NOT_FOUND, lang))
             }
         }
 
@@ -102,7 +108,7 @@ class BulletinBoard : JavaPlugin() {
     }
 
     override fun onEnable() {
-        log.info("Enabling $name v$version")
+        log.info(LanguageManager.getSysMessage(systemLang, System.Log.ENABLING, name, version))
 
         server.pluginManager.apply {
 
@@ -110,14 +116,14 @@ class BulletinBoard : JavaPlugin() {
     }
 
     override fun onDisable() {
-        log.info("Disabling $name v$version")
+        log.info(LanguageManager.getSysMessage(systemLang, System.Log.DISABLING, name, version))
 
         dataBase.closeConnection()
     }
 
     private fun checkUpdate() {
         runTaskAsync(this) {
-            log.info("Checking for updates...")
+            log.info(LanguageManager.getSysMessage(systemLang, System.Log.CHECKING_UPDATE))
             try {
                 val url = URI(MODRINTH_API_URL).toURL()
                 val connection = url.openConnection() as HttpURLConnection
@@ -128,22 +134,23 @@ class BulletinBoard : JavaPlugin() {
 
                     val (latestVersion, versionCount, newerVersionCount) = extractVersionInfo(response)
 
-                    log.info("There are $versionCount versions available.")
+                    log.info(LanguageManager.getSysMessage(systemLang, System.Log.ALL_VERSION_COUNT, versionCount))
 
                     if (isVersionNewer(latestVersion, description.version)) {
-                        log.info("There are $newerVersionCount newer versions available than your current version.")
-                        log.info("A new version ($latestVersion) is available! You are using version ${description.version}.")
+                        log.info(LanguageManager.getSysMessage(systemLang, System.Log.NEW_VERSION_COUNT, newerVersionCount))
+                        log.info(LanguageManager.getSysMessage(systemLang, System.Log.LATEST_VERSION_FOUND, latestVersion, version))
 
                         val downloadUrl = "https://modrinth.com/plugin/AfO6aot1/version/$latestVersion"
-                        log.info("View the latest version here: $downloadUrl")
+                        log.info(LanguageManager.getSysMessage(systemLang, System.Log.VIEW_LATEST_VER, downloadUrl))
                     } else {
-                        log.info("You are using the latest version of BulletinBoard.")
+                        log.info(LanguageManager.getSysMessage(systemLang, System.Log.YOU_ARE_USING_LATEST))
                     }
                 } else {
-                    log.warn("Failed to check for updates: ${connection.responseCode}")
+                    log.warn(LanguageManager.getSysMessage(systemLang, System.Log.FAILED_TO_CHECK_UPDATE, connection.responseCode))
                 }
             } catch (e: Exception) {
-                log.warn("Error while checking for updates: ${e.message}")
+                val unknownError = LanguageManager.getSysMessage(systemLang, System.Log.Other.UNKNOWN_ERROR)
+                log.warn(LanguageManager.getSysMessage(systemLang, System.Log.ERROR_WHILE_CHECKING_UPDATE, e.message ?: unknownError!!))
             }
         }
     }
