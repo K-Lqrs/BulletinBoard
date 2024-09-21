@@ -1,0 +1,13 @@
+system:
+  log:
+    loading: "%s v%s をロード中..."
+    enabling: ""
+    disabling: ""
+    checking_update: ""
+    version_quantity: ""
+    latest_version_found: ""
+
+main:
+  gui:
+    main_board: ""
+    post_editor: ""

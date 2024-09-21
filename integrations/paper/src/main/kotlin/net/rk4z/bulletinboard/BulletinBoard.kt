@@ -1,7 +1,7 @@
 package net.rk4z.bulletinboard
 
+import net.rk4z.bulletinboard.manager.LanguageManager
 import net.rk4z.bulletinboard.utils.getNullableBoolean
-import net.rk4z.bulletinboard.utils.getNullableString
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
 import org.bukkit.plugin.java.JavaPlugin
@@ -12,14 +12,13 @@ import org.yaml.snakeyaml.Yaml
 import java.net.HttpURLConnection
 import java.net.URI
 import java.nio.file.Files
-import java.nio.file.Path
-import java.util.Locale
 import kotlin.io.path.notExists
 
 typealias TaskRunner = (JavaPlugin, Runnable) -> Unit
 typealias TaskRunnerWithDelay = (JavaPlugin, Runnable, Long) -> Unit
 typealias TaskRunnerWithPeriod = (JavaPlugin, Runnable, Long, Long) -> Unit
 
+@Suppress("unused", "DEPRECATION")
 class BulletinBoard : JavaPlugin() {
     companion object {
         lateinit var instance: BulletinBoard
@@ -44,8 +43,11 @@ class BulletinBoard : JavaPlugin() {
     val version = description.version
     val log: Logger = LoggerFactory.getLogger(BulletinBoard::class.java.simpleName)
     val configFile = dataFolder.resolve("config.yml").toPath()
-    private lateinit var messages: Map<String, String>
-    private val langDir: Path = dataFolder.toPath().resolve("lang")
+    val langDir = dataFolder.resolve("lang").toPath()
+    val availableLang = listOf(
+        "ja",
+        "en",
+    )
     val yaml = Yaml()
 
     override fun onLoad() {
@@ -67,6 +69,33 @@ class BulletinBoard : JavaPlugin() {
 
         loadConfig()
 
+        if (langDir.notExists()) {
+            langDir.toFile().mkdirs()
+        }
+
+        availableLang.forEach { lang ->
+            val fileName = "lang/$lang.yml"
+            val destFile = langDir.resolve("$lang.yml")
+
+            if (destFile.notExists()) {
+                saveResource(fileName, false)
+            }
+        }
+
+        availableLang.forEach { lang ->
+            val langFile = langDir.resolve("$lang.yml")
+
+            if (Files.exists(langFile)) {
+                Files.newInputStream(langFile).use { inputStream ->
+                    val yamlData: Map<String, Any> = yaml.load(inputStream)
+                    LanguageManager.loadLanguage(yamlData, lang)
+                }
+            } else {
+                log.warn("Language file for $lang not found!")
+            }
+        }
+
+
         if (dataBase.connectToDatabase()) {
             dataBase.createRequiredTables()
         }
@@ -81,29 +110,9 @@ class BulletinBoard : JavaPlugin() {
     }
 
     override fun onDisable() {
+        log.info("Disabling $name v$version")
+
         dataBase.closeConnection()
-    }
-
-    fun getSystemMessage(key: String): String {
-        return messages[key] ?: "Missing message for key: $key"
-    }
-
-    private fun loadLanguage(locale: Locale) {
-        val langFileName = "${locale.language}_${locale.country}.yml"
-        val langFile = langDir.resolve(langFileName)
-
-        if (Files.notExists(langFile)) {
-            log.warn("Language file not found: $langFileName, loading default en_US.yml")
-            messages = loadYamlFile(langDir.resolve("en_US.yml"))
-        } else {
-            messages = loadYamlFile(langFile)
-        }
-    }
-
-    private fun loadYamlFile(file: Path): Map<String, String> {
-        Files.newInputStream(file).use { inputStream ->
-            return yaml.load(inputStream)
-        }
     }
 
     private fun checkUpdate() {
