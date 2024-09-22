@@ -3,6 +3,7 @@
 package net.rk4z.bulletinboard.utils
 
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.TextComponent
 import org.bukkit.entity.Player
 import kotlin.reflect.full.memberProperties
 
@@ -22,6 +23,10 @@ sealed interface MessageKey {
     }
 
     fun toComponent(): Component {
+        return Component.text(this.javaClass.simpleName)
+    }
+
+    fun toTextComponent(): TextComponent {
         return Component.text(this.javaClass.simpleName)
     }
 }

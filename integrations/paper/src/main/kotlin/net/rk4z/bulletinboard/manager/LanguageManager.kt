@@ -47,27 +47,30 @@ object LanguageManager {
         //player.locale.substring(0, 2)
     }
 
-    fun getMessage(player: Player, key: MessageKey, vararg args: Any): Component? {
+    fun getMessage(player: Player, key: MessageKey, vararg args: Any): Component {
         val lang = player.getLanguage()
         val message = messages[lang]?.get(key)
 
-        val st = message?.let { String.format(it, *args) } ?: return null
+        val st = message?.let { String.format(it, *args) } ?: return key.toComponent()
 
         return Component.text(st)
     }
 
-    fun getMessageFromContent(player: Player, key: MessageKey, vararg args: Any): String? {
+    fun getMessageFromContent(player: Player, key: MessageKey, vararg args: Any): String {
         val lang = player.getLanguage()
         val message = messages[lang]?.get(key)
 
-        val st = message?.let { String.format(it, *args) } ?: return null
+        val st = message?.let { String.format(it, *args) } ?: return key.toTextComponent().content()
 
         return Component.text(st).content()
     }
 
-    fun getSysMessage(lang: String, key: MessageKey, vararg args: Any): String? {
+    fun getSysMessage(lang: String, key: MessageKey, vararg args: Any): String {
         val message = messages[lang]?.get(key)
-        return message?.let { String.format(it, *args) }
+
+        val st = message?.let { String.format(it, *args) } ?: return key.toTextComponent().content()
+
+        return st
     }
 
 }

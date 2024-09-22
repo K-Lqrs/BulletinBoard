@@ -2,11 +2,13 @@ package net.rk4z.igf
 
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
+import net.rk4z.igf.IGF.namespacedKey
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.inventory.Inventory
+import org.bukkit.persistence.PersistentDataType
 
 class PaginatedGUI(
     player: Player,
@@ -18,23 +20,9 @@ class PaginatedGUI(
     private val totalRows = size / 9
     private val items: MutableList<Button> = mutableListOf()
 
-    fun setItems(items: List<Button>): PaginatedGUI {
-        this.items.clear()
-        this.items.addAll(items)
-        return this
-    }
-
-    fun addItem(item: Button): PaginatedGUI {
-        this.items.add(item)
-        return this
-    }
-
-    fun build(): PaginatedGUI {
-        displayPage()
-        return this
-    }
-
     private fun displayPage() {
+        inventory.clear()
+
         val startIndex = currentPage * itemsPerPage
         val endIndex = minOf(startIndex + itemsPerPage, items.size)
 
@@ -49,7 +37,7 @@ class PaginatedGUI(
                 createCustomItem(
                     Material.ARROW,
                     Component.text("Previous Page"),
-                    customId = "PREV_PAGE:$currentPage"
+                    customId = "PREV_PAGE"
                 )
             )
         }
@@ -61,7 +49,7 @@ class PaginatedGUI(
                 createCustomItem(
                     Material.ARROW,
                     Component.text("Next Page"),
-                    customId = "NEXT_PAGE:$currentPage"
+                    customId = "NEXT_PAGE"
                 )
             )
         }
@@ -69,18 +57,18 @@ class PaginatedGUI(
 
     override fun handleClick(event: InventoryClickEvent) {
         val clickedItem = event.currentItem ?: return
-        when (clickedItem.type) {
-            Material.ARROW -> {
-                val customId = PlainTextComponentSerializer.plainText().serialize(clickedItem.itemMeta?.displayName() ?: Component.text(""))
+        val meta = clickedItem.itemMeta ?: return
+        val customId = meta.persistentDataContainer.get(namespacedKey, PersistentDataType.STRING) ?: return
 
-                if (customId.startsWith("PREV_PAGE")) {
-                    currentPage--
-                } else if (customId.startsWith("NEXT_PAGE")) {
-                    currentPage++
-                }
+        when {
+            customId.startsWith("NEXT_PAGE") -> {
+                currentPage++
                 displayPage()
             }
-            else -> {}
+            customId.startsWith("PREV_PAGE") -> {
+                currentPage--
+                displayPage()
+            }
         }
     }
 
@@ -88,5 +76,10 @@ class PaginatedGUI(
 
     override fun getInventory(): Inventory {
         return inventory
+    }
+
+    override fun build(): BaseInventoryGUI {
+        displayPage()
+        return this
     }
 }

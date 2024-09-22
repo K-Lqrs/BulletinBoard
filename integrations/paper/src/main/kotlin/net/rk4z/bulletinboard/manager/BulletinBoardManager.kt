@@ -10,13 +10,13 @@ import org.bukkit.entity.Player
 
 class BulletinBoardManager {
     fun openMainBoard(player: Player) {
-        val newPost = LanguageManager.getMessage(player, Main.Gui.Button.NEW_POST) ?: Main.Gui.Button.NEW_POST.toComponent()
-        val allPosts = LanguageManager.getMessage(player, Main.Gui.Button.ALL_POSTS) ?: Main.Gui.Button.ALL_POSTS.toComponent()
-        val myPosts = LanguageManager.getMessage(player, Main.Gui.Button.MY_POSTS) ?: Main.Gui.Button.MY_POSTS.toComponent()
-        val deletedPosts = LanguageManager.getMessage(player, Main.Gui.Button.DELETED_POSTS) ?: Main.Gui.Button.DELETED_POSTS.toComponent()
-        val aboutPlugin = LanguageManager.getMessage(player, Main.Gui.Button.ABOUT_PLUGIN) ?: Main.Gui.Button.ABOUT_PLUGIN.toComponent()
-        val settings = LanguageManager.getMessage(player, Main.Gui.Button.SETTINGS) ?: Main.Gui.Button.SETTINGS.toComponent()
-        val help = LanguageManager.getMessage(player, Main.Gui.Button.HELP) ?: Main.Gui.Button.HELP.toComponent()
+        val newPost = LanguageManager.getMessage(player, Main.Gui.Button.NEW_POST)
+        val allPosts = LanguageManager.getMessage(player, Main.Gui.Button.ALL_POSTS)
+        val myPosts = LanguageManager.getMessage(player, Main.Gui.Button.MY_POSTS)
+        val deletedPosts = LanguageManager.getMessage(player, Main.Gui.Button.DELETED_POSTS)
+        val aboutPlugin = LanguageManager.getMessage(player, Main.Gui.Button.ABOUT_PLUGIN)
+        val settings = LanguageManager.getMessage(player, Main.Gui.Button.SETTINGS)
+        val help = LanguageManager.getMessage(player, Main.Gui.Button.HELP)
 
         val buttons = listOf<Button>(
             Button(10, Material.WRITABLE_BOOK, newPost, CustomID.NEW_POST.name),
@@ -28,7 +28,7 @@ class BulletinBoardManager {
             Button(33, Material.OAK_SIGN, help, CustomID.HELP.name)
         )
 
-        val gui = SimpleGUI(player, Component.text(""), 45)
+        val gui = SimpleGUI(player, LanguageManager.getMessage(player, Main.Gui.Title.MAIN_BOARD), 45)
             .setButtons(buttons)
             .build()
 
