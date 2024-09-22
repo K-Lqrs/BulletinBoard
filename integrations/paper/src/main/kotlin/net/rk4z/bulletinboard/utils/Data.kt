@@ -2,8 +2,14 @@
 
 package net.rk4z.bulletinboard.utils
 
+import net.kyori.adventure.text.Component
+import org.bukkit.entity.Player
 import kotlin.reflect.full.memberProperties
 
+//region Translation System
+/**
+ * This is a key interface for the translation of the Plugin.
+ */
 sealed interface MessageKey {
     companion object {
         fun fromString(className: String, enumName: String): MessageKey? {
@@ -13,6 +19,10 @@ sealed interface MessageKey {
                 else -> null
             }
         }
+    }
+
+    fun toComponent(): Component {
+        return Component.text(this.javaClass.simpleName)
     }
 }
 
@@ -62,8 +72,20 @@ object System : MessageKey {
 object Main : MessageKey {
     //region Key List
     object Gui : MessageKey {
-        object MAIN_BOARD : MessageKey
-        object POST_EDITOR : MessageKey
+        object Title : MessageKey {
+            object MAIN_BOARD : MessageKey
+            object POST_EDITOR : MessageKey
+        }
+
+        object Button : MessageKey {
+            object NEW_POST : MessageKey
+            object ALL_POSTS : MessageKey
+            object MY_POSTS : MessageKey
+            object DELETED_POSTS : MessageKey
+            object ABOUT_PLUGIN : MessageKey
+            object SETTINGS : MessageKey
+            object HELP : MessageKey
+        }
     }
     //end region
 
@@ -77,4 +99,28 @@ object Main : MessageKey {
                 ?.get(Main) as? MessageKey
         }
     }
+}
+//endregion
+
+typealias CommandExecute = (Player) -> Unit
+
+enum class Commands(val execute: CommandExecute) {
+    ;
+
+    companion object {
+        fun fromString(name: String): Commands? {
+            return entries.find { it.name.equals(name, ignoreCase = true) }
+        }
+    }
+}
+
+enum class CustomID {
+    //region Main.GUI.Button
+    NEW_POST,
+    ALL_POSTS,
+    MY_POSTS,
+    DELETED_POSTS,
+    ABOUT_PLUGIN,
+    SETTINGS,
+    HELP,
 }

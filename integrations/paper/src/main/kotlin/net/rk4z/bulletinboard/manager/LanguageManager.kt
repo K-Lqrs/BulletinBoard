@@ -1,5 +1,6 @@
 package net.rk4z.bulletinboard.manager
 
+import net.kyori.adventure.text.Component
 import net.rk4z.bulletinboard.utils.MessageKey
 import org.bukkit.entity.Player
 import java.util.Locale
@@ -46,11 +47,22 @@ object LanguageManager {
         //player.locale.substring(0, 2)
     }
 
-    fun getMessage(player: Player, key: MessageKey, vararg args: Any): String? {
+    fun getMessage(player: Player, key: MessageKey, vararg args: Any): Component? {
         val lang = player.getLanguage()
         val message = messages[lang]?.get(key)
 
-        return message?.let { String.format(it, *args) }
+        val st = message?.let { String.format(it, *args) } ?: return null
+
+        return Component.text(st)
+    }
+
+    fun getMessageFromContent(player: Player, key: MessageKey, vararg args: Any): String? {
+        val lang = player.getLanguage()
+        val message = messages[lang]?.get(key)
+
+        val st = message?.let { String.format(it, *args) } ?: return null
+
+        return Component.text(st).content()
     }
 
     fun getSysMessage(lang: String, key: MessageKey, vararg args: Any): String? {

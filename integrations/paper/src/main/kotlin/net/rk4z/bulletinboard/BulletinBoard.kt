@@ -1,9 +1,12 @@
 package net.rk4z.bulletinboard
 
+import net.rk4z.bulletinboard.listener.BBListener
+import net.rk4z.bulletinboard.manager.CommandManager
 import net.rk4z.bulletinboard.manager.LanguageManager
-import net.rk4z.bulletinboard.utils.MessageKey
 import net.rk4z.bulletinboard.utils.System
 import net.rk4z.bulletinboard.utils.getNullableBoolean
+import net.rk4z.bulletinboard.utils.isNullOrFalse
+import net.rk4z.igf.IGF
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
 import org.bukkit.plugin.java.JavaPlugin
@@ -109,8 +112,15 @@ class BulletinBoard : JavaPlugin() {
     override fun onEnable() {
         log.info(LanguageManager.getSysMessage(systemLang, System.Log.ENABLING, name, version))
 
-        server.pluginManager.apply {
+        IGF.init(this, key)
+        IGF.setGlobalListener(BBListener())
 
+        if (isProxied.isNullOrFalse().not()) {
+            val command = getCommand("bulletinboard")
+                command?.aliases = listOf("bb")
+                command?.setExecutor(CommandManager)
+                command?.tabCompleter = CommandManager
+                command?.description = "BulletinBoard Main Command"
         }
     }
 
