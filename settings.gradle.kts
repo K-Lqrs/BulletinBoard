@@ -6,7 +6,8 @@ pluginManagement {
     plugins {
         val kotlinVersion: String by settings
 
-        id("org.jetbrains.kotlin.jvm") version kotlinVersion
+        kotlin("jvm") version kotlinVersion
+        kotlin("plugin.serialization") version kotlinVersion
     }
 }
 

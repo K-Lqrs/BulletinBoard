@@ -1,50 +1,77 @@
 package net.rk4z.bulletinboard.manager
 
 import net.kyori.adventure.text.Component
+import net.rk4z.bulletinboard.BulletinBoard
+import net.rk4z.bulletinboard.utils.Main
 import net.rk4z.bulletinboard.utils.MessageKey
+import net.rk4z.bulletinboard.utils.System
 import org.bukkit.entity.Player
-import java.util.Locale
+import kotlin.reflect.KClass
+import kotlin.reflect.full.isSubclassOf
 
 @Suppress("unused", "UNCHECKED_CAST")
 object LanguageManager {
-    private val messages: MutableMap<String, MutableMap<MessageKey, String>> = mutableMapOf()
+    val messages: MutableMap<String, MutableMap<MessageKey, String>> = mutableMapOf()
 
-    fun loadLanguage(yamlData: Map<String, Any>, lang: String) {
-        processMap(yamlData, lang, "")
+    val topLevelObjects: Map<String, Any> = mapOf(
+        "system" to System(),
+        "main" to Main()
+    )
+
+    fun mapMessageKeys(clazz: KClass<out MessageKey>, currentPath: String = "", messageKeyMap: MutableMap<String, MessageKey>) {
+        val className = clazz.simpleName?.lowercase() ?: return
+
+        val fullPath = if (currentPath.isEmpty()) className else "$currentPath.$className"
+
+        val objectInstance = clazz.objectInstance as? MessageKey
+        if (objectInstance != null) {
+            messageKeyMap[fullPath] = objectInstance
+            BulletinBoard.instance.logger.info("Mapped class: $fullPath -> ${clazz.simpleName}")
+        } else {
+            BulletinBoard.instance.logger.warning("Object instance not found for class: ${clazz.simpleName}")
+        }
+
+        clazz.nestedClasses.forEach { nestedClass ->
+            if (nestedClass.isSubclassOf(MessageKey::class)) {
+                mapMessageKeys(nestedClass as KClass<out MessageKey>, fullPath, messageKeyMap)
+            }
+        }
     }
 
-    private fun processMap(map: Map<String, Any>, lang: String, path: String) {
-        map.forEach { (key, value) ->
-            val newPath = if (path.isEmpty()) key else "$path.$key"
+    fun processYamlAndMapMessageKeys(data: Map<String, Any>, messageMap: MutableMap<MessageKey, String>) {
+        val messageKeyMap: MutableMap<String, MessageKey> = mutableMapOf()
+
+        mapMessageKeys(System::class, "", messageKeyMap)
+        mapMessageKeys(Main::class, "", messageKeyMap)
+
+        processYamlData("", data, messageKeyMap, messageMap)
+    }
+
+    fun processYamlData(prefix: String, data: Map<String, Any>, messageKeyMap: Map<String, MessageKey>, messageMap: MutableMap<MessageKey, String>) {
+        for ((key, value) in data) {
+            val currentPrefix = if (prefix.isEmpty()) key else "$prefix.$key"
+            BulletinBoard.instance.logger.info("Processing YAML path: $currentPrefix")
 
             when (value) {
-                is Map<*, *> -> processMap(value as Map<String, Any>, lang, newPath)
                 is String -> {
-                    val messageKey = mapKey(newPath)
-                    messageKey?.let {
-                        messages.computeIfAbsent(lang) { mutableMapOf() }[messageKey] = value
+                    val messageKey = messageKeyMap[currentPrefix]
+                    if (messageKey != null) {
+                        messageMap[messageKey] = value
+                        BulletinBoard.instance.logger.info("Mapped: $messageKey -> $value")
+                    } else {
+                        BulletinBoard.instance.logger.warning("MessageKey not found for path: $currentPrefix")
                     }
+                }
+                is Map<*, *> -> {
+                    processYamlData(currentPrefix, value as Map<String, Any>, messageKeyMap, messageMap)
                 }
             }
         }
     }
 
-    private fun mapKey(path: String): MessageKey? {
-        val parts = path.split(".")
-
-        if (parts.size < 2) return null
-
-        val className = parts.dropLast(1).joinToString(".") {
-            it.replaceFirstChar { char -> char.titlecase(Locale.getDefault()) }
-        }
-        val enumName = parts.last().uppercase()
-
-        return MessageKey.fromString(className, enumName)
-    }
 
     private fun Player.getLanguage(): String {
         return this.locale().language ?: "en"
-        //player.locale.substring(0, 2)
     }
 
     fun getMessage(player: Player, key: MessageKey, vararg args: Any): Component {
@@ -72,5 +99,4 @@ object LanguageManager {
 
         return st
     }
-
 }

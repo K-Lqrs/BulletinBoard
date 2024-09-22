@@ -1,9 +1,11 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm")
+    kotlin("jvm")
+    kotlin("plugin.serialization")
 }
 
 allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
 
     dependencies {
         implementation("com.google.guava:guava:33.3.0-jre")
@@ -11,6 +13,8 @@ allprojects {
         implementation("org.json:json:20240303")
         implementation("org.slf4j:slf4j-api:2.1.0-alpha1")
         implementation("net.rk4z:beacon:1.4.5")
+        implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.7.3")
+        implementation("org.jetbrains.kotlin:kotlin-reflect:2.0.20")
     }
 }
 
@@ -49,14 +53,14 @@ tasks.register("buildAllPlatform") {
             println("Output JAR will be created at: $outputJar")
 
             ant.withGroovyBuilder {
-                "jar"("destfile" to outputJar) {
+                "jar"("destfile" to outputJar, "duplicate" to "preserve") {
                     jarFiles.forEach { jarFile ->
                         println("Merging JAR file: $jarFile")
                         "zipfileset"("src" to jarFile)
                     }
 
                     configurations.runtimeClasspath.get().filter { artifact ->
-                        !artifact.name.startsWith("kotlin")
+                        !artifact.name.startsWith("kotlin") && !artifact.name.startsWith("slf4j")
                     }.forEach { artifact ->
                         println("Merging artifact: ${artifact.name}")
                         "zipfileset"("src" to artifact)

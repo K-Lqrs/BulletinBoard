@@ -3,9 +3,12 @@ import net.minecrell.pluginyml.paper.PaperPluginDescription
 
 plugins {
     id("net.minecrell.plugin-yml.paper") version "0.6.0"
+    id("xyz.jpenilla.run-paper") version "2.3.0"
+    id("io.papermc.paperweight.userdev") version "1.7.1"
 }
 
 dependencies {
+    paperweight.paperDevBundle("1.21.1-R0.1-SNAPSHOT")
     compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
 
     library("com.google.code.gson:gson:2.10.1")
@@ -19,7 +22,7 @@ paper {
     apiVersion = "1.21"
     version = rootProject.version.toString()
     name = rootProject.name
-    load = BukkitPluginDescription.PluginLoadOrder.STARTUP
+    load = BukkitPluginDescription.PluginLoadOrder.POSTWORLD
     authors = listOf("Lars", "cotrin_d8")
 
     serverDependencies {

@@ -1,7 +1,6 @@
 package net.rk4z.igf
 
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import net.rk4z.igf.IGF.namespacedKey
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -75,7 +74,7 @@ class PaginatedGUI(
     override fun handleClose(event: InventoryCloseEvent) {}
 
     override fun getInventory(): Inventory {
-        return inventory
+        return igfInventory
     }
 
     override fun build(): BaseInventoryGUI {

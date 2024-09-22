@@ -3,6 +3,7 @@ package net.rk4z.bulletinboard
 import net.rk4z.bulletinboard.listener.BBListener
 import net.rk4z.bulletinboard.manager.CommandManager
 import net.rk4z.bulletinboard.manager.LanguageManager
+import net.rk4z.bulletinboard.utils.MessageKey
 import net.rk4z.bulletinboard.utils.System
 import net.rk4z.bulletinboard.utils.getNullableBoolean
 import net.rk4z.bulletinboard.utils.isNullOrFalse
@@ -14,10 +15,15 @@ import org.json.JSONArray
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.yaml.snakeyaml.Yaml
+import java.io.File
+import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URI
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.Locale
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
 import kotlin.io.path.notExists
 
 typealias TaskRunner = (JavaPlugin, Runnable) -> Unit
@@ -42,15 +48,16 @@ class BulletinBoard : JavaPlugin() {
     val runTaskAsync : TaskRunner = { plugin, task -> Bukkit.getScheduler().runTaskAsynchronously(plugin, task) }
     val runTaskLater : TaskRunnerWithDelay = { plugin, task, delay -> Bukkit.getScheduler().runTaskLater(plugin, task, delay) }
     val runTaskTimer : TaskRunnerWithPeriod = { plugin, task, delay, period -> Bukkit.getScheduler().runTaskTimer(plugin, task, delay, period) }
+    val executor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
 
     var isProxied: Boolean? = false
 
-    val systemLang: String = Locale.getDefault().language
+    var systemLang: String = Locale.getDefault().language
 
     val version = description.version
     val log: Logger = LoggerFactory.getLogger(BulletinBoard::class.java.simpleName)
     val configFile = dataFolder.resolve("config.yml").toPath()
-    val langDir = dataFolder.resolve("lang").toPath()
+    val langDir = dataFolder.resolve("lang")
     val yaml = Yaml()
     val availableLang = listOf(
         "ja",
@@ -58,14 +65,9 @@ class BulletinBoard : JavaPlugin() {
     )
 
     override fun onLoad() {
-        log.info(LanguageManager.getSysMessage(systemLang, System.Log.LOADING, name, version))
         instance = getPlugin(BulletinBoard::class.java)
         key = NamespacedKey(this, ID)
-        systemLang
-
-        dataBase = DataBase(this)
-
-        checkUpdate()
+        systemLang = Locale.getDefault().language
 
         if (dataFolder.toPath().notExists()) {
             dataFolder.mkdirs()
@@ -75,37 +77,69 @@ class BulletinBoard : JavaPlugin() {
             saveResource("config.yml", false)
         }
 
-        loadConfig()
-
-        if (langDir.notExists()) {
-            langDir.toFile().mkdirs()
+        if (!langDir.exists()) {
+            langDir.mkdirs()
         }
 
         availableLang.forEach { lang ->
-            val fileName = "lang/$lang.yml"
-            val destFile = langDir.resolve("$lang.yml")
-
-            if (destFile.notExists()) {
-                saveResource(fileName, false)
+            val langFile = File(langDir, "$lang.yml")
+            if (!langFile.exists()) {
+                saveResource("lang/$lang.yml", false)
+                log.info("Copied default $lang language file from Jar.")
             }
         }
 
         availableLang.forEach { lang ->
             val langFile = langDir.resolve("$lang.yml")
 
-            if (Files.exists(langFile)) {
-                Files.newInputStream(langFile).use { inputStream ->
-                    val yamlData: Map<String, Any> = yaml.load(inputStream)
-                    LanguageManager.loadLanguage(yamlData, lang)
+            if (lang == "ja") {
+                if (Files.exists(langFile.toPath())) {
+                    Files.newInputStream(langFile.toPath()).use { inputStream ->
+                        InputStreamReader(inputStream, StandardCharsets.UTF_8).use { reader ->
+                            val data: Map<String, Any> = yaml.load(reader)
+                            val messageMap: MutableMap<MessageKey, String> = mutableMapOf()
+
+                            LanguageManager.processYamlAndMapMessageKeys(data, messageMap)
+
+                            LanguageManager.messages[lang] = messageMap
+                        }
+                    }
+                } else {
+                    log.warn("Japanese language file for '$lang' not found.")
                 }
             } else {
-                log.warn(LanguageManager.getSysMessage(systemLang, System.Log.LANGUAGE_FILE_NOT_FOUND, lang))
+                if (Files.exists(langFile.toPath())) {
+                    Files.newBufferedReader(langFile.toPath(), StandardCharsets.UTF_8).use { reader ->
+                        val data: Map<String, Any> = yaml.load(reader)
+                        val messageMap: MutableMap<MessageKey, String> = mutableMapOf()
+
+                        LanguageManager.processYamlAndMapMessageKeys(data, messageMap)
+
+                        LanguageManager.messages[lang] = messageMap
+                    }
+                } else {
+                    log.warn("Language file for '$lang' not found.")
+                }
             }
         }
 
+        log.info(LanguageManager.getSysMessage(systemLang, System.Log.LOADING, name, version))
+
+        dataBase = DataBase(this)
+
+        checkUpdate()
+
+        loadConfig()
 
         if (dataBase.connectToDatabase()) {
             dataBase.createRequiredTables()
+            if (!dataBase.isDataMigrated()) {
+                val jsonFile = File(dataFolder, "data.json")
+                if (jsonFile.exists()) {
+                    logger.info("Old data file is found. trying to import data from json....")
+                    dataBase.importDataFromJson(jsonFile)
+                }
+            }
         }
     }
 
@@ -131,7 +165,7 @@ class BulletinBoard : JavaPlugin() {
     }
 
     private fun checkUpdate() {
-        runTaskAsync(this) {
+        executor.execute {
             log.info(LanguageManager.getSysMessage(systemLang, System.Log.CHECKING_UPDATE))
             try {
                 val url = URI(MODRINTH_API_URL).toURL()
@@ -159,7 +193,7 @@ class BulletinBoard : JavaPlugin() {
                 }
             } catch (e: Exception) {
                 val unknownError = LanguageManager.getSysMessage(systemLang, System.Log.Other.UNKNOWN_ERROR)
-                log.warn(LanguageManager.getSysMessage(systemLang, System.Log.ERROR_WHILE_CHECKING_UPDATE, e.message ?: unknownError!!))
+                log.warn(LanguageManager.getSysMessage(systemLang, System.Log.ERROR_WHILE_CHECKING_UPDATE, e.message ?: unknownError))
             }
         }
     }

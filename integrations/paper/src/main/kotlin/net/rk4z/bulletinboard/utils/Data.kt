@@ -2,24 +2,16 @@
 
 package net.rk4z.bulletinboard.utils
 
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.TextComponent
 import org.bukkit.entity.Player
-import kotlin.reflect.full.memberProperties
+import java.util.Date
+import java.util.UUID
 
-//region Translation System
-/**
- * This is a key interface for the translation of the Plugin.
- */
 sealed interface MessageKey {
     companion object {
-        fun fromString(className: String, enumName: String): MessageKey? {
-            return when (className) {
-                "System.Log" -> System.fromString(enumName)
-                "Main.GUI" -> Main.fromString(enumName)
-                else -> null
-            }
-        }
     }
 
     fun toComponent(): Component {
@@ -31,81 +23,50 @@ sealed interface MessageKey {
     }
 }
 
-/**
- * This provides a translation of this Plugin, relevant to the console
- */
-object System : MessageKey {
-    //region Key List
-    object Log : MessageKey {
-        object LOADING : MessageKey
-        object ENABLING : MessageKey
-        object DISABLING : MessageKey
+open class System : MessageKey {
+    open class Log : System() {
+        object LOADING : Log()
+        object ENABLING : Log()
+        object DISABLING : Log()
 
-        object CHECKING_UPDATE : MessageKey
-        object ALL_VERSION_COUNT : MessageKey
-        object NEW_VERSION_COUNT : MessageKey
-        object VIEW_LATEST_VER : MessageKey
-        object LATEST_VERSION_FOUND : MessageKey
-        object YOU_ARE_USING_LATEST : MessageKey
-        object FAILED_TO_CHECK_UPDATE : MessageKey
-        object ERROR_WHILE_CHECKING_UPDATE : MessageKey
-        object LANGUAGE_FILE_NOT_FOUND : MessageKey
+        object CHECKING_UPDATE : Log()
+        object ALL_VERSION_COUNT : Log()
+        object NEW_VERSION_COUNT : Log()
+        object VIEW_LATEST_VER : Log()
+        object LATEST_VERSION_FOUND : Log()
+        object YOU_ARE_USING_LATEST : Log()
+        object FAILED_TO_CHECK_UPDATE : Log()
+        object ERROR_WHILE_CHECKING_UPDATE : Log()
 
-        object Other : MessageKey {
-            object UNKNOWN : MessageKey
-            object UNKNOWN_ERROR : MessageKey
-            object ERROR : MessageKey
-        }
-    }
-    //end region
-
-    // Cache for the name to key mapping
-    private val nameToKeyCache = LRUCache<String, MessageKey?>(75)
-
-    fun fromString(enumName: String): MessageKey? {
-        return nameToKeyCache.getOrPut(enumName.uppercase()) {
-            System::class.memberProperties
-                .firstOrNull { it.name.uppercase() == enumName.uppercase() }
-                ?.get(System) as? MessageKey
+        open class Other : Log() {
+            object UNKNOWN : Other()
+            object UNKNOWN_ERROR : Other()
+            object ERROR : Other()
         }
     }
 }
 
-/**
- * This includes translations of this Plugin, involving internal functions.
- */
-object Main : MessageKey {
-    //region Key List
-    object Gui : MessageKey {
-        object Title : MessageKey {
-            object MAIN_BOARD : MessageKey
-            object POST_EDITOR : MessageKey
+
+//TODO: Add more keys and write translations to the language files
+open class Main : MessageKey {
+    open class Gui : Main() {
+        open class Title : Gui() {
+            object MAIN_BOARD : Title()
+            object POST_EDITOR : Title()
         }
 
-        object Button : MessageKey {
-            object NEW_POST : MessageKey
-            object ALL_POSTS : MessageKey
-            object MY_POSTS : MessageKey
-            object DELETED_POSTS : MessageKey
-            object ABOUT_PLUGIN : MessageKey
-            object SETTINGS : MessageKey
-            object HELP : MessageKey
-        }
-    }
-    //end region
-
-    // I think Main has more keys than System, so We increased the cache size.
-    private val nameToKeyCache = LRUCache<String, MessageKey?>(175)
-
-    fun fromString(enumName: String): MessageKey? {
-        return nameToKeyCache.getOrPut(enumName.uppercase()) {
-            Main::class.memberProperties
-                .firstOrNull { it.name.uppercase() == enumName.uppercase() }
-                ?.get(Main) as? MessageKey
+        open class Button : Gui() {
+            object NEW_POST : Button()
+            object ALL_POSTS : Button()
+            object MY_POSTS : Button()
+            object DELETED_POSTS : Button()
+            object ABOUT_PLUGIN : Button()
+            object SETTINGS : Button()
+            object HELP : Button()
         }
     }
 }
-//endregion
+
 
 typealias CommandExecute = (Player) -> Unit
 
@@ -120,7 +81,6 @@ enum class Commands(val execute: CommandExecute) {
 }
 
 enum class CustomID {
-    //region Main.GUI.Button
     NEW_POST,
     ALL_POSTS,
     MY_POSTS,
@@ -129,3 +89,43 @@ enum class CustomID {
     SETTINGS,
     HELP,
 }
+
+@Serializable
+data class Post(
+    @Contextual
+    val id: ShortUUID,
+    @Contextual
+    val author: UUID,
+    @Serializable(with = ComponentSerializer::class)
+    val title: Component,
+    @Serializable(with = ComponentSerializer::class)
+    val content: Component,
+    val isAnonymous: Boolean?,
+    @Contextual
+    val date: Date?
+)
+
+@Serializable
+data class BulletinBoardData(
+    val posts: List<Post>,
+    @Deprecated("Only used to process old data files")
+    val players: List<PlayerData> = emptyList(),
+    val permissions: List<Permission> = emptyList(),
+    val deletedPosts: List<Post> = emptyList()
+)
+
+@Serializable
+@Deprecated("Only used to process old data files")
+data class PlayerData(
+    @Contextual
+    val uuid: UUID,
+    val posts: List<String>
+)
+
+@Serializable
+data class Permission(
+    @Contextual
+    val uuid: UUID,
+    val acquiredPermission: List<String>
+)
+

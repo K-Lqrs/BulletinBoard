@@ -1,9 +1,21 @@
 package net.rk4z.bulletinboard
 
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
+import net.rk4z.bulletinboard.utils.ShortUUID
+import net.rk4z.bulletinboard.utils.JsonUtil
+import net.rk4z.bulletinboard.utils.Post
+import java.io.File
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
+import java.text.SimpleDateFormat
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.TimeZone
+import java.util.UUID
 
+@Suppress("SqlNoDataSourceInspection")
 class DataBase(private val plugin: BulletinBoard) {
     private var connection: Connection? = null
 
@@ -31,8 +43,42 @@ class DataBase(private val plugin: BulletinBoard) {
             return
         }
 
-        try {
+        val createPostsTableSQL = """
+            CREATE TABLE IF NOT EXISTS posts (
+                id TEXT PRIMARY KEY,    
+                author TEXT NOT NULL,
+                title TEXT NOT NULL,
+                content TEXT NOT NULL,
+                isAnonymous BOOLEAN NOT NULL DEFAULT FALSE,
+                date DATE NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+        """.trimIndent()
 
+        val createDeletedPostsTableSQL = """
+            CREATE TABLE IF NOT EXISTS posts (
+                id TEXT PRIMARY KEY,    
+                author TEXT NOT NULL,
+                title TEXT NOT NULL,
+                content TEXT NOT NULL,
+                isAnonymous BOOLEAN NOT NULL DEFAULT FALSE,
+                date DATE NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+        """.trimIndent()
+
+        val createConfigTableSQL = """
+            CREATE TABLE IF NOT EXISTS config (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL
+            );
+        """.trimIndent()
+
+        try {
+            connection?.createStatement()?.use { statement ->
+                statement.execute(createPostsTableSQL)
+                statement.execute(createDeletedPostsTableSQL)
+                statement.execute(createConfigTableSQL)
+                plugin.logger.info("Requirement tables created successfully!")
+            }
         } catch (e: SQLException) {
             plugin.log.error("Could not create the required tables!")
             e.printStackTrace()
@@ -44,7 +90,10 @@ class DataBase(private val plugin: BulletinBoard) {
 
     fun closeConnection() {
         try {
-            connection?.close()
+            if (connection != null) {
+                connection?.close()
+                plugin.log.info("Successfully closed the SQLite database connection!")
+            }
         } catch (e: SQLException) {
             plugin.log.error("Could not close the SQLite database connection!")
             e.printStackTrace()
@@ -55,4 +104,148 @@ class DataBase(private val plugin: BulletinBoard) {
             connection = null
         }
     }
+
+    fun importDataFromJson(file: File) {
+        val data = JsonUtil.loadFromFile(file)
+        data.posts.forEach { post ->
+            insertPost(post, true)
+        }
+        plugin.log.info("Data imported from JSON to SQLite successfully!")
+        setMigrationFlag()
+    }
+
+    private fun setMigrationFlag() {
+        val insertSQL = "INSERT OR REPLACE INTO config (key, value) VALUES ('data_migrated', 'true')"
+        try {
+            connection?.prepareStatement(insertSQL)?.use { statement ->
+                statement.executeUpdate()
+            }
+        } catch (e: SQLException) {
+            plugin.log.error("Could not set migration flag in config table!")
+            e.printStackTrace()
+        }
+    }
+
+    fun isDataMigrated(): Boolean {
+        val selectSQL = "SELECT value FROM config WHERE key = 'data_migrated'"
+        return try {
+            connection?.prepareStatement(selectSQL)?.use { statement ->
+                val resultSet = statement.executeQuery()
+                if (resultSet.next()) {
+                    resultSet.getString("value") == "true"
+                } else {
+                    false
+                }
+            } ?: false
+        } catch (e: SQLException) {
+            plugin.log.error("Could not check migration flag in config table!")
+            e.printStackTrace()
+            false
+        }
+    }
+
+//>--------------------------------------------------------------------------------------------------<
+
+    fun insertPost(post: Post, isOldData: Boolean = false) {
+        val columns = mutableListOf("id", "author", "title", "content")
+        val values = mutableListOf("?", "?", "?", "?")
+
+        post.isAnonymous?.let {
+            columns.add("isAnonymous")
+            values.add("?")
+        }
+
+        if (isOldData) {
+            columns.add("date")
+            values.add("?")
+        }
+
+        val insertSQL = "INSERT INTO posts (${columns.joinToString(", ")}) VALUES (${values.joinToString(", ")})"
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+        dateFormat.timeZone = TimeZone.getTimeZone("UTC")
+
+        try {
+            connection?.prepareStatement(insertSQL)?.use { statement ->
+                val idString: ShortUUID = if (isOldData) {
+                    ShortUUID.fromString(post.id.toString())
+                } else {
+                    ShortUUID.fromShortString(post.id.toShortString())
+                }
+
+                statement.setString(1, idString.toShortString())
+                statement.setString(2, post.author.toString())
+                statement.setString(3, GsonComponentSerializer.gson().serialize(post.title))
+                statement.setString(4, GsonComponentSerializer.gson().serialize(post.content))
+
+                post.isAnonymous?.let {
+                    statement.setBoolean(5, it)
+                }
+
+                if (isOldData) {
+                    val dateIndex = if (post.isAnonymous != null) 6 else 5
+                    statement.setString(dateIndex, dateFormat.format(post.date))
+                }
+
+                statement.executeUpdate()
+            }
+        } catch (e: SQLException) {
+            plugin.log.error("Could not insert post into database!")
+            e.printStackTrace()
+        }
+    }
+
+    fun deletePost(id: String) {
+        val selectSQL = "SELECT * FROM posts WHERE id = ?"
+        val deleteSQL = "DELETE FROM posts WHERE id = ?"
+        val insertDeletedSQL = """
+        INSERT INTO deletedPosts (id, author, title, content, isAnonymous, date) 
+        VALUES (?, ?, ?, ?, ?, ?)
+    """.trimIndent()
+
+        try {
+            connection?.prepareStatement(selectSQL)?.use { selectStatement ->
+                selectStatement.setString(1, id)
+                val resultSet = selectStatement.executeQuery()
+                if (resultSet.next()) {
+                    val postIdResult = resultSet.getString("id")
+                    val postId = ShortUUID.fromShortString(postIdResult)
+
+                    val dateString = resultSet.getString("date")
+                    val parsedDate = ZonedDateTime.parse(dateString, DateTimeFormatter.ISO_DATE_TIME).toInstant()
+
+                    val post = Post(
+                        id = postId,
+                        author = UUID.fromString(resultSet.getString("author")),
+                        title = GsonComponentSerializer.gson().deserialize(resultSet.getString("title")),
+                        content = GsonComponentSerializer.gson().deserialize(resultSet.getString("content")),
+                        isAnonymous = resultSet.getBoolean("isAnonymous"),
+                        date = Date.from(parsedDate)
+                    )
+
+                    connection?.prepareStatement(insertDeletedSQL)?.use { insertStatement ->
+                        insertStatement.setString(1, post.id.toString())
+                        insertStatement.setString(2, post.author.toString())
+                        insertStatement.setString(3, GsonComponentSerializer.gson().serialize(post.title))
+                        insertStatement.setString(4, GsonComponentSerializer.gson().serialize(post.content))
+                        insertStatement.setBoolean(5, post.isAnonymous!!) // !! is safe here because we know it is not null
+                        insertStatement.setString(6, dateString)
+                        insertStatement.executeUpdate()
+                    }
+
+                    connection?.prepareStatement(deleteSQL)?.use { deleteStatement ->
+                        deleteStatement.setString(1, id)
+                        deleteStatement.executeUpdate()
+                    }
+
+                    plugin.log.info("Post moved to deletedPosts and deleted from posts.")
+                } else {
+                    plugin.log.warn("No post found with the given ID.")
+                }
+            }
+        } catch (e: SQLException) {
+            plugin.log.error("Could not delete post from database!")
+            e.printStackTrace()
+        }
+    }
+
 }

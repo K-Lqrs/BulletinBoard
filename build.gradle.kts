@@ -1,5 +1,6 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm")
+    kotlin("jvm")
+    kotlin("plugin.serialization")
 }
 
 group = "net.rk4z"

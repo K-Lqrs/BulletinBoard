@@ -12,7 +12,7 @@ abstract class BaseInventoryGUI(
     protected var title: Component,
     protected var size: Int
 ) : InventoryHolder {
-    protected val inventory: Inventory = createInventory()
+    protected val igfInventory: Inventory = createInventory()
     private var listener: GUIListener? = null
     protected val buttons: MutableList<Button> = mutableListOf()
     protected var onClickAction: ((InventoryClickEvent) -> Unit)? = null

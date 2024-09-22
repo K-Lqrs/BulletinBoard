@@ -16,8 +16,3 @@ system:
       unknown: "Unknown"
       unknown_error: "An unknown error has occurred."
       error: "Error"
-
-main:
-  gui:
-      main_board: "Main Board"
-      post_editor: "Post Editor"

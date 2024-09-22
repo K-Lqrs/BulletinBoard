@@ -16,8 +16,3 @@ system:
       unknown: "不明"
       unknown_error: "不明なエラーが発生しました。"
       error: "エラー"
-
-main:
-  gui:
-    main_board: "メインボード"
-    post_editor: "投稿エディタ"
