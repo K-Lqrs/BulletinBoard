@@ -28,6 +28,7 @@ object BulletinBoardManager {
         )
 
         val gui = SimpleGUI(player, LanguageManager.getMessage(player, Main.Gui.Title.MAIN_BOARD), 45)
+            .setBackground(Material.BLACK_STAINED_GLASS_PANE)
             .setButtons(buttons)
             .build()
 

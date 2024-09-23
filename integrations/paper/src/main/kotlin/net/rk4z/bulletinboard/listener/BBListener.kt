@@ -33,6 +33,6 @@ class BBListener : GUIListener {
     }
 
     override fun onInventoryClose(event: InventoryCloseEvent) {
-        TODO()
+        if (event.inventory.holder !is BaseInventoryGUI) return
     }
 }

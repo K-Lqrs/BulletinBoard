@@ -157,6 +157,10 @@ class BulletinBoard : JavaPlugin() {
         IGF.setGlobalListener(BBListener())
 
         registerCommand("bulletinboard", this)
+
+        availableLang.forEach {
+            LanguageManager.findMissingKeys(it)
+        }
     }
 
     override fun onDisable() {

@@ -19,6 +19,7 @@ class SimpleGUI(
     }
 
     override fun build(): BaseInventoryGUI {
+        applyBackground()
         displayItems()
         return this
     }

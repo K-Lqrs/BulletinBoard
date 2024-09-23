@@ -69,6 +69,26 @@ object LanguageManager {
         }
     }
 
+    fun findMissingKeys(lang: String): List<String> {
+        val messageKeyMap: MutableMap<String, MessageKey> = mutableMapOf()
+
+        mapMessageKeys(System::class, "", messageKeyMap)
+        mapMessageKeys(Main::class, "", messageKeyMap)
+
+        val currentMessages = messages[lang] ?: return emptyList()
+
+        val missingKeys = mutableListOf<String>()
+
+        messageKeyMap.forEach { (path, key) ->
+            if (!currentMessages.containsKey(key)) {
+                missingKeys.add(path)
+                BulletinBoard.instance.logger.warning("Missing key: $path for language: $lang")
+            }
+        }
+
+        return missingKeys
+    }
+
 
     private fun Player.getLanguage(): String {
         return this.locale().language ?: "en"

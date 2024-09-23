@@ -1,6 +1,8 @@
 package net.rk4z.igf
 
 import net.kyori.adventure.text.Component
+import net.rk4z.bulletinboard.utils.toItemStack
+import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
@@ -17,9 +19,18 @@ abstract class BaseInventoryGUI(
     protected var onClickAction: ((InventoryClickEvent) -> Unit)? = null
     protected var onCloseAction: ((InventoryCloseEvent) -> Unit)? = null
 
+    // 背景用のMaterialを保持するプロパティ
+    private var backgroundMaterial: Material? = null
+
     abstract fun handleClick(event: InventoryClickEvent)
     abstract fun handleClose(event: InventoryCloseEvent)
     abstract fun build(): BaseInventoryGUI
+
+    // 背景のMaterialを設定するメソッド
+    fun setBackground(material: Material): BaseInventoryGUI {
+        this.backgroundMaterial = material
+        return this
+    }
 
     fun setButtons(buttons: List<Button>): BaseInventoryGUI {
         this.buttons.clear()
@@ -45,6 +56,19 @@ abstract class BaseInventoryGUI(
     fun setOnClose(action: (InventoryCloseEvent) -> Unit): BaseInventoryGUI {
         this.onCloseAction = action
         return this
+    }
+
+    protected fun applyBackground() {
+        backgroundMaterial?.let { material ->
+            val itemStack = material.toItemStack()
+            val meta = itemStack.itemMeta
+            meta?.displayName(Component.text(""))
+            itemStack.itemMeta = meta
+
+            for (i in 0 until size) {
+                inventory.setItem(i, itemStack)
+            }
+        }
     }
 
     protected fun displayItems() {

@@ -16,3 +16,18 @@ system:
       unknown: "不明"
       unknown_error: "不明なエラーが発生しました。"
       error: "エラー"
+
+main:
+  gui:
+    title:
+      main_board: "メインボード"
+      post_editor: "投稿エディタ"
+
+    button:
+      new_post: "新規投稿"
+      all_posts: "全ての投稿"
+      my_posts: "自分の投稿"
+      deleted_posts: "削除された投稿"
+      about_plugin: "プラグインについて"
+      settings: "設定"
+      help: "ヘルプ"

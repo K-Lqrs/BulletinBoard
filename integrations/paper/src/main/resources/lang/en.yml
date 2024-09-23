@@ -16,3 +16,18 @@ system:
       unknown: "Unknown"
       unknown_error: "An unknown error has occurred."
       error: "Error"
+
+main:
+  gui:
+    title:
+      main_board: "Main Board"
+      post_editor: "Post Editor"
+
+    button:
+      new_post: "New Post"
+      all_posts: "All Posts"
+      my_posts: "My Posts"
+      deleted_posts: "Deleted Posts"
+      about_plugin: "About Plugin"
+      settings: "Settings"
+      help: "Help"
