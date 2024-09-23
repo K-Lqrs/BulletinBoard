@@ -22,6 +22,7 @@ object CommandManager : CommandExecutor, TabCompleter {
                 displayHelp(sender)
                 return true
             } else {
+                //TODO: Apply localization
                 sender.sendMessage("This Command can only be run by a player.")
                 return true
             }
@@ -34,6 +35,7 @@ object CommandManager : CommandExecutor, TabCompleter {
                 return true
             }
         } else {
+            //TODO: Apply localization
             sender.sendMessage("Unknown command.")
             return true
         }
@@ -59,6 +61,6 @@ object CommandManager : CommandExecutor, TabCompleter {
     }
 
     fun displayHelp(player: Player) {
-
+        //TODO
     }
 }

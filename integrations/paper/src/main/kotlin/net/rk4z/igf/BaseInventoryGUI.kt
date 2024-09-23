@@ -1,6 +1,7 @@
 package net.rk4z.igf
 
 import net.kyori.adventure.text.Component
+import net.rk4z.bulletinboard.BulletinBoard
 import net.rk4z.bulletinboard.utils.toItemStack
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -14,21 +15,21 @@ abstract class BaseInventoryGUI(
     protected var title: Component,
     protected var size: Int
 ) : InventoryHolder {
+    private lateinit var igfInventory: Inventory
     private var listener: GUIListener? = null
     protected val buttons: MutableList<Button> = mutableListOf()
     protected var onClickAction: ((InventoryClickEvent) -> Unit)? = null
     protected var onCloseAction: ((InventoryCloseEvent) -> Unit)? = null
 
-    // 背景用のMaterialを保持するプロパティ
     private var backgroundMaterial: Material? = null
 
-    abstract fun handleClick(event: InventoryClickEvent)
-    abstract fun handleClose(event: InventoryCloseEvent)
+    protected abstract fun handleClick(event: InventoryClickEvent)
+    protected abstract fun handleClose(event: InventoryCloseEvent)
     abstract fun build(): BaseInventoryGUI
 
-    // 背景のMaterialを設定するメソッド
     fun setBackground(material: Material): BaseInventoryGUI {
         this.backgroundMaterial = material
+        BulletinBoard.instance.logger.info("Background material set to: $material")
         return this
     }
 
@@ -58,7 +59,7 @@ abstract class BaseInventoryGUI(
         return this
     }
 
-    protected fun applyBackground() {
+    fun applyBackground() {
         backgroundMaterial?.let { material ->
             val itemStack = material.toItemStack()
             val meta = itemStack.itemMeta
@@ -82,7 +83,13 @@ abstract class BaseInventoryGUI(
     }
 
     override fun getInventory(): Inventory {
-        return player.server.createInventory(this, size, title)
+        return igfInventory
+    }
+
+    fun create() {
+        if (!this::igfInventory.isInitialized) {
+            igfInventory = player.server.createInventory(this, size, title)
+        }
     }
 
     fun open() {

@@ -70,6 +70,7 @@ open class Main : MessageKey {
 typealias CommandExecute = (Player) -> Unit
 
 enum class Commands(val execute: CommandExecute) {
+    //TODO: Add more commands
     OPENBOARD({ player -> BulletinBoardManager.openMainBoard(player) }),
     ;
 

@@ -29,10 +29,11 @@ class BBListener : GUIListener {
         event.isCancelled = true
         if (item.type == Material.BLACK_STAINED_GLASS_PANE || customId == CustomID.NO_POSTS.name) return
 
-
+        //TODO: Implement next code
     }
 
     override fun onInventoryClose(event: InventoryCloseEvent) {
         if (event.inventory.holder !is BaseInventoryGUI) return
+        //TODO
     }
 }
