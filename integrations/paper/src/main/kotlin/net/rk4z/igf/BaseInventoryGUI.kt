@@ -12,7 +12,6 @@ abstract class BaseInventoryGUI(
     protected var title: Component,
     protected var size: Int
 ) : InventoryHolder {
-    protected val igfInventory: Inventory = createInventory()
     private var listener: GUIListener? = null
     protected val buttons: MutableList<Button> = mutableListOf()
     protected var onClickAction: ((InventoryClickEvent) -> Unit)? = null
@@ -20,6 +19,7 @@ abstract class BaseInventoryGUI(
 
     abstract fun handleClick(event: InventoryClickEvent)
     abstract fun handleClose(event: InventoryCloseEvent)
+    abstract fun build(): BaseInventoryGUI
 
     fun setButtons(buttons: List<Button>): BaseInventoryGUI {
         this.buttons.clear()
@@ -47,11 +47,9 @@ abstract class BaseInventoryGUI(
         return this
     }
 
-    abstract fun build(): BaseInventoryGUI
-
     protected fun displayItems() {
         buttons.forEach { button ->
-            inventory.addButton(button)
+            inventory.setItem(button.slot, button.toItemStack())
         }
     }
 
@@ -59,7 +57,7 @@ abstract class BaseInventoryGUI(
         return listener
     }
 
-    private fun createInventory(): Inventory {
+    override fun getInventory(): Inventory {
         return player.server.createInventory(this, size, title)
     }
 

@@ -23,6 +23,7 @@ object IGF : Listener {
         globalListener = listener
     }
 
+    @Deprecated("Dont use this method, use setGlobalListener instead")
     @EventHandler
     fun onInventoryClick(event: InventoryClickEvent) {
         val inventory = event.clickedInventory ?: return
@@ -37,6 +38,7 @@ object IGF : Listener {
         gui.getListener()?.onInventoryClick(event) ?: globalListener?.onInventoryClick(event)
     }
 
+    @Deprecated("Dont use this method, use setGlobalListener instead")
     @EventHandler
     fun onInventoryClose(event: InventoryCloseEvent) {
         val inventory = event.inventory

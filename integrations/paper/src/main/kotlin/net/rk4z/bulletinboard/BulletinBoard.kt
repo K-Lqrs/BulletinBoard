@@ -6,11 +6,14 @@ import net.rk4z.bulletinboard.manager.LanguageManager
 import net.rk4z.bulletinboard.utils.MessageKey
 import net.rk4z.bulletinboard.utils.System
 import net.rk4z.bulletinboard.utils.getNullableBoolean
-import net.rk4z.bulletinboard.utils.isNullOrFalse
 import net.rk4z.igf.IGF
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
+import org.bukkit.command.Command
+import org.bukkit.command.CommandMap
+import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
+import org.bukkit.scheduler.BukkitRunnable
 import org.json.JSONArray
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -29,6 +32,7 @@ import kotlin.io.path.notExists
 typealias TaskRunner = (JavaPlugin, Runnable) -> Unit
 typealias TaskRunnerWithDelay = (JavaPlugin, Runnable, Long) -> Unit
 typealias TaskRunnerWithPeriod = (JavaPlugin, Runnable, Long, Long) -> Unit
+typealias BukkitTaskRunner = (BukkitRunnable) -> Unit
 
 @Suppress("unused", "DEPRECATION")
 class BulletinBoard : JavaPlugin() {
@@ -48,9 +52,12 @@ class BulletinBoard : JavaPlugin() {
     val runTaskAsync : TaskRunner = { plugin, task -> Bukkit.getScheduler().runTaskAsynchronously(plugin, task) }
     val runTaskLater : TaskRunnerWithDelay = { plugin, task, delay -> Bukkit.getScheduler().runTaskLater(plugin, task, delay) }
     val runTaskTimer : TaskRunnerWithPeriod = { plugin, task, delay, period -> Bukkit.getScheduler().runTaskTimer(plugin, task, delay, period) }
+    val bukkitRunTask : BukkitTaskRunner = { task -> task.runTask(this) }
     val executor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
 
     var isProxied: Boolean? = false
+    // If you want to debug the plugin, set this to true
+    val isDebug: Boolean = false
 
     var systemLang: String = Locale.getDefault().language
 
@@ -85,7 +92,7 @@ class BulletinBoard : JavaPlugin() {
             val langFile = File(langDir, "$lang.yml")
             if (!langFile.exists()) {
                 saveResource("lang/$lang.yml", false)
-                log.info("Copied default $lang language file from Jar.")
+                if (isDebug) log.info("Copied default $lang language file from Jar.")
             }
         }
 
@@ -149,19 +156,34 @@ class BulletinBoard : JavaPlugin() {
         IGF.init(this, key)
         IGF.setGlobalListener(BBListener())
 
-        if (isProxied.isNullOrFalse().not()) {
-            val command = getCommand("bulletinboard")
-                command?.aliases = listOf("bb")
-                command?.setExecutor(CommandManager)
-                command?.tabCompleter = CommandManager
-                command?.description = "BulletinBoard Main Command"
-        }
+        registerCommand("bulletinboard", this)
     }
 
     override fun onDisable() {
         log.info(LanguageManager.getSysMessage(systemLang, System.Log.DISABLING, name, version))
 
         dataBase.closeConnection()
+    }
+
+    private fun registerCommand(commandName: String, plugin: JavaPlugin) {
+        val commandMapField = Bukkit.getServer().javaClass.getDeclaredField("commandMap")
+        commandMapField.isAccessible = true
+        val commandMap = commandMapField.get(Bukkit.getServer()) as CommandMap
+
+        val command = object : Command(commandName) {
+            override fun execute(sender: CommandSender, label: String, args: Array<out String>): Boolean {
+                return CommandManager.onCommand(sender, this, label, args)
+            }
+
+            override fun tabComplete(sender: CommandSender, alias: String, args: Array<out String>?): List<String?> {
+                return CommandManager.onTabComplete(sender, this, alias, args)
+            }
+        }
+
+        command.aliases = listOf("bb")
+        command.description = "BulletinBoard Main Command"
+
+        commandMap.register(plugin.description.name, command)
     }
 
     private fun checkUpdate() {

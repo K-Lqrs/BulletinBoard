@@ -1,6 +1,5 @@
 package net.rk4z.bulletinboard.manager
 
-import net.kyori.adventure.text.Component
 import net.rk4z.bulletinboard.utils.CustomID
 import net.rk4z.bulletinboard.utils.Main
 import net.rk4z.igf.Button
@@ -8,7 +7,7 @@ import net.rk4z.igf.SimpleGUI
 import org.bukkit.Material
 import org.bukkit.entity.Player
 
-class BulletinBoardManager {
+object BulletinBoardManager {
     fun openMainBoard(player: Player) {
         val newPost = LanguageManager.getMessage(player, Main.Gui.Button.NEW_POST)
         val allPosts = LanguageManager.getMessage(player, Main.Gui.Button.ALL_POSTS)

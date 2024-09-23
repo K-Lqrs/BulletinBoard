@@ -6,7 +6,6 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
-import org.bukkit.inventory.Inventory
 import org.bukkit.persistence.PersistentDataType
 
 class PaginatedGUI(
@@ -59,23 +58,19 @@ class PaginatedGUI(
         val meta = clickedItem.itemMeta ?: return
         val customId = meta.persistentDataContainer.get(namespacedKey, PersistentDataType.STRING) ?: return
 
-        when {
-            customId.startsWith("NEXT_PAGE") -> {
-                currentPage++
+        when (customId) {
+            "PREV_PAGE" -> {
+                currentPage--
                 displayPage()
             }
-            customId.startsWith("PREV_PAGE") -> {
-                currentPage--
+            "NEXT_PAGE" -> {
+                currentPage++
                 displayPage()
             }
         }
     }
 
     override fun handleClose(event: InventoryCloseEvent) {}
-
-    override fun getInventory(): Inventory {
-        return igfInventory
-    }
 
     override fun build(): BaseInventoryGUI {
         displayPage()

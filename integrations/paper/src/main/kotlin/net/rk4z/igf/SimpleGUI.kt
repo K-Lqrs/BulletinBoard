@@ -4,7 +4,6 @@ import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
-import org.bukkit.inventory.Inventory
 
 class SimpleGUI(
     player: Player,
@@ -17,10 +16,6 @@ class SimpleGUI(
 
     override fun handleClose(event: InventoryCloseEvent) {
         onCloseAction?.invoke(event)
-    }
-
-    override fun getInventory(): Inventory {
-        return inventory
     }
 
     override fun build(): BaseInventoryGUI {

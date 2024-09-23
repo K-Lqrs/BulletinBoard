@@ -26,9 +26,9 @@ object LanguageManager {
         val objectInstance = clazz.objectInstance as? MessageKey
         if (objectInstance != null) {
             messageKeyMap[fullPath] = objectInstance
-            BulletinBoard.instance.logger.info("Mapped class: $fullPath -> ${clazz.simpleName}")
+            if (BulletinBoard.instance.isDebug) BulletinBoard.instance.logger.info("Mapped class: $fullPath -> ${clazz.simpleName}")
         } else {
-            BulletinBoard.instance.logger.warning("Object instance not found for class: ${clazz.simpleName}")
+            if (BulletinBoard.instance.isDebug) BulletinBoard.instance.logger.warning("Object instance not found for class: ${clazz.simpleName}")
         }
 
         clazz.nestedClasses.forEach { nestedClass ->
@@ -50,16 +50,16 @@ object LanguageManager {
     fun processYamlData(prefix: String, data: Map<String, Any>, messageKeyMap: Map<String, MessageKey>, messageMap: MutableMap<MessageKey, String>) {
         for ((key, value) in data) {
             val currentPrefix = if (prefix.isEmpty()) key else "$prefix.$key"
-            BulletinBoard.instance.logger.info("Processing YAML path: $currentPrefix")
+            if (BulletinBoard.instance.isDebug) BulletinBoard.instance.logger.info("Processing YAML path: $currentPrefix")
 
             when (value) {
                 is String -> {
                     val messageKey = messageKeyMap[currentPrefix]
                     if (messageKey != null) {
                         messageMap[messageKey] = value
-                        BulletinBoard.instance.logger.info("Mapped: $messageKey -> $value")
+                        if (BulletinBoard.instance.isDebug) BulletinBoard.instance.logger.info("Mapped: $messageKey -> $value")
                     } else {
-                        BulletinBoard.instance.logger.warning("MessageKey not found for path: $currentPrefix")
+                        if (BulletinBoard.instance.isDebug) BulletinBoard.instance.logger.warning("MessageKey not found for path: $currentPrefix")
                     }
                 }
                 is Map<*, *> -> {

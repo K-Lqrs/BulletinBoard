@@ -44,7 +44,7 @@ object CommandManager : CommandExecutor, TabCompleter {
         command: Command,
         label: String,
         args: Array<out String>?
-    ): List<String?>? {
+    ): List<String?> {
         if (args.isNullOrEmpty()) {
             return subCommandsList.map { it.lowercase() }
         }
@@ -55,10 +55,10 @@ object CommandManager : CommandExecutor, TabCompleter {
                 .filter { it.startsWith(args[0].lowercase()) }
         }
 
-        return null
+        return listOf()
     }
 
     fun displayHelp(player: Player) {
-        TODO()
+
     }
 }

@@ -13,7 +13,20 @@ data class Button(
     val material: Material,
     val name: Component,
     val customId: String
-)
+) {
+    fun toItemStack(): ItemStack {
+        val itemStack = ItemStack(material)
+        val meta: ItemMeta? = itemStack.itemMeta
+
+        meta?.let {
+            it.displayName(name)
+            it.persistentDataContainer.set(namespacedKey, PersistentDataType.STRING, customId)
+            itemStack.itemMeta = it
+        }
+
+        return itemStack
+    }
+}
 
 fun Inventory.addButton(button: Button) {
     this.setItem(button.slot, createCustomItem(button.material, button.name, customId = button.customId))
