@@ -2,6 +2,7 @@ package net.rk4z.bulletinboard.listener
 
 import net.rk4z.bulletinboard.BulletinBoard
 import net.rk4z.bulletinboard.utils.CustomID
+import net.rk4z.bulletinboard.utils.getPlayerState
 import net.rk4z.igf.BaseInventoryGUI
 import net.rk4z.igf.GUIListener
 import org.bukkit.Material
@@ -14,6 +15,7 @@ class BBListener : GUIListener {
     override fun onInventoryClick(event: InventoryClickEvent) {
         val inventory = event.clickedInventory ?: return
 
+        // early return
         if (inventory.holder !is BaseInventoryGUI) return
 
         val player = event.whoClicked as? Player ?: return
@@ -21,19 +23,23 @@ class BBListener : GUIListener {
         val item = event.currentItem ?: return
         val itemMeta = item.itemMeta ?: return
         val displayName = itemMeta.displayName()
-        val customId = itemMeta.persistentDataContainer.get(BulletinBoard.key, PersistentDataType.STRING)
+        val data = itemMeta.persistentDataContainer.get(BulletinBoard.key, PersistentDataType.STRING)
+        val customId = data?.let { CustomID.fromString(it) }
 
         if (item.type.isAir) return
 
         // This code can only be executed if the inventory is managed by an IGF
         event.isCancelled = true
-        if (item.type == Material.BLACK_STAINED_GLASS_PANE || customId == CustomID.NO_POSTS.name) return
+        if (item.type == Material.BLACK_STAINED_GLASS_PANE || customId == CustomID.NO_POSTS) return
 
-        //TODO: Implement next code
+        BBHandler.onBBClick(player, customId, inventoryTitle, event)
     }
 
     override fun onInventoryClose(event: InventoryCloseEvent) {
-        if (event.inventory.holder !is BaseInventoryGUI) return
-        //TODO
+        val holder = event.inventory.holder
+        // early return
+        if (holder !is BaseInventoryGUI) return
+
+        val player = event.player as? Player ?: return
     }
 }

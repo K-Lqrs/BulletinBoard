@@ -6,6 +6,7 @@ import net.rk4z.bulletinboard.utils.Main
 import net.rk4z.bulletinboard.utils.MessageKey
 import net.rk4z.bulletinboard.utils.System
 import org.bukkit.entity.Player
+import java.util.Locale
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
@@ -112,7 +113,8 @@ object LanguageManager {
         return Component.text(st).content()
     }
 
-    fun getSysMessage(lang: String, key: MessageKey, vararg args: Any): String {
+    fun getSysMessage(key: MessageKey, vararg args: Any): String {
+        val lang = Locale.getDefault().language
         val message = messages[lang]?.get(key)
 
         val st = message?.let { String.format(it, *args) } ?: return key.toTextComponent().content()

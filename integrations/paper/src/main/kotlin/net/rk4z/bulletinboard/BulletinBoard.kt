@@ -6,6 +6,7 @@ import net.rk4z.bulletinboard.manager.LanguageManager
 import net.rk4z.bulletinboard.utils.MessageKey
 import net.rk4z.bulletinboard.utils.System
 import net.rk4z.bulletinboard.utils.getNullableBoolean
+import net.rk4z.bulletinboard.utils.isNullOrFalse
 import net.rk4z.igf.IGF
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
@@ -32,7 +33,6 @@ import kotlin.io.path.notExists
 typealias TaskRunner = (JavaPlugin, Runnable) -> Unit
 typealias TaskRunnerWithDelay = (JavaPlugin, Runnable, Long) -> Unit
 typealias TaskRunnerWithPeriod = (JavaPlugin, Runnable, Long, Long) -> Unit
-typealias BukkitTaskRunner = (BukkitRunnable) -> Unit
 
 @Suppress("unused", "DEPRECATION")
 class BulletinBoard : JavaPlugin() {
@@ -52,7 +52,6 @@ class BulletinBoard : JavaPlugin() {
     val runTaskAsync : TaskRunner = { plugin, task -> Bukkit.getScheduler().runTaskAsynchronously(plugin, task) }
     val runTaskLater : TaskRunnerWithDelay = { plugin, task, delay -> Bukkit.getScheduler().runTaskLater(plugin, task, delay) }
     val runTaskTimer : TaskRunnerWithPeriod = { plugin, task, delay, period -> Bukkit.getScheduler().runTaskTimer(plugin, task, delay, period) }
-    val bukkitRunTask : BukkitTaskRunner = { task -> task.runTask(this) }
     val executor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
 
     var isProxied: Boolean? = false
@@ -130,7 +129,7 @@ class BulletinBoard : JavaPlugin() {
             }
         }
 
-        log.info(LanguageManager.getSysMessage(systemLang, System.Log.LOADING, name, version))
+        log.info(LanguageManager.getSysMessage(System.Log.LOADING, name, version))
 
         dataBase = DataBase(this)
 
@@ -151,12 +150,14 @@ class BulletinBoard : JavaPlugin() {
     }
 
     override fun onEnable() {
-        log.info(LanguageManager.getSysMessage(systemLang, System.Log.ENABLING, name, version))
+        log.info(LanguageManager.getSysMessage(System.Log.ENABLING, name, version))
 
         IGF.init(this, key)
         IGF.setGlobalListener(BBListener())
 
-        registerCommand("bulletinboard", this)
+        if (isProxied.isNullOrFalse()) {
+            registerCommand("bulletinboard", this)
+        }
 
         availableLang.forEach {
             LanguageManager.findMissingKeys(it)
@@ -164,7 +165,7 @@ class BulletinBoard : JavaPlugin() {
     }
 
     override fun onDisable() {
-        log.info(LanguageManager.getSysMessage(systemLang, System.Log.DISABLING, name, version))
+        log.info(LanguageManager.getSysMessage(System.Log.DISABLING, name, version))
 
         dataBase.closeConnection()
     }
@@ -192,7 +193,7 @@ class BulletinBoard : JavaPlugin() {
 
     private fun checkUpdate() {
         executor.execute {
-            log.info(LanguageManager.getSysMessage(systemLang, System.Log.CHECKING_UPDATE))
+            log.info(LanguageManager.getSysMessage(System.Log.CHECKING_UPDATE))
             try {
                 val url = URI(MODRINTH_API_URL).toURL()
                 val connection = url.openConnection() as HttpURLConnection
@@ -203,23 +204,23 @@ class BulletinBoard : JavaPlugin() {
 
                     val (latestVersion, versionCount, newerVersionCount) = extractVersionInfo(response)
 
-                    log.info(LanguageManager.getSysMessage(systemLang, System.Log.ALL_VERSION_COUNT, versionCount))
+                    log.info(LanguageManager.getSysMessage(System.Log.ALL_VERSION_COUNT, versionCount))
 
                     if (isVersionNewer(latestVersion, description.version)) {
-                        log.info(LanguageManager.getSysMessage(systemLang, System.Log.NEW_VERSION_COUNT, newerVersionCount))
-                        log.info(LanguageManager.getSysMessage(systemLang, System.Log.LATEST_VERSION_FOUND, latestVersion, version))
+                        log.info(LanguageManager.getSysMessage(System.Log.NEW_VERSION_COUNT, newerVersionCount))
+                        log.info(LanguageManager.getSysMessage(System.Log.LATEST_VERSION_FOUND, latestVersion, version))
 
                         val downloadUrl = "https://modrinth.com/plugin/AfO6aot1/version/$latestVersion"
-                        log.info(LanguageManager.getSysMessage(systemLang, System.Log.VIEW_LATEST_VER, downloadUrl))
+                        log.info(LanguageManager.getSysMessage(System.Log.VIEW_LATEST_VER, downloadUrl))
                     } else {
-                        log.info(LanguageManager.getSysMessage(systemLang, System.Log.YOU_ARE_USING_LATEST))
+                        log.info(LanguageManager.getSysMessage(System.Log.YOU_ARE_USING_LATEST))
                     }
                 } else {
-                    log.warn(LanguageManager.getSysMessage(systemLang, System.Log.FAILED_TO_CHECK_UPDATE, connection.responseCode))
+                    log.warn(LanguageManager.getSysMessage(System.Log.FAILED_TO_CHECK_UPDATE, connection.responseCode))
                 }
             } catch (e: Exception) {
-                val unknownError = LanguageManager.getSysMessage(systemLang, System.Log.Other.UNKNOWN_ERROR)
-                log.warn(LanguageManager.getSysMessage(systemLang, System.Log.ERROR_WHILE_CHECKING_UPDATE, e.message ?: unknownError))
+                val unknownError = LanguageManager.getSysMessage(System.Log.Other.UNKNOWN_ERROR)
+                log.warn(LanguageManager.getSysMessage(System.Log.ERROR_WHILE_CHECKING_UPDATE, e.message ?: unknownError))
             }
         }
     }

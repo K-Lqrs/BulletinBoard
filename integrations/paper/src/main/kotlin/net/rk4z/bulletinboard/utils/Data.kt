@@ -12,6 +12,7 @@ import net.rk4z.bulletinboard.manager.BulletinBoardManager
 import org.bukkit.entity.Player
 import java.util.Date
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 
 sealed interface MessageKey {
     fun toComponent(): Component {
@@ -52,6 +53,10 @@ open class Main : MessageKey {
         open class Title : Gui() {
             object MAIN_BOARD : Title()
             object POST_EDITOR : Title()
+            object MY_POSTS : Title()
+            object ALL_POSTS : Title()
+            object DELETED_POSTS : Title()
+
         }
 
         open class Button : Gui() {
@@ -62,6 +67,14 @@ open class Main : MessageKey {
             object ABOUT_PLUGIN : Button()
             object SETTINGS : Button()
             object HELP : Button()
+
+            object SAVE_POST : Button()
+            object CANCEL_POST : Button()
+        }
+
+        open class Other : Gui() {
+            object NO_TITLE : Other()
+            object NO_CONTENT : Other()
         }
     }
 }
@@ -90,7 +103,23 @@ enum class CustomID {
     SETTINGS,
     HELP,
 
-    NO_POSTS
+    NO_POSTS,
+
+    POST_TITLE,
+    POST_CONTENT,
+    CANCEL_POST,
+    SAVE_POST,
+    EDIT_POST_TITLE,
+    EDIT_POST_CONTENT,
+    CANCEL_EDIT,
+    SAVE_EDIT,
+    ;
+
+    companion object {
+        fun fromString(name: String): CustomID? {
+            return entries.find { it.name.equals(name, ignoreCase = true) }
+        }
+    }
 }
 
 //>--------------------------------------------------------------------------------------------------<\\
@@ -115,7 +144,8 @@ data class EditPostData(
 
 data class PostDraft(
     val title: Component? = null,
-    val content: Component? = null
+    val content: Component? = null,
+    val isAnonymous: Boolean? = null
 )
 
 @Serializable
@@ -156,6 +186,12 @@ data class Permission(
     val uuid: UUID,
     val acquiredPermission: List<String>
 )
+
+fun Player.getPlayerState(): PlayerState {
+    return playerState.computeIfAbsent(this.uniqueId) { PlayerState() }
+}
+
+private val playerState = ConcurrentHashMap<UUID, PlayerState>()
 
 // This method provides a way to clear all state of a player.
 private fun PlayerState.clear() {

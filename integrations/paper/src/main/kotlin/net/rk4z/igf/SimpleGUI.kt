@@ -5,7 +5,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
 
-class   SimpleGUI(
+class SimpleGUI(
     player: Player,
     title: Component,
     size: Int
@@ -19,7 +19,6 @@ class   SimpleGUI(
     }
 
     override fun build(): BaseInventoryGUI {
-        create()
         applyBackground()
         displayItems()
         return this
