@@ -5,94 +5,12 @@ package net.rk4z.bulletinboard.utils
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
-import net.rk4z.bulletinboard.manager.BulletinBoardManager
 import org.bukkit.entity.Player
 import java.util.Date
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
-
-sealed interface MessageKey {
-    fun toComponent(): Component {
-        return Component.text(this.javaClass.simpleName)
-    }
-
-    fun toTextComponent(): TextComponent {
-        return Component.text(this.javaClass.simpleName)
-    }
-}
-
-open class System : MessageKey {
-    open class Log : System() {
-        object LOADING : Log()
-        object ENABLING : Log()
-        object DISABLING : Log()
-
-        object CHECKING_UPDATE : Log()
-        object ALL_VERSION_COUNT : Log()
-        object NEW_VERSION_COUNT : Log()
-        object VIEW_LATEST_VER : Log()
-        object LATEST_VERSION_FOUND : Log()
-        object YOU_ARE_USING_LATEST : Log()
-        object FAILED_TO_CHECK_UPDATE : Log()
-        object ERROR_WHILE_CHECKING_UPDATE : Log()
-
-        open class Other : Log() {
-            object UNKNOWN : Other()
-            object UNKNOWN_ERROR : Other()
-            object ERROR : Other()
-        }
-    }
-}
-
-//TODO: Add more keys and write translations to the language files
-open class Main : MessageKey {
-    open class Gui : Main() {
-        open class Title : Gui() {
-            object MAIN_BOARD : Title()
-            object POST_EDITOR : Title()
-            object MY_POSTS : Title()
-            object ALL_POSTS : Title()
-            object DELETED_POSTS : Title()
-
-        }
-
-        open class Button : Gui() {
-            object NEW_POST : Button()
-            object ALL_POSTS : Button()
-            object MY_POSTS : Button()
-            object DELETED_POSTS : Button()
-            object ABOUT_PLUGIN : Button()
-            object SETTINGS : Button()
-            object HELP : Button()
-
-            object SAVE_POST : Button()
-            object CANCEL_POST : Button()
-        }
-
-        open class Other : Gui() {
-            object NO_TITLE : Other()
-            object NO_CONTENT : Other()
-        }
-    }
-}
-
-
-typealias CommandExecute = (Player) -> Unit
-
-enum class Commands(val execute: CommandExecute) {
-    //TODO: Add more commands
-    OPENBOARD({ player -> BulletinBoardManager.openMainBoard(player) }),
-    ;
-
-    companion object {
-        fun fromString(name: String): Commands? {
-            return entries.find { it.name.equals(name, ignoreCase = true) }
-        }
-    }
-}
 
 enum class CustomID {
     NEW_POST,

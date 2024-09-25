@@ -3,18 +3,17 @@ package net.rk4z.bulletinboard
 import net.rk4z.bulletinboard.listener.BBListener
 import net.rk4z.bulletinboard.manager.CommandManager
 import net.rk4z.bulletinboard.manager.LanguageManager
+import net.rk4z.bulletinboard.utils.EL
 import net.rk4z.bulletinboard.utils.MessageKey
 import net.rk4z.bulletinboard.utils.System
 import net.rk4z.bulletinboard.utils.getNullableBoolean
 import net.rk4z.bulletinboard.utils.isNullOrFalse
-import net.rk4z.igf.IGF
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
 import org.bukkit.command.Command
 import org.bukkit.command.CommandMap
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
-import org.bukkit.scheduler.BukkitRunnable
 import org.json.JSONArray
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -152,8 +151,7 @@ class BulletinBoard : JavaPlugin() {
     override fun onEnable() {
         log.info(LanguageManager.getSysMessage(System.Log.ENABLING, name, version))
 
-        IGF.init(this, key)
-        IGF.setGlobalListener(BBListener())
+        EL.setGlobalListener(BBListener())
 
         if (isProxied.isNullOrFalse()) {
             registerCommand("bulletinboard", this)

@@ -2,9 +2,8 @@ package net.rk4z.bulletinboard.listener
 
 import net.rk4z.bulletinboard.BulletinBoard
 import net.rk4z.bulletinboard.utils.CustomID
-import net.rk4z.bulletinboard.utils.getPlayerState
-import net.rk4z.igf.BaseInventoryGUI
-import net.rk4z.igf.GUIListener
+import net.rk4z.bulletinboard.utils.GUIListener
+import net.rk4z.bulletinboard.utils.InventoryGUI
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -13,11 +12,6 @@ import org.bukkit.persistence.PersistentDataType
 
 class BBListener : GUIListener {
     override fun onInventoryClick(event: InventoryClickEvent) {
-        val inventory = event.clickedInventory ?: return
-
-        // early return
-        if (inventory.holder !is BaseInventoryGUI) return
-
         val player = event.whoClicked as? Player ?: return
         val inventoryTitle = event.view.title()
         val item = event.currentItem ?: return
@@ -36,10 +30,6 @@ class BBListener : GUIListener {
     }
 
     override fun onInventoryClose(event: InventoryCloseEvent) {
-        val holder = event.inventory.holder
-        // early return
-        if (holder !is BaseInventoryGUI) return
-
         val player = event.player as? Player ?: return
     }
 }

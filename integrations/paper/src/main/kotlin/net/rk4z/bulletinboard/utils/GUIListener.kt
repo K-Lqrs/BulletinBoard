@@ -1,4 +1,4 @@
-package net.rk4z.igf
+package net.rk4z.bulletinboard.utils
 
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
