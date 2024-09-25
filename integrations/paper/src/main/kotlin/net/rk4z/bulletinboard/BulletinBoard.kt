@@ -154,7 +154,7 @@ class BulletinBoard : JavaPlugin() {
         EL.setGlobalListener(BBListener())
 
         if (isProxied.isNullOrFalse()) {
-            registerCommand("bulletinboard", this)
+            registerCommand(this)
         }
 
         availableLang.forEach {
@@ -168,12 +168,13 @@ class BulletinBoard : JavaPlugin() {
         dataBase.closeConnection()
     }
 
-    private fun registerCommand(commandName: String, plugin: JavaPlugin) {
+    private fun registerCommand(plugin: JavaPlugin) {
         val commandMapField = Bukkit.getServer().javaClass.getDeclaredField("commandMap")
         commandMapField.isAccessible = true
         val commandMap = commandMapField.get(Bukkit.getServer()) as CommandMap
 
-        val command = object : Command(commandName) {
+        // Hard-coded command. This is not good practice XD
+        val command = object : Command("bulletinboard") {
             override fun execute(sender: CommandSender, label: String, args: Array<out String>): Boolean {
                 return CommandManager.onCommand(sender, this, label, args)
             }
@@ -183,6 +184,7 @@ class BulletinBoard : JavaPlugin() {
             }
         }
 
+        // It is also...
         command.aliases = listOf("bb")
         command.description = "BulletinBoard Main Command"
 
