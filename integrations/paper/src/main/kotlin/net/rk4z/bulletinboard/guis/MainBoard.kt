@@ -4,7 +4,7 @@ import net.rk4z.bulletinboard.manager.LanguageManager
 import net.rk4z.bulletinboard.utils.Button
 import net.rk4z.bulletinboard.utils.CustomID
 import net.rk4z.bulletinboard.utils.Main
-import net.rk4z.bulletinboard.utils.SimpleGUI
+import net.rk4z.bulletinboard.utils.igf.SimpleGUI
 import org.bukkit.Material
 import org.bukkit.entity.Player
 
@@ -17,7 +17,7 @@ fun openMainBoard(player: Player) {
     val settings = LanguageManager.getMessage(player, Main.Gui.Button.SETTINGS)
     val help = LanguageManager.getMessage(player, Main.Gui.Button.HELP)
 
-    val buttons = listOf<Button>(
+    val buttons = listOf(
         Button(10, Material.WRITABLE_BOOK, newPost, CustomID.NEW_POST.name),
         Button(12, Material.BOOK, allPosts, CustomID.ALL_POSTS.name),
         Button(14, Material.WRITTEN_BOOK, myPosts, CustomID.MY_POSTS.name),

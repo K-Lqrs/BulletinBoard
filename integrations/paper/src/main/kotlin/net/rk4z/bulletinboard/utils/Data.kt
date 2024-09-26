@@ -10,7 +10,6 @@ import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.entity.Player
 import java.util.Date
 import java.util.UUID
-import java.util.concurrent.ConcurrentHashMap
 
 enum class CustomID {
     NEW_POST,
@@ -20,6 +19,12 @@ enum class CustomID {
     ABOUT_PLUGIN,
     SETTINGS,
     HELP,
+
+    EDIT_POST,
+    DELETE_POST,
+    RESTORE_POST,
+    DELETE_POST_PERMANENTLY,
+    DELETE_POST_OTHERS,
 
     NO_POSTS,
 
@@ -31,6 +36,11 @@ enum class CustomID {
     EDIT_POST_CONTENT,
     CANCEL_EDIT,
     SAVE_EDIT,
+
+    PREV_PAGE,
+    NEXT_PAGE,
+
+    BACK_BUTTON
     ;
 
     companion object {
@@ -38,6 +48,16 @@ enum class CustomID {
             return entries.find { it.name.equals(name, ignoreCase = true) }
         }
     }
+}
+
+enum class TitleType(val key: MessageKey) {
+    ALL_POSTS(Main.Gui.Title.ALL_POSTS),
+    MY_POSTS(Main.Gui.Title.MY_POSTS),
+    DELETED_POSTS(Main.Gui.Title.DELETED_POSTS),
+    DELETE_POST_SELECTION(Main.Gui.Title.DELETE_POST_SELECTION),
+    DELETE_POST_PERMANENTLY_SELECTION(Main.Gui.Title.DELETE_POST_PERMANENTLY_SELECTION),
+    EDIT_POST_SELECTION(Main.Gui.Title.EDIT_POST_SELECTION),
+    RESTORE_POST_SELECTION(Main.Gui.Title.RESTORE_POST_SELECTION)
 }
 
 //>--------------------------------------------------------------------------------------------------<\\
@@ -104,12 +124,6 @@ data class Permission(
     val uuid: UUID,
     val acquiredPermission: List<String>
 )
-
-fun Player.getPlayerState(): PlayerState {
-    return playerState.computeIfAbsent(this.uniqueId) { PlayerState() }
-}
-
-private val playerState = ConcurrentHashMap<UUID, PlayerState>()
 
 // This method provides a way to clear all state of a player.
 private fun PlayerState.clear() {

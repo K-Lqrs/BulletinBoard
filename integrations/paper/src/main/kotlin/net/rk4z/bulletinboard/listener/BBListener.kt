@@ -2,8 +2,7 @@ package net.rk4z.bulletinboard.listener
 
 import net.rk4z.bulletinboard.BulletinBoard
 import net.rk4z.bulletinboard.utils.CustomID
-import net.rk4z.bulletinboard.utils.GUIListener
-import net.rk4z.bulletinboard.utils.InventoryGUI
+import net.rk4z.bulletinboard.utils.igf.GUIListener
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -16,7 +15,6 @@ class BBListener : GUIListener {
         val inventoryTitle = event.view.title()
         val item = event.currentItem ?: return
         val itemMeta = item.itemMeta ?: return
-        val displayName = itemMeta.displayName()
         val data = itemMeta.persistentDataContainer.get(BulletinBoard.key, PersistentDataType.STRING)
         val customId = data?.let { CustomID.fromString(it) }
 

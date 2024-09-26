@@ -1,6 +1,9 @@
 package net.rk4z.bulletinboard.utils
 
+import net.rk4z.bulletinboard.utils.igf.GUIListener
+import net.rk4z.bulletinboard.utils.igf.InventoryGUI
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
@@ -12,19 +15,25 @@ object EL : Listener {
         globalListener = listener
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     fun onInventoryClick(event: InventoryClickEvent) {
         val holder = event.clickedInventory?.holder
         if (holder !is InventoryGUI) return
 
         holder.getListener()?.onInventoryClick(event) ?: globalListener?.onInventoryClick(event)
+        if (holder.shouldCallGlobalListener()) {
+            globalListener?.onInventoryClick(event)
+        }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     fun onInventoryClose(event: InventoryCloseEvent) {
         val holder = event.inventory.holder
         if (holder !is InventoryGUI) return
 
         holder.getListener()?.onInventoryClose(event) ?: globalListener?.onInventoryClose(event)
+        if (holder.shouldCallGlobalListener()) {
+            globalListener?.onInventoryClose(event)
+        }
     }
 }

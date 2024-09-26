@@ -44,9 +44,14 @@ open class Main : MessageKey {
         open class Title : Gui() {
             object MAIN_BOARD : Title()
             object POST_EDITOR : Title()
+            object POST_EDITOR_FOR_EDIT : Title()
             object MY_POSTS : Title()
             object ALL_POSTS : Title()
             object DELETED_POSTS : Title()
+            object DELETE_POST_SELECTION : Title()
+            object DELETE_POST_PERMANENTLY_SELECTION : Title()
+            object EDIT_POST_SELECTION : Title()
+            object RESTORE_POST_SELECTION : Title()
 
         }
 
@@ -59,11 +64,31 @@ open class Main : MessageKey {
             object SETTINGS : Button()
             object HELP : Button()
 
+            object EDIT_POST : Button()
+            object DELETE_POST : Button()
+            object RESTORE_POST : Button()
+            object DELETE_POST_PERMANENTLY : Button()
+            object DELETE_POST_OTHERS : Button()
+
             object SAVE_POST : Button()
             object CANCEL_POST : Button()
+
+            object PREV_PAGE : Button()
+            object NEXT_PAGE : Button()
+
+            object BACK_BUTTON : Button()
+        }
+
+        open class Message : Gui() {
+            object AUTHOR_LABEL : Message()
+            object TITLE_LABEL : Message()
+            object CONTENT_LABEL : Message()
+            object DATE_LABEL : Message()
         }
 
         open class Other : Gui() {
+            object ANONYMOUS : Other()
+            object NO_POSTS : Other()
             object NO_TITLE : Other()
             object NO_CONTENT : Other()
         }

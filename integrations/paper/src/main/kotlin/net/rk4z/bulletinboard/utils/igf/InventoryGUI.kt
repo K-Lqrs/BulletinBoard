@@ -1,6 +1,8 @@
-package net.rk4z.bulletinboard.utils
+package net.rk4z.bulletinboard.utils.igf
 
 import net.kyori.adventure.text.Component
+import net.rk4z.bulletinboard.utils.Button
+import net.rk4z.bulletinboard.utils.toItemStack
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryCloseEvent
@@ -16,6 +18,7 @@ abstract class InventoryGUI(
     private var size: Int? = null
     private var backgroundMaterial: Material? = null
     private var items: List<Button> = emptyList()
+    private var shouldCallGlobalListener = false
 
     abstract fun build(): InventoryGUI
 
@@ -41,7 +44,6 @@ abstract class InventoryGUI(
     protected fun create() {
         if (title == null || size == null) {
             throw IllegalStateException("Title and size must be set")
-            return
         }
 
         igfInventory = player.server.createInventory(this, size!!, title!!)
@@ -49,6 +51,22 @@ abstract class InventoryGUI(
 
     override fun getInventory(): Inventory {
         return igfInventory ?: throw IllegalStateException("Inventory not set")
+    }
+
+    fun getTitle(): Component {
+        return title ?: throw IllegalStateException("Title not set")
+    }
+
+    fun getItems(): List<Button> {
+        return items
+    }
+
+    fun getSize(): Int {
+        return size ?: throw IllegalStateException("Size not set")
+    }
+
+    fun getBackgroundMaterial(): Material {
+        return backgroundMaterial ?: throw IllegalStateException("Background material not set")
     }
 
     fun setBackground(material: Material): InventoryGUI {
@@ -61,12 +79,27 @@ abstract class InventoryGUI(
         return this
     }
 
-    fun setListener(listener: GUIListener) {
+    fun addItem(button: Button): InventoryGUI {
+        this.items += button
+        return this
+    }
+
+    fun setListener(listener: GUIListener): InventoryGUI {
         this.listener = listener
+        return this
     }
 
     fun getListener(): GUIListener? {
         return this.listener
+    }
+
+    fun shouldCallGlobalListener(): Boolean {
+        return this.shouldCallGlobalListener
+    }
+
+    fun setShouldCallGlobalListener(shouldCallGlobalListener: Boolean): InventoryGUI {
+        this.shouldCallGlobalListener = shouldCallGlobalListener
+        return this
     }
 
     fun setTitle(title: Component): InventoryGUI {
@@ -82,7 +115,6 @@ abstract class InventoryGUI(
     fun open() {
         if (igfInventory == null) {
             throw IllegalStateException("Inventory not set")
-            return
         }
 
         player.openInventory(igfInventory!!)

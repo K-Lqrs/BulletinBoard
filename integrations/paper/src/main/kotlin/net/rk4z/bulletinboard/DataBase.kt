@@ -15,7 +15,7 @@ import java.util.Date
 import java.util.TimeZone
 import java.util.UUID
 
-@Suppress("SqlNoDataSourceInspection")
+@Suppress("SqlNoDataSourceInspection", "SqlDialectInspection", "LoggingSimilarMessage", "DuplicatedCode")
 class DataBase(private val plugin: BulletinBoard) {
     private var connection: Connection? = null
 
@@ -72,11 +72,21 @@ class DataBase(private val plugin: BulletinBoard) {
             );
         """.trimIndent()
 
+        val createSettingsTableSQL ="""
+            CREATE TABLE IF NOT EXISTS playerSettings (
+                uuid TEXT NOT NULL,
+                settingKey TEXT NOT NULL,
+                settingValue TEXT NOT NULL,
+                PRIMARY KEY (uuid, settingKey)
+            );
+        """.trimIndent()
+
         try {
             connection?.createStatement()?.use { statement ->
                 statement.execute(createPostsTableSQL)
                 statement.execute(createDeletedPostsTableSQL)
                 statement.execute(createConfigTableSQL)
+                statement.execute(createSettingsTableSQL)
                 plugin.logger.info("Requirement tables created successfully!")
             }
         } catch (e: SQLException) {
@@ -248,4 +258,195 @@ class DataBase(private val plugin: BulletinBoard) {
         }
     }
 
+    fun getAllPosts(): List<Post> {
+        val posts = mutableListOf<Post>()
+        val selectSQL = "SELECT * FROM posts"
+
+        try {
+            connection?.prepareStatement(selectSQL)?.use { statement ->
+                val resultSet = statement.executeQuery()
+                while (resultSet.next()) {
+                    val postIdString = resultSet.getString("id")
+                    val postId = ShortUUID.fromShortString(postIdString)
+
+                    val rawDate = resultSet.getString("date")
+                    val parsedDate = try {
+                        Date.from(ZonedDateTime.parse(rawDate, DateTimeFormatter.ISO_DATE_TIME).toInstant())
+                    } catch (_: Exception) {
+                        val formatter = SimpleDateFormat("yyyy:MM:dd_HH:mm:ss")
+                        formatter.parse(rawDate)
+                    }
+
+                    val post = Post(
+                        id = postId,
+                        author = UUID.fromString(resultSet.getString("author")),
+                        title = GsonComponentSerializer.gson().deserialize(resultSet.getString("title")),
+                        content = GsonComponentSerializer.gson().deserialize(resultSet.getString("content")),
+                        isAnonymous = resultSet.getBoolean("isAnonymous"),
+                        date = parsedDate
+                    )
+                    posts.add(post)
+                }
+            }
+        } catch (e: SQLException) {
+            plugin.log.error("Could not retrieve posts from database!")
+            e.printStackTrace()
+        }
+
+        return posts
+    }
+
+    fun getPostsByAuthor(authorId: UUID): List<Post> {
+        val posts = mutableListOf<Post>()
+        val selectSQL = "SELECT * FROM posts WHERE author = ?"
+
+        try {
+            connection?.prepareStatement(selectSQL)?.use { statement ->
+                statement.setString(1, authorId.toString())
+                val resultSet = statement.executeQuery()
+                while (resultSet.next()) {
+                    val postIdString = resultSet.getString("id")
+                    val postId = ShortUUID.fromShortString(postIdString)
+
+                    val rawDate = resultSet.getString("date")
+                    val parsedDate = try {
+                        ZonedDateTime.parse(rawDate, DateTimeFormatter.ISO_DATE_TIME).toInstant()
+                    } catch (_: Exception) {
+                        val formatter = SimpleDateFormat("yyyy:MM:dd_HH:mm:ss")
+                        formatter.parse(rawDate).toInstant()
+                    }
+
+                    val post = Post(
+                        id = postId,
+                        author = UUID.fromString(resultSet.getString("author")),
+                        title = GsonComponentSerializer.gson().deserialize(resultSet.getString("title")),
+                        content = GsonComponentSerializer.gson().deserialize(resultSet.getString("content")),
+                        isAnonymous = resultSet.getBoolean("isAnonymous"),
+                        date = Date.from(parsedDate)
+                    )
+                    posts.add(post)
+                }
+            }
+        } catch (e: SQLException) {
+            plugin.log.error("Could not retrieve posts from database!")
+            e.printStackTrace()
+        }
+
+        return posts
+    }
+
+    fun getPost(id: String): Post? {
+        val selectSQL = "SELECT * FROM posts WHERE id = ?"
+
+        return try {
+            connection?.prepareStatement(selectSQL)?.use { statement ->
+                statement.setString(1, id)
+                val resultSet = statement.executeQuery()
+                if (resultSet.next()) {
+                    val postIdString = resultSet.getString("id")
+                    val postId = ShortUUID.fromShortString(postIdString)
+
+                    val rawDate = resultSet.getString("date")
+                    val parsedDate = try {
+                        Date.from(ZonedDateTime.parse(rawDate, DateTimeFormatter.ISO_DATE_TIME).toInstant())
+                    } catch (_: Exception) {
+                        val formatter = SimpleDateFormat("yyyy:MM:dd_HH:mm:ss")
+                        formatter.parse(rawDate)
+                    }
+
+                    Post(
+                        id = postId,
+                        author = UUID.fromString(resultSet.getString("author")),
+                        title = GsonComponentSerializer.gson().deserialize(resultSet.getString("title")),
+                        content = GsonComponentSerializer.gson().deserialize(resultSet.getString("content")),
+                        isAnonymous = resultSet.getBoolean("isAnonymous"),
+                        date = parsedDate
+                    )
+                } else {
+                    null
+                }
+            }
+        } catch (e: SQLException) {
+            plugin.log.error("Could not retrieve post from database!")
+            e.printStackTrace()
+            null
+        }
+    }
+
+    fun getDeletedPost(id: String): Post? {
+        val selectSQL = "SELECT * FROM deletedPosts WHERE id = ?"
+
+        return try {
+            connection?.prepareStatement(selectSQL)?.use { statement ->
+                statement.setString(1, id)
+                val resultSet = statement.executeQuery()
+                if (resultSet.next()) {
+                    val postIdString = resultSet.getString("id")
+                    val postId = ShortUUID.fromShortString(postIdString)
+
+                    val rawDate = resultSet.getString("date")
+                    val parsedDate = try {
+                        Date.from(ZonedDateTime.parse(rawDate, DateTimeFormatter.ISO_DATE_TIME).toInstant())
+                    } catch (_: Exception) {
+                        val formatter = SimpleDateFormat("yyyy:MM:dd_HH:mm:ss")
+                        formatter.parse(rawDate)
+                    }
+
+                    Post(
+                        id = postId,
+                        author = UUID.fromString(resultSet.getString("author")),
+                        title = GsonComponentSerializer.gson().deserialize(resultSet.getString("title")),
+                        content = GsonComponentSerializer.gson().deserialize(resultSet.getString("content")),
+                        isAnonymous = resultSet.getBoolean("isAnonymous"),
+                        date = parsedDate
+                    )
+                } else {
+                    null
+                }
+            }
+        } catch (e: SQLException) {
+            plugin.log.error("Could not retrieve deleted post from database!")
+            e.printStackTrace()
+            null
+        }
+    }
+
+    fun getDeletedPostByAuthor(authorId: UUID): List<Post> {
+        val posts = mutableListOf<Post>()
+        val selectSQL = "SELECT * FROM deletedPosts WHERE author = ?"
+
+        try {
+            connection?.prepareStatement(selectSQL)?.use { statement ->
+                statement.setString(1, authorId.toString())
+                val resultSet = statement.executeQuery()
+                while (resultSet.next()) {
+                    val postIdString = resultSet.getString("id")
+                    val postId = ShortUUID.fromShortString(postIdString)
+
+                    val rawDate = resultSet.getString("date")
+                    val parsedDate = try {
+                        ZonedDateTime.parse(rawDate, DateTimeFormatter.ISO_DATE_TIME).toInstant()
+                    } catch (_: Exception) {
+                        val formatter = SimpleDateFormat("yyyy:MM:dd_HH:mm:ss")
+                        formatter.parse(rawDate).toInstant()
+                    }
+
+                    val post = Post(
+                        id = postId,
+                        author = UUID.fromString(resultSet.getString("author")),
+                        title = GsonComponentSerializer.gson().deserialize(resultSet.getString("title")),
+                        content = GsonComponentSerializer.gson().deserialize(resultSet.getString("content")),
+                        isAnonymous = resultSet.getBoolean("isAnonymous"),
+                        date = Date.from(parsedDate)
+                    )
+                    posts.add(post)
+                }
+            }
+        } catch (e: SQLException) {
+            plugin.log.error("Could not retrieve deleted posts from database!")
+            e.printStackTrace()
+        }
+
+        return posts
+    }
 }
