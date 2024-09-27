@@ -10,7 +10,6 @@ import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabCompleter
 import org.bukkit.entity.Player
-import kotlin.text.append
 import kotlin.text.lowercase
 
 object CommandManager : CommandExecutor, TabCompleter {
@@ -68,21 +67,21 @@ object CommandManager : CommandExecutor, TabCompleter {
     }
 
     fun displayHelp(player: Player) {
-        val headerComponent = LanguageManager.getMessage(player, Main.Command.Help.USAGE_HEADER)
+        val headerComponent = LanguageManager.getMessage(player, Main.Command.Help.HELP_HEADER)
             .color(NamedTextColor.GOLD)
             .decorate(TextDecoration.BOLD)
 
-        val hStartComponent = Component.text("=======").color(NamedTextColor.GOLD)
+            val hStartComponent = Component.text("=======").color(NamedTextColor.GOLD)
         val hEndComponent = Component.text("=======").color(NamedTextColor.GOLD)
 
         val commandsDescription = listOf(
-            "openboard" to Main.Command.Help.USAGE_OPENBOARD,
-            "newpost" to Main.Command.Help.USAGE_NEWPOST,
-            "myposts" to Main.Command.Help.USAGE_MYPOSTS,
-            "posts" to Main.Command.Help.USAGE_POSTS,
-            "settings" to Main.Command.Help.USAGE_SETTINGS,
-            "deletedposts" to Main.Command.Help.USAGE_DELETED_POSTS,
-            "previewclose" to Main.Command.Help.USAGE_PREVIEWCLOSE
+            "openboard" to Main.Command.Help.HELP_OPENBOARD,
+            "newpost" to Main.Command.Help.HELP_NEWPOST,
+            "myposts" to Main.Command.Help.HELP_MYPOSTS,
+            "posts" to Main.Command.Help.HELP_POSTS,
+            "settings" to Main.Command.Help.HELP_SETTINGS,
+            "deletedposts" to Main.Command.Help.HELP_DELETED_POSTS,
+            "previewclose" to Main.Command.Help.HELP_PREVIEWCLOSE
         )
 
         player.sendMessage(hStartComponent.append(headerComponent).append(hEndComponent))

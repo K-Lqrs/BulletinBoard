@@ -6,6 +6,8 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/integrations/paper/BulletinBoard.integrations.paper.main.iml" filepath="$PROJECT_DIR$/.idea/modules/integrations/paper/BulletinBoard.integrations.paper.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/integrations/paper/BulletinBoard.integrations.paper.test.iml" filepath="$PROJECT_DIR$/.idea/modules/integrations/paper/BulletinBoard.integrations.paper.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/integrations/velocity/BulletinBoard.integrations.velocity.main.iml" filepath="$PROJECT_DIR$/.idea/modules/integrations/velocity/BulletinBoard.integrations.velocity.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/integrations/paper/paper.BulletinBoard.integrations.paper.main.iml" filepath="$PROJECT_DIR$/.idea/modules/integrations/paper/paper.BulletinBoard.integrations.paper.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/integrations/paper/paper.BulletinBoard.integrations.paper.test.iml" filepath="$PROJECT_DIR$/.idea/modules/integrations/paper/paper.BulletinBoard.integrations.paper.test.iml" />
     </modules>
   </component>
 </project>

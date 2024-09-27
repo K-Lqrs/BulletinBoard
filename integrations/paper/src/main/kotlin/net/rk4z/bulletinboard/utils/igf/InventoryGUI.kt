@@ -74,16 +74,38 @@ abstract class InventoryGUI(
         return this
     }
 
+    /**
+     * Add multiple items at once.
+     * @param items List of items to add
+     * @author Lars
+     * @since 1.0.0
+     * @see Button
+     * @see addItem
+     * @see getItems
+     */
     fun setItems(items: List<Button>): InventoryGUI {
         this.items = items
         return this
     }
 
+    /**
+     * Add a single item.
+     * @param button Item to add
+     * @author Lars
+     * @since 1.0.0
+     * @see setItems
+     * @see getItems
+     * @see Button
+     */
     fun addItem(button: Button): InventoryGUI {
         this.items += button
         return this
     }
 
+    /**
+     * Set the listener for this GUI.
+     * @param listener Listener to set
+     */
     fun setListener(listener: GUIListener): InventoryGUI {
         this.listener = listener
         return this

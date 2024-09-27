@@ -1,6 +1,5 @@
 package net.rk4z.bulletinboard
 
-import net.rk4z.bulletinboard.listener.BBListener
 import net.rk4z.bulletinboard.manager.CommandManager
 import net.rk4z.bulletinboard.manager.LanguageManager
 import net.rk4z.bulletinboard.utils.EL
@@ -45,6 +44,7 @@ class BulletinBoard : JavaPlugin() {
 
         const val ID = "bulletinboard"
         const val MODRINTH_API_URL = "https://api.modrinth.com/v2/project/AfO6aot1/version"
+        const val MODRINTH_DOWNLOAD_URL = "https://modrinth.com/plugin/AfO6aot1/version"
     }
 
     val runTask : TaskRunner = { plugin, task -> Bukkit.getScheduler().runTask(plugin, task) }
@@ -151,11 +151,11 @@ class BulletinBoard : JavaPlugin() {
     override fun onEnable() {
         log.info(LanguageManager.getSysMessage(System.Log.ENABLING, name, version))
 
-        EL.setGlobalListener(BBListener())
-
         if (isProxied.isNullOrFalse()) {
             registerCommand(this)
         }
+
+        server.pluginManager.registerEvents(EL, this)
 
         availableLang.forEach {
             LanguageManager.findMissingKeys(it)
@@ -210,7 +210,7 @@ class BulletinBoard : JavaPlugin() {
                         log.info(LanguageManager.getSysMessage(System.Log.NEW_VERSION_COUNT, newerVersionCount))
                         log.info(LanguageManager.getSysMessage(System.Log.LATEST_VERSION_FOUND, latestVersion, version))
 
-                        val downloadUrl = "https://modrinth.com/plugin/AfO6aot1/version/$latestVersion"
+                        val downloadUrl = "$MODRINTH_DOWNLOAD_URL/$latestVersion"
                         log.info(LanguageManager.getSysMessage(System.Log.VIEW_LATEST_VER, downloadUrl))
                     } else {
                         log.info(LanguageManager.getSysMessage(System.Log.YOU_ARE_USING_LATEST))

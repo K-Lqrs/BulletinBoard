@@ -101,14 +101,14 @@ open class Main : MessageKey {
         }
 
         open class Help : Command() {
-            object USAGE_HEADER : Help()
-            object USAGE_OPENBOARD : Help()
-            object USAGE_NEWPOST : Help()
-            object USAGE_MYPOSTS : Help()
-            object USAGE_POSTS : Help()
-            object USAGE_SETTINGS : Help()
-            object USAGE_DELETED_POSTS : Help()
-            object USAGE_PREVIEWCLOSE : Help()
+            object HELP_HEADER : Help()
+            object HELP_OPENBOARD : Help()
+            object HELP_NEWPOST : Help()
+            object HELP_MYPOSTS : Help()
+            object HELP_POSTS : Help()
+            object HELP_SETTINGS : Help()
+            object HELP_DELETED_POSTS : Help()
+            object HELP_PREVIEWCLOSE : Help()
         }
     }
 }
