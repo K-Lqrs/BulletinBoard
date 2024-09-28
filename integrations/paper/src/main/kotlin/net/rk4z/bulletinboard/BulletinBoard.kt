@@ -1,5 +1,6 @@
 package net.rk4z.bulletinboard
 
+import net.rk4z.bulletinboard.libs.Metrics
 import net.rk4z.bulletinboard.manager.CommandManager
 import net.rk4z.bulletinboard.manager.LanguageManager
 import net.rk4z.bulletinboard.utils.EL
@@ -41,23 +42,28 @@ class BulletinBoard : JavaPlugin() {
             private set
         lateinit var dataBase: DataBase
             private set
+        lateinit var metrics: Metrics
+            private set
 
         const val ID = "bulletinboard"
         const val MODRINTH_API_URL = "https://api.modrinth.com/v2/project/AfO6aot1/version"
         const val MODRINTH_DOWNLOAD_URL = "https://modrinth.com/plugin/AfO6aot1/version"
+
+        val runTask: TaskRunner = { plugin, task -> Bukkit.getScheduler().runTask(plugin, task) }
+        val runTaskAsync: TaskRunner = { plugin, task -> Bukkit.getScheduler().runTaskAsynchronously(plugin, task) }
+        val runTaskLater: TaskRunnerWithDelay = { plugin, task, delay -> Bukkit.getScheduler().runTaskLater(plugin, task, delay) }
+        val runTaskTimer: TaskRunnerWithPeriod = { plugin, task, delay, period -> Bukkit.getScheduler().runTaskTimer(plugin, task, delay, period) }
     }
 
-    val runTask : TaskRunner = { plugin, task -> Bukkit.getScheduler().runTask(plugin, task) }
-    val runTaskAsync : TaskRunner = { plugin, task -> Bukkit.getScheduler().runTaskAsynchronously(plugin, task) }
-    val runTaskLater : TaskRunnerWithDelay = { plugin, task, delay -> Bukkit.getScheduler().runTaskLater(plugin, task, delay) }
-    val runTaskTimer : TaskRunnerWithPeriod = { plugin, task, delay, period -> Bukkit.getScheduler().runTaskTimer(plugin, task, delay, period) }
     val executor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
 
-    var isProxied: Boolean? = false
+    private var enableMetrics: Boolean? = true
+    private var isProxied: Boolean? = false
+
     // If you want to debug the plugin, set this to true
     val isDebug: Boolean = false
 
-    var systemLang: String = Locale.getDefault().language
+    private var systemLang: String = Locale.getDefault().language
 
     val version = description.version
     val log: Logger = LoggerFactory.getLogger(BulletinBoard::class.java.simpleName)
@@ -155,6 +161,10 @@ class BulletinBoard : JavaPlugin() {
             registerCommand(this)
         }
 
+        if (enableMetrics.isNullOrFalse()) {
+            metrics = Metrics(this, 23481)
+        }
+
         server.pluginManager.registerEvents(EL, this)
 
         availableLang.forEach {
@@ -220,7 +230,12 @@ class BulletinBoard : JavaPlugin() {
                 }
             } catch (e: Exception) {
                 val unknownError = LanguageManager.getSysMessage(System.Log.Other.UNKNOWN_ERROR)
-                log.warn(LanguageManager.getSysMessage(System.Log.ERROR_WHILE_CHECKING_UPDATE, e.message ?: unknownError))
+                log.warn(
+                    LanguageManager.getSysMessage(
+                        System.Log.ERROR_WHILE_CHECKING_UPDATE,
+                        e.message ?: unknownError
+                    )
+                )
             }
         }
     }
@@ -270,6 +285,7 @@ class BulletinBoard : JavaPlugin() {
         Files.newInputStream(configFile).use { inputStream ->
             val config: Map<String, Any> = yaml.load(inputStream)
 
+            enableMetrics = config.getNullableBoolean("enableMetrics") ?: true
             isProxied = config.getNullableBoolean("isProxied") ?: false
         }
     }

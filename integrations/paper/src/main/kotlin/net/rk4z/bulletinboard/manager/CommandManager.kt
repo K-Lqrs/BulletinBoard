@@ -39,9 +39,9 @@ object CommandManager : CommandExecutor, TabCompleter {
             }
         } else {
             if (sender is Player) {
-                sender.sendMessage(LanguageManager.getMessage(sender, Main.Command.Message.UNKNOWN_COMMAND))
+                sender.sendMessage(LanguageManager.getMessage(sender, Main.Command.Message.UNKNOWN_COMMAND, Commands.HELP.name))
             } else {
-                sender.sendMessage(LanguageManager.getSysMessage(Main.Command.Message.UNKNOWN_COMMAND))
+                sender.sendMessage(LanguageManager.getSysMessage(Main.Command.Message.UNKNOWN_COMMAND, Commands.HELP.name))
             }
             return true
         }

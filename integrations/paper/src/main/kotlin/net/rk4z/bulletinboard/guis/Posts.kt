@@ -39,6 +39,8 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
 
     val buttons: MutableList<Button> = mutableListOf()
 
+    buttons.add(Button(22, Material.BARRIER, LanguageManager.getMessage(player, Main.Gui.Button.BACK_BUTTON), CustomID.BACK_BUTTON.name))
+
     if (posts.isEmpty()) {
         val noPostsItem = Button(13, Material.PAPER, LanguageManager.getMessage(player, Main.Gui.Other.NO_POSTS), CustomID.NO_POSTS.name)
         buttons.add(noPostsItem)

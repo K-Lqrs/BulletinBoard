@@ -145,17 +145,21 @@ private fun PlayerState.clear() {
 data class PlayerState(
     var draft: PostDraft? = null,
     var editDraft: EditPostData? = null,
+
     var selectedDeletingPostId: String? = null,
     var selectedEditingPostId: String? = null,
     var selectedRestoringPostId: String? = null,
+
     var isInputting: Boolean? = null,
     var isEditInputting: Boolean? = null,
     var isPreviewing: Boolean? = null,
     var isOpeningConfirmation: Boolean? = null,
     var isChoosingConfirmationAnswer: Boolean? = null,
+
     var inputType: InputType? = null,
     var editInputType: InputType? = null,
     var confirmationType: ConfirmationType? = null,
+
     var preview: Pair<Component, Component>? = null,
 ) {
     fun clearDraft() {

@@ -31,3 +31,46 @@ main:
       about_plugin: "About Plugin"
       settings: "Settings"
       help: "Help"
+
+      edit_post: "Edit Post"
+      delete_post: "Delete Post"
+      restore_post: "Restore Post"
+      delete_post_permanently: "Delete Post Permanently"
+      delete_post_others: "Delete Post (Other Players)"
+      save_post: "Save Post"
+      cancel_post: "Cancel Post"
+      prev_page: "Previous Page"
+      next_page: "Next Page"
+
+      back_button: "Back"
+
+    other:
+      anonymous: "Anonymous"
+      no_posts: "There seems to be nothing here..."
+      no_title: "No Title..."
+      no_content: "No Content..."
+
+  message:
+    author_label: "Author: %s"
+    title_label: "Title: %s"
+    content_label: "Content: %s"
+    date_label: "Date: %s"
+    enter_title: "Enter the title of the post."
+    enter_content: "Enter the content of the post."
+    enter_title_edit: "Enter the new title of the post."
+    enter_content_edit: "Enter the new content of the post."
+
+  command:
+    message:
+      player_only: "Only players can use this command."
+      unknown_command: "Unknown command. Type /%s for help."
+
+    help:
+      help_header: "BulletinBoard Help"
+      help_openboard: "Open the main board."
+      help_newpost: "Create a new post."
+      help_myposts: "View your posts."
+      help_posts: "View all posts."
+      help_settings: "Open the settings."
+      help_deleted_posts: "View deleted posts."
+      help_previewclose: "Close the preview."

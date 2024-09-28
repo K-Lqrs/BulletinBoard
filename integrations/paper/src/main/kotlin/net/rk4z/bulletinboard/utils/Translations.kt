@@ -79,19 +79,25 @@ open class Main : MessageKey {
             object BACK_BUTTON : Button()
         }
 
-        open class Message : Gui() {
-            object AUTHOR_LABEL : Message()
-            object TITLE_LABEL : Message()
-            object CONTENT_LABEL : Message()
-            object DATE_LABEL : Message()
-        }
-
         open class Other : Gui() {
             object ANONYMOUS : Other()
             object NO_POSTS : Other()
             object NO_TITLE : Other()
             object NO_CONTENT : Other()
         }
+    }
+
+    open class Message : Main() {
+        object AUTHOR_LABEL : Message()
+        object TITLE_LABEL : Message()
+        object CONTENT_LABEL : Message()
+        object DATE_LABEL : Message()
+
+        object ENTER_TITLE : Message()
+        object ENTER_CONTENT : Message()
+
+        object ENTER_TITLE_EDIT : Message()
+        object ENTER_CONTENT_EDIT : Message()
     }
 
     open class Command : Main() {

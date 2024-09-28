@@ -24,7 +24,7 @@ abstract class InventoryGUI(
 
     protected fun displayItems() {
         items.forEach { button ->
-            inventory.setItem(button.slot, button.material.toItemStack())
+            inventory.setItem(button.slot, button.toItemStack())
         }
     }
 

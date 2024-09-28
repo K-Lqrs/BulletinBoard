@@ -22,6 +22,14 @@ main:
     title:
       main_board: "メインボード"
       post_editor: "投稿エディタ"
+      post_editor_for_edit: "編集用投稿エディタ"
+      my_posts: "自分の投稿"
+      all_posts: "全ての投稿"
+      deleted_posts: "削除された投稿"
+      delete_post_selection: "投稿の削除選択"
+      delete_post_permanently_selection: "投稿を完全に削除する選択"
+      edit_post_selection: "投稿の編集選択"
+      restore_post_selection: "投稿の復元選択"
 
     button:
       new_post: "新規投稿"
@@ -31,3 +39,46 @@ main:
       about_plugin: "プラグインについて"
       settings: "設定"
       help: "ヘルプ"
+
+      edit_post: "投稿を編集"
+      delete_post: "投稿を削除"
+      restore_post: "投稿を復元"
+      delete_post_permanently: "投稿を完全に削除"
+      delete_post_others: "他のユーザーの投稿を削除"
+      save_post: "投稿を保存"
+      cancel_post: "投稿をキャンセル"
+      prev_page: "前のページ"
+      next_page: "次のページ"
+
+      back_button: "戻る"
+
+    other:
+      anonymous: "匿名"
+      no_posts: "ここには何もないようです..."
+      no_title: "タイトルがありません..."
+      no_content: "内容がありません..."
+
+  message:
+    author_label: "作成者: %s"
+    title_label: "タイトル: %s"
+    content_label: "内容: %s"
+    date_label: "日付: %s"
+    enter_title: "投稿のタイトルを入力してください。"
+    enter_content: "投稿の内容を入力してください。"
+    enter_title_edit: "新しい投稿のタイトルを入力してください。"
+    enter_content_edit: "新しい投稿の内容を入力してください。"
+
+  command:
+    message:
+      player_only: "このコマンドはプレイヤーのみ使用できます。"
+      unknown_command: "不明なコマンドです。ヘルプを表示するには /%s を入力してください。"
+
+    help:
+      help_header: "BulletinBoard ヘルプ"
+      help_openboard: "メインボードを開く。"
+      help_newpost: "新しい投稿を作成する。"
+      help_myposts: "自分の投稿を表示する。"
+      help_posts: "全ての投稿を表示する。"
+      help_settings: "設定を開く。"
+      help_deleted_posts: "削除された投稿を表示する。"
+      help_previewclose: "プレビューを閉じる。"

@@ -3,6 +3,7 @@ package net.rk4z.bulletinboard.utils
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.rk4z.bulletinboard.BulletinBoard
+import net.rk4z.bulletinboard.BulletinBoard.Companion.runTask
 import net.rk4z.bulletinboard.manager.LanguageManager
 import org.bukkit.Material
 import org.bukkit.Sound
@@ -30,7 +31,11 @@ data class Button(
     val material: Material,
     val name: Component,
     val customId: String
-)
+) {
+    fun toItemStack(): ItemStack {
+        return material.toItemStack(name, customId)
+    }
+}
 
 fun Material.toItemStack(
     name: Component? = null,
@@ -90,23 +95,23 @@ fun displayPost(player: Player, post: Post) {
 
     val authorComponent = {
         if (!post.isAnonymous!!) {
-            LanguageManager.getMessage(player, Main.Gui.Message.AUTHOR_LABEL, post.author)
+            LanguageManager.getMessage(player, Main.Message.AUTHOR_LABEL, post.author)
         } else {
             LanguageManager.getMessage(player, Main.Gui.Other.ANONYMOUS)
         }
     }
 
-    val titleComponent = LanguageManager.getMessage(player, Main.Gui.Message.TITLE_LABEL, post.title)
+    val titleComponent = LanguageManager.getMessage(player, Main.Message.TITLE_LABEL, post.title)
 
-    val contentComponent = LanguageManager.getMessage(player, Main.Gui.Message.CONTENT_LABEL, post.content)
+    val contentComponent = LanguageManager.getMessage(player, Main.Message.CONTENT_LABEL, post.content)
 
     val dateComponent = LanguageManager.getMessage(
         player,
-        Main.Gui.Message.DATE_LABEL,
+        Main.Message.DATE_LABEL,
         zonedDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z")).toString()
     )
 
-    BulletinBoard.instance.runTask(BulletinBoard.instance) {
+    runTask(BulletinBoard.instance) {
         player.closeInventory()
 
         val message = Component.text("---------------------------------", NamedTextColor.DARK_GRAY)

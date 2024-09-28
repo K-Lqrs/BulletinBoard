@@ -20,9 +20,9 @@ object EL : Listener {
         val holder = event.clickedInventory?.holder
         if (holder !is InventoryGUI) return
 
-        holder.getListener()?.onInventoryClick(event) ?: globalListener?.onInventoryClick(event)
+        holder.getListener()?.onInventoryClick(event, holder) ?: globalListener?.onInventoryClick(event, holder)
         if (holder.shouldCallGlobalListener()) {
-            globalListener?.onInventoryClick(event)
+            globalListener?.onInventoryClick(event, holder)
         }
     }
 
@@ -31,9 +31,9 @@ object EL : Listener {
         val holder = event.inventory.holder
         if (holder !is InventoryGUI) return
 
-        holder.getListener()?.onInventoryClose(event) ?: globalListener?.onInventoryClose(event)
+        holder.getListener()?.onInventoryClose(event, holder) ?: globalListener?.onInventoryClose(event, holder)
         if (holder.shouldCallGlobalListener()) {
-            globalListener?.onInventoryClose(event)
+            globalListener?.onInventoryClose(event, holder)
         }
     }
 }
