@@ -5,6 +5,7 @@ import net.rk4z.bulletinboard.BulletinBoard
 import net.rk4z.bulletinboard.manager.LanguageManager
 import net.rk4z.bulletinboard.utils.*
 import net.rk4z.bulletinboard.utils.igf.GUIListener
+import net.rk4z.bulletinboard.utils.igf.InventoryGUI
 import net.rk4z.bulletinboard.utils.igf.SimpleGUI
 import org.bukkit.Material
 import org.bukkit.Sound
@@ -100,7 +101,7 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
     }
 
     val listener = object : GUIListener {
-        override fun onInventoryClick(event: InventoryClickEvent) {
+        override fun onInventoryClick(event: InventoryClickEvent, gui: InventoryGUI) {
             event.isCancelled = true
 
             val inventoryTitle = event.view.title()
@@ -122,7 +123,7 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
             }
         }
 
-        override fun onInventoryClose(event: InventoryCloseEvent) {}
+        override fun onInventoryClose(event: InventoryCloseEvent, gui: InventoryGUI) {}
     }
 
     val inventory = SimpleGUI(player)
