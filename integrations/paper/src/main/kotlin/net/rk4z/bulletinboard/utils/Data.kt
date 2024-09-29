@@ -40,7 +40,8 @@ enum class CustomID {
     PREV_PAGE,
     NEXT_PAGE,
 
-    BACK_BUTTON
+    BACK_BUTTON,
+    BACK_GROUND,
     ;
 
     companion object {

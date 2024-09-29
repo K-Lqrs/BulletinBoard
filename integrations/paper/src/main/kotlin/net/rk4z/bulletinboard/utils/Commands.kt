@@ -9,7 +9,8 @@ typealias CommandExecute = (Player) -> Unit
 enum class Commands(val execute: CommandExecute) {
     //TODO: Add more commands
     OPENBOARD({ player -> openMainBoard(player) }),
-    HELP({ player -> displayHelp(player) })
+    HELP({ player -> displayHelp(player) }),
+    ABOUT({ player -> player.sendMessage("This is a plugin that allows you to create posts and view them in a GUI.") })
     ;
 
     companion object {

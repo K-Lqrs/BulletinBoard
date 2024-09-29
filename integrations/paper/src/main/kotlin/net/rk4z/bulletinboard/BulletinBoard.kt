@@ -1,6 +1,7 @@
 package net.rk4z.bulletinboard
 
 import net.rk4z.bulletinboard.libs.Metrics
+import net.rk4z.bulletinboard.listener.BBListener
 import net.rk4z.bulletinboard.manager.CommandManager
 import net.rk4z.bulletinboard.manager.LanguageManager
 import net.rk4z.bulletinboard.utils.EL
@@ -24,6 +25,7 @@ import java.net.HttpURLConnection
 import java.net.URI
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
+import java.nio.file.Path
 import java.util.Locale
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -66,8 +68,10 @@ class BulletinBoard : JavaPlugin() {
     private var systemLang: String = Locale.getDefault().language
 
     val version = description.version
+    val authors: MutableList<String> = description.authors
+    val pluginDes = description.description
     val log: Logger = LoggerFactory.getLogger(BulletinBoard::class.java.simpleName)
-    val configFile = dataFolder.resolve("config.yml").toPath()
+    val configFile: Path = dataFolder.resolve("config.yml").toPath()
     val langDir = dataFolder.resolve("lang")
     val yaml = Yaml()
     val availableLang = listOf(
@@ -166,6 +170,7 @@ class BulletinBoard : JavaPlugin() {
         }
 
         server.pluginManager.registerEvents(EL, this)
+        EL.setGlobalListener(BBListener())
 
         availableLang.forEach {
             LanguageManager.findMissingKeys(it)

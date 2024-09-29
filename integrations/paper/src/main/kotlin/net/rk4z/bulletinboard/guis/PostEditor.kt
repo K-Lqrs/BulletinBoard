@@ -156,7 +156,7 @@ private fun createPostEditorInventory(
     val postEditor = SimpleGUI(player)
         .setTitle(editorTitle)
         .setSize(27)
-        .setBackground(Material.BLACK_STAINED_GLASS_PANE)
+        .setBackground(Material.GRAY_STAINED_GLASS_PANE)
         .setItems(buttons)
         .build()
 

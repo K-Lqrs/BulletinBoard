@@ -7,6 +7,7 @@ import net.rk4z.bulletinboard.utils.Button
 import net.rk4z.bulletinboard.utils.CustomID
 import net.rk4z.bulletinboard.utils.Main
 import net.rk4z.bulletinboard.utils.igf.GUIListener
+import net.rk4z.bulletinboard.utils.igf.InventoryGUI
 import net.rk4z.bulletinboard.utils.igf.SimpleGUI
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -34,8 +35,13 @@ fun openMainBoard(player: Player) {
     )
 
     val listener = object : GUIListener {
-        override fun onInventoryClick(event: InventoryClickEvent) {
+        override fun onInventoryClick(event: InventoryClickEvent, gui: InventoryGUI) {
+            event.isCancelled = true
+
             val item = event.currentItem ?: return
+
+            if (item.type == Material.GRAY_STAINED_GLASS_PANE) return
+
             val meta = item.itemMeta ?: return
             val customId = CustomID.fromString(meta.persistentDataContainer.get(BulletinBoard.key, PersistentDataType.STRING) ?: return)
 
@@ -44,25 +50,30 @@ fun openMainBoard(player: Player) {
                 CustomID.ALL_POSTS -> openAllPosts(player)
                 CustomID.MY_POSTS -> openMyPosts(player)
                 CustomID.DELETED_POSTS -> openDeletedPosts(player)
-                CustomID.ABOUT_PLUGIN -> TODO()
+                CustomID.ABOUT_PLUGIN -> {
+                    gui.close()
+
+                }
                 CustomID.SETTINGS -> TODO()
-                CustomID.HELP -> displayHelp(player)
+                CustomID.HELP -> {
+                    gui.close()
+                    displayHelp(player)
+                }
 
                 else -> { return }
             }
         }
 
-        override fun onInventoryClose(event: InventoryCloseEvent) {
+        override fun onInventoryClose(event: InventoryCloseEvent, gui: InventoryGUI) {
 
         }
-
     }
 
     val gui = SimpleGUI(player)
         .setTitle(LanguageManager.getMessage(player, Main.Gui.Title.MAIN_BOARD))
         .setShouldCallGlobalListener(false)
         .setSize(45)
-        .setBackground(Material.BLACK_STAINED_GLASS_PANE)
+        .setBackground(Material.GRAY_STAINED_GLASS_PANE)
         .setItems(buttons)
         .setListener(listener)
         .build()

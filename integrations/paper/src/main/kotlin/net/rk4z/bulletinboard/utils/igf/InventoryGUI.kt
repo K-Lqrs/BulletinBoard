@@ -16,7 +16,7 @@ abstract class InventoryGUI(
     private var listener: GUIListener? = null
     private var title: Component? = null
     private var size: Int? = null
-    private var backgroundMaterial: Material? = null
+    private var background: Material? = null
     private var items: List<Button> = emptyList()
     private var shouldCallGlobalListener = false
 
@@ -29,8 +29,8 @@ abstract class InventoryGUI(
     }
 
     protected fun applyBackground() {
-        backgroundMaterial?.let { material ->
-            val itemStack = material.toItemStack()
+        background?.let {
+            val itemStack = it.toItemStack()
             val meta = itemStack.itemMeta
             meta?.displayName(Component.text(""))
             itemStack.itemMeta = meta
@@ -66,11 +66,11 @@ abstract class InventoryGUI(
     }
 
     fun getBackgroundMaterial(): Material {
-        return backgroundMaterial ?: throw IllegalStateException("Background material not set")
+        return background ?: throw IllegalStateException("Background material not set")
     }
 
-    fun setBackground(material: Material): InventoryGUI {
-        this.backgroundMaterial = material
+    fun setBackground(background: Material): InventoryGUI {
+        this.background = background
         return this
     }
 

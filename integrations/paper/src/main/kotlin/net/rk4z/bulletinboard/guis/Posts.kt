@@ -107,19 +107,29 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
             val inventoryTitle = event.view.title()
             val clickedItem = event.currentItem ?: return
             val meta = clickedItem.itemMeta ?: return
-            val customId = meta.persistentDataContainer.get(BulletinBoard.key, PersistentDataType.STRING)
-            val (actionId, pageId) = customId?.split(":") ?: listOf(null, null)
-            val currentP = pageId?.toIntOrNull() ?: 0
+            val customId = meta.persistentDataContainer.get(BulletinBoard.key, PersistentDataType.STRING) ?: return
 
-            when (actionId) {
-                CustomID.PREV_PAGE.name -> {
+            val splitResult = customId.split(":")
+            if (splitResult.size < 2 || splitResult[0].isEmpty() || splitResult[1].isEmpty()) return
+
+            val actionId = splitResult[0]
+            val pageId = splitResult[1]
+            val currentP = pageId.toIntOrNull() ?: 0
+
+            when (CustomID.fromString(actionId)) {
+                CustomID.PREV_PAGE -> {
                     player.playSoundMaster(Sound.ITEM_BOOK_PAGE_TURN, 0.5f)
                     openPage(player, inventoryTitle, currentP - 1)
                 }
-                CustomID.NEXT_PAGE.name -> {
+                CustomID.NEXT_PAGE -> {
                     player.playSoundMaster(Sound.ITEM_BOOK_PAGE_TURN, 0.5f)
                     openPage(player, inventoryTitle, currentP + 1)
                 }
+                CustomID.BACK_BUTTON -> {
+                    openMainBoard(player)
+                }
+
+                else -> {}
             }
         }
 

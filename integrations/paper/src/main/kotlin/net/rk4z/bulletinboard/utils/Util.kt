@@ -37,6 +37,11 @@ data class Button(
     }
 }
 
+data class Background(
+    val material: Material,
+    val customId: CustomID
+)
+
 fun Material.toItemStack(
     name: Component? = null,
     customId: String? = null

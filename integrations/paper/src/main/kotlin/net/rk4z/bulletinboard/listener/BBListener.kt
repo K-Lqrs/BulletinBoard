@@ -7,7 +7,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent
 
 class BBListener : GUIListener {
     override fun onInventoryClick(event: InventoryClickEvent, gui: InventoryGUI) {
-        // The click handle is done in the GUI itself
+
     }
 
     override fun onInventoryClose(event: InventoryCloseEvent, gui: InventoryGUI) {
