@@ -1,3 +1,5 @@
+langVersion: 1.0
+
 system:
   log:
     loading: "Loading %s v%s..."

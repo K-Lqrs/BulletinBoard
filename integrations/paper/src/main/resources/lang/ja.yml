@@ -1,3 +1,5 @@
+langVersion: 1.0
+
 system:
   log:
     loading: "%s v%s をロード中..."

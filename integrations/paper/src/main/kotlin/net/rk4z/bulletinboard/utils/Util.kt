@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package net.rk4z.bulletinboard.utils
 
 import net.kyori.adventure.text.Component
@@ -5,12 +7,8 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.rk4z.bulletinboard.BulletinBoard
 import net.rk4z.bulletinboard.BulletinBoard.Companion.runTask
 import net.rk4z.bulletinboard.manager.LanguageManager
-import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.entity.Player
-import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.meta.ItemMeta
-import org.bukkit.persistence.PersistentDataType
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -24,42 +22,6 @@ fun Map<String, Any>.getNullableBoolean(key: String): Boolean? =
 
 fun Boolean?.isNullOrFalse(): Boolean {
     return this == null || this == false
-}
-
-data class Button(
-    val slot: Int,
-    val material: Material,
-    val name: Component,
-    val customId: String
-) {
-    fun toItemStack(): ItemStack {
-        return material.toItemStack(name, customId)
-    }
-}
-
-data class Background(
-    val material: Material,
-    val customId: CustomID
-)
-
-fun Material.toItemStack(
-    name: Component? = null,
-    customId: String? = null
-): ItemStack {
-    val itemStack = ItemStack(this)
-    val meta: ItemMeta? = itemStack.itemMeta
-
-    if (name != null) {
-        meta?.displayName(name)
-    }
-    if (customId != null) {
-        meta?.persistentDataContainer?.set(BulletinBoard.key, PersistentDataType.STRING, customId)
-    }
-    if (meta != null) {
-        itemStack.itemMeta = meta
-    }
-
-    return itemStack
 }
 
 fun Player.playSoundMaster(sound: Sound, volume: Float = 1.0f, pitch: Float = 1.0f) {

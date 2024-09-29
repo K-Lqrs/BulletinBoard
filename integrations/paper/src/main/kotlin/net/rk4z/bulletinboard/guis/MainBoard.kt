@@ -3,12 +3,12 @@ package net.rk4z.bulletinboard.guis
 import net.rk4z.bulletinboard.BulletinBoard
 import net.rk4z.bulletinboard.manager.CommandManager.displayHelp
 import net.rk4z.bulletinboard.manager.LanguageManager
-import net.rk4z.bulletinboard.utils.Button
 import net.rk4z.bulletinboard.utils.CustomID
 import net.rk4z.bulletinboard.utils.Main
-import net.rk4z.bulletinboard.utils.igf.GUIListener
-import net.rk4z.bulletinboard.utils.igf.InventoryGUI
-import net.rk4z.bulletinboard.utils.igf.SimpleGUI
+import net.rk4z.igf.Button
+import net.rk4z.igf.GUIListener
+import net.rk4z.igf.InventoryGUI
+import net.rk4z.igf.SimpleGUI
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -39,9 +39,6 @@ fun openMainBoard(player: Player) {
             event.isCancelled = true
 
             val item = event.currentItem ?: return
-
-            if (item.type == Material.GRAY_STAINED_GLASS_PANE) return
-
             val meta = item.itemMeta ?: return
             val customId = CustomID.fromString(meta.persistentDataContainer.get(BulletinBoard.key, PersistentDataType.STRING) ?: return)
 

@@ -1,4 +1,4 @@
-package net.rk4z.bulletinboard.utils.igf
+package net.rk4z.igf
 
 import org.bukkit.entity.Player
 

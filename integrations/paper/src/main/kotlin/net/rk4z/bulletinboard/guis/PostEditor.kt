@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package net.rk4z.bulletinboard.guis
 
 import net.kyori.adventure.text.Component
@@ -5,9 +7,10 @@ import net.rk4z.bulletinboard.BulletinBoard
 import net.rk4z.bulletinboard.BulletinBoard.Companion.runTask
 import net.rk4z.bulletinboard.manager.LanguageManager
 import net.rk4z.bulletinboard.utils.*
-import net.rk4z.bulletinboard.utils.igf.GUIListener
-import net.rk4z.bulletinboard.utils.igf.InventoryGUI
-import net.rk4z.bulletinboard.utils.igf.SimpleGUI
+import net.rk4z.igf.Button
+import net.rk4z.igf.GUIListener
+import net.rk4z.igf.InventoryGUI
+import net.rk4z.igf.SimpleGUI
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent

@@ -1,6 +1,10 @@
 package net.rk4z.bulletinboard.utils
 
+import net.rk4z.bulletinboard.guis.openAllPosts
 import net.rk4z.bulletinboard.guis.openMainBoard
+import net.rk4z.bulletinboard.guis.openMyPosts
+import net.rk4z.bulletinboard.guis.openPostEditor
+import net.rk4z.bulletinboard.manager.CommandManager.displayAbout
 import net.rk4z.bulletinboard.manager.CommandManager.displayHelp
 import org.bukkit.entity.Player
 
@@ -9,8 +13,11 @@ typealias CommandExecute = (Player) -> Unit
 enum class Commands(val execute: CommandExecute) {
     //TODO: Add more commands
     OPENBOARD({ player -> openMainBoard(player) }),
+    NEWPOST({ player -> openPostEditor(player) }),
+    ALLPOSTS({ player -> openAllPosts(player) }),
+    MYPOSTS({ player -> openMyPosts(player) }),
     HELP({ player -> displayHelp(player) }),
-    ABOUT({ player -> player.sendMessage("This is a plugin that allows you to create posts and view them in a GUI.") })
+    ABOUT({ player -> displayAbout(player) })
     ;
 
     companion object {
