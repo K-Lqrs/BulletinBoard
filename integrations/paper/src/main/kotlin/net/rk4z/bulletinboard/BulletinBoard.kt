@@ -2,6 +2,7 @@ package net.rk4z.bulletinboard
 
 import net.rk4z.bulletinboard.libs.Metrics
 import net.rk4z.bulletinboard.listener.BBListener
+import net.rk4z.bulletinboard.listener.ProxyBridger
 import net.rk4z.bulletinboard.manager.CommandManager
 import net.rk4z.bulletinboard.manager.LanguageManager
 import net.rk4z.igf.IGF
@@ -59,15 +60,15 @@ class BulletinBoard : JavaPlugin() {
         val runTaskTimer: TaskRunnerWithPeriod = { plugin, task, delay, period -> Bukkit.getScheduler().runTaskTimer(plugin, task, delay, period) }
     }
 
-    private val executor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
-    private var enableMetrics: Boolean? = true
-    private var isProxied: Boolean? = false
-    val isDebug: Boolean = false
-    private var systemLang: String = Locale.getDefault().language
     val version = description.version
     val authors: MutableList<String> = description.authors
     val pluginDes = description.description
+    val isDebug: Boolean = false
     val log: Logger = LoggerFactory.getLogger(BulletinBoard::class.java.simpleName)
+    private val executor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
+    private var enableMetrics: Boolean? = true
+    private var isProxied: Boolean? = false
+    private var systemLang: String = Locale.getDefault().language
     private val configFile: Path = dataFolder.resolve("config.yml").toPath()
     private val langDir = dataFolder.resolve("lang")
     private val yaml = Yaml()
@@ -102,6 +103,9 @@ class BulletinBoard : JavaPlugin() {
 
         if (isProxied.isNullOrFalse()) {
             registerCommand(this)
+            //TODO: Optimisation.
+            server.messenger.registerIncomingPluginChannel(this, "Velocity", ProxyBridger())
+            server.messenger.registerOutgoingPluginChannel(this, "Velocity")
         }
 
         if (enableMetrics.isNullOrFalse()) {
