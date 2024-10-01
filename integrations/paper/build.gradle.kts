@@ -1,7 +1,5 @@
-import groovy.lang.Closure
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 import net.minecrell.pluginyml.paper.PaperPluginDescription
-import java.util.jar.JarFile
 
 plugins {
     id("net.minecrell.plugin-yml.paper") version "0.6.0"

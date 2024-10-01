@@ -1,6 +1,7 @@
 package net.rk4z.igf
 
-import net.rk4z.igf.IGF.namespacedKey
+import net.rk4z.bulletinboard.BulletinBoard
+import net.rk4z.igf.IGF.key
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.persistence.PersistentDataType
@@ -14,13 +15,12 @@ import org.bukkit.persistence.PersistentDataType
 class PaginatedGUI(
     player: Player
 ) : InventoryGUI(player) {
-    protected var currentPage = 0
-    protected var itemsPerPage = 9
-    protected var totalPages = 1
-        private set
+    private var currentPage = 0
+    private var itemsPerPage = 9
+    private var totalPages = 1
     private var slotPositions: List<Int> = emptyList()
     private var emptyMessageButton: Button? = null
-    private var items: List<Button> = emptyList()
+    private var pageItems: List<Button> = emptyList()
 
     private var prevPageButton: Button? = null
     private var nextPageButton: Button? = null
@@ -33,7 +33,6 @@ class PaginatedGUI(
      */
     override fun build(): PaginatedGUI {
         create()
-        applyBackground()
         displayItemsForPage()
         return this
     }
@@ -54,7 +53,7 @@ class PaginatedGUI(
      * @return This [PaginatedGUI] instance.
      */
     fun setPageItems(items: List<Button>): PaginatedGUI {
-        this.items = items
+        this.pageItems = items
         setTotalPages(items.size)
         return this
     }
@@ -84,16 +83,21 @@ class PaginatedGUI(
     fun displayItemsForPage() {
         inventory.clear()
 
-        if (items.isEmpty()) {
+        applyBackground()
+
+        if (pageItems.isEmpty()) {
+            if (emptyMessageButton == null) BulletinBoard.instance.log.error("Empty message button is not set for PaginatedGUI")
             emptyMessageButton?.let { addItem(it) }
-            addPageNavigationButtons()
+            displayItems()
             return
         }
 
-        val startIndex = currentPage * itemsPerPage
-        val endIndex = (startIndex + itemsPerPage).coerceAtMost(items.size)
+        displayItems()
 
-        items.subList(startIndex, endIndex).forEachIndexed { index, button ->
+        val startIndex = currentPage * itemsPerPage
+        val endIndex = (startIndex + itemsPerPage).coerceAtMost(pageItems.size)
+
+        pageItems.subList(startIndex, endIndex).forEachIndexed { index, button ->
             val slot = slotPositions.getOrNull(index) ?: return@forEachIndexed
             inventory.setItem(slot, button.toItemStack())
         }
@@ -107,8 +111,6 @@ class PaginatedGUI(
      * @param nextButton The button to navigate to the next page.
      * @return This [PaginatedGUI] instance.
      * @throws IllegalStateException If custom IDs are not set for page navigation.
-     * @see setPageButtonsCustomID
-     * @see handlePageNavigation
      */
     fun setPageButtons(prevButton: Button, nextButton: Button): PaginatedGUI {
         prevPageButton = prevButton
@@ -116,9 +118,28 @@ class PaginatedGUI(
         return this
     }
 
+    /**
+     * Sets the custom IDs for page navigation buttons.
+     * @param prevCustomID The custom ID for the previous page button.
+     * @param nextCustomID The custom ID for the next page button.
+     *
+     * @return This [PaginatedGUI] instance.
+     */
     fun setPageButtonsCustomID(prevCustomID: String, nextCustomID: String): PaginatedGUI {
         this.prevCustomID = prevCustomID
         this.nextCustomID = nextCustomID
+        return this
+    }
+
+    /**
+     * Sets the number of items per page.
+     * @param itemsPerPage The number of items to display per page.
+     *
+     * @return This [PaginatedGUI] instance.
+     */
+    fun setItemsPerPage(itemsPerPage: Int): PaginatedGUI {
+        this.itemsPerPage = itemsPerPage
+        setTotalPages(pageItems.size)
         return this
     }
 
@@ -128,7 +149,7 @@ class PaginatedGUI(
      * @return This [PaginatedGUI] instance.
      */
     fun setPage(page: Int): PaginatedGUI {
-        this.currentPage = page.coerceIn(0, totalPages - 1)
+        this.currentPage = if (totalPages <= 0) 0 else page.coerceIn(0, totalPages - 1)
         return this
     }
 
@@ -156,7 +177,7 @@ class PaginatedGUI(
      * Adds the navigation buttons for paging.
      * It uses the buttons set by [setPageButtons].
      */
-    protected fun addPageNavigationButtons() {
+    private fun addPageNavigationButtons() {
         prevPageButton?.let { button ->
             if (currentPage > 0) {
                 inventory.setItem(button.slot, button.toItemStack())
@@ -176,7 +197,7 @@ class PaginatedGUI(
     fun handlePageNavigation(event: InventoryClickEvent) {
         val clickedItem = event.currentItem ?: return
         val meta = clickedItem.itemMeta ?: return
-        val action = meta.persistentDataContainer.get(namespacedKey, PersistentDataType.STRING) ?: return
+        val action = meta.persistentDataContainer.get(key, PersistentDataType.STRING) ?: return
 
         if (prevCustomID == null || nextCustomID == null) throw IllegalStateException("Custom IDs must be set for page navigation")
 

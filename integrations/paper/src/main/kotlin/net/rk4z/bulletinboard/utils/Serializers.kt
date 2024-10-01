@@ -19,7 +19,7 @@ object ShortUUIDSerializer : KSerializer<ShortUUID> {
     }
 
     override fun deserialize(decoder: Decoder): ShortUUID {
-        return ShortUUID.Companion.fromShortString(decoder.decodeString())
+        return ShortUUID.fromShortString(decoder.decodeString())
     }
 }
 

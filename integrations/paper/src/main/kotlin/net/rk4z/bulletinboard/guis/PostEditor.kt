@@ -9,6 +9,7 @@ import net.rk4z.bulletinboard.manager.LanguageManager
 import net.rk4z.bulletinboard.utils.*
 import net.rk4z.igf.Button
 import net.rk4z.igf.GUIListener
+import net.rk4z.igf.IGF.key
 import net.rk4z.igf.InventoryGUI
 import net.rk4z.igf.SimpleGUI
 import org.bukkit.Material
@@ -82,12 +83,12 @@ private fun createPostEditorInventory(
 
             val clickedItem = event.currentItem ?: return
             val meta = clickedItem.itemMeta ?: return
-            val customId = meta.persistentDataContainer.get(BulletinBoard.key, PersistentDataType.STRING)
+            val customId = meta.persistentDataContainer.get(key, PersistentDataType.STRING)
             val actionId = customId?.let { CustomID.fromString(it) } ?: return
 
             when (actionId) {
                 CustomID.CANCEL_POST -> {
-                    //TODO
+
                 }
 
                 CustomID.SAVE_POST -> {

@@ -23,8 +23,9 @@ abstract class InventoryGUI(
     private var title: Component? = null
     private var size: Int? = null
     private var background: Material? = null
-    private var items: List<Button> = emptyList()
     private var shouldCallGlobalListener = false
+    protected var items: List<Button> = emptyList()
+        private set
 
     companion object {
         /**
@@ -165,14 +166,6 @@ abstract class InventoryGUI(
      */
     fun getTitle(): Component? {
         return title
-    }
-
-    /**
-     * Gets the list of items currently set in the GUI.
-     * @return The list of [Button]s.
-     */
-    fun getItems(): List<Button> {
-        return items
     }
 
     /**

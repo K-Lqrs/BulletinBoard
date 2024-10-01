@@ -5,11 +5,9 @@ import net.rk4z.bulletinboard.listener.BBListener
 import net.rk4z.bulletinboard.listener.ProxyBridger
 import net.rk4z.bulletinboard.manager.CommandManager
 import net.rk4z.bulletinboard.manager.LanguageManager
+import net.rk4z.bulletinboard.utils.*
 import net.rk4z.igf.IGF
-import net.rk4z.bulletinboard.utils.MessageKey
-import net.rk4z.bulletinboard.utils.System
-import net.rk4z.bulletinboard.utils.getNullableBoolean
-import net.rk4z.bulletinboard.utils.isNullOrFalse
+import net.rk4z.igf.IGF.key
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
 import org.bukkit.command.Command
@@ -43,8 +41,6 @@ class BulletinBoard : JavaPlugin() {
     companion object {
         lateinit var instance: BulletinBoard
             private set
-        lateinit var key: NamespacedKey
-            private set
         lateinit var dataBase: DataBase
             private set
         lateinit var metrics: Metrics
@@ -63,7 +59,7 @@ class BulletinBoard : JavaPlugin() {
     val version = description.version
     val authors: MutableList<String> = description.authors
     val pluginDes = description.description
-    val isDebug: Boolean = false
+    val isDebug: Boolean = true
     val log: Logger = LoggerFactory.getLogger(BulletinBoard::class.java.simpleName)
     private val executor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
     private var enableMetrics: Boolean? = true
@@ -76,10 +72,11 @@ class BulletinBoard : JavaPlugin() {
 
     override fun onLoad() {
         instance = getPlugin(BulletinBoard::class.java)
-        key = NamespacedKey(this, ID)
         systemLang = Locale.getDefault().language
         initializeDirectories()
-        updateLanguageFilesIfNeeded()
+        if (!isDebug) {
+            updateLanguageFilesIfNeeded()
+        }
         loadLanguageFiles()
         log.info(LanguageManager.getSysMessage(System.Log.LOADING, name, version))
         dataBase = DataBase(this)
@@ -104,8 +101,8 @@ class BulletinBoard : JavaPlugin() {
         if (isProxied.isNullOrFalse()) {
             registerCommand(this)
             //TODO: Optimisation.
-            server.messenger.registerIncomingPluginChannel(this, "Velocity", ProxyBridger())
-            server.messenger.registerOutgoingPluginChannel(this, "Velocity")
+            server.messenger.registerIncomingPluginChannel(this, "$ID:main", ProxyBridger())
+            server.messenger.registerOutgoingPluginChannel(this, "$ID:main")
         }
 
         if (enableMetrics.isNullOrFalse()) {
@@ -135,6 +132,12 @@ class BulletinBoard : JavaPlugin() {
         if (!langDir.exists()) {
             langDir.mkdirs()
         }
+        availableLang.forEach {
+            val langFile = langDir.resolve("$it.yml")
+            if (langFile.notExists()) {
+                saveResource("lang/$it.yml", false)
+            }
+        }
     }
 
     private fun updateLanguageFilesIfNeeded() {
@@ -143,7 +146,9 @@ class BulletinBoard : JavaPlugin() {
             val langResource = "lang/$lang.yml"
 
             getResource(langResource)?.use { resourceStream ->
-                val jarLangVersion = readLangVersion(resourceStream)
+                val resourceBytes = resourceStream.readBytes()
+
+                val jarLangVersion = readLangVersion(resourceBytes.inputStream())
                 val installedLangVersion = if (langFile.exists()) {
                     Files.newInputStream(langFile.toPath()).use { inputStream ->
                         readLangVersion(inputStream)
@@ -154,11 +159,13 @@ class BulletinBoard : JavaPlugin() {
 
                 if (isVersionNewer(jarLangVersion, installedLangVersion)) {
                     log.info("Replacing old $lang language file (version: $installedLangVersion) with newer version: $jarLangVersion")
-                    Files.copy(
-                        resourceStream,
-                        langFile.toPath(),
-                        StandardCopyOption.REPLACE_EXISTING
-                    )
+                    resourceBytes.inputStream().use { byteArrayStream ->
+                        Files.copy(
+                            byteArrayStream,
+                            langFile.toPath(),
+                            StandardCopyOption.REPLACE_EXISTING
+                        )
+                    }
                 }
             } ?: log.warn("Resource file '$langResource' not found in the Jar.")
         }

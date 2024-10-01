@@ -1,14 +1,12 @@
 package net.rk4z.bulletinboard.guis
 
 import net.rk4z.bulletinboard.BulletinBoard
+import net.rk4z.bulletinboard.manager.CommandManager.displayAbout
 import net.rk4z.bulletinboard.manager.CommandManager.displayHelp
 import net.rk4z.bulletinboard.manager.LanguageManager
 import net.rk4z.bulletinboard.utils.CustomID
 import net.rk4z.bulletinboard.utils.Main
-import net.rk4z.igf.Button
-import net.rk4z.igf.GUIListener
-import net.rk4z.igf.InventoryGUI
-import net.rk4z.igf.SimpleGUI
+import net.rk4z.igf.*
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -16,22 +14,14 @@ import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.persistence.PersistentDataType
 
 fun openMainBoard(player: Player) {
-    val newPost = LanguageManager.getMessage(player, Main.Gui.Button.NEW_POST)
-    val allPosts = LanguageManager.getMessage(player, Main.Gui.Button.ALL_POSTS)
-    val myPosts = LanguageManager.getMessage(player, Main.Gui.Button.MY_POSTS)
-    val deletedPosts = LanguageManager.getMessage(player, Main.Gui.Button.DELETED_POSTS)
-    val aboutPlugin = LanguageManager.getMessage(player, Main.Gui.Button.ABOUT_PLUGIN)
-    val settings = LanguageManager.getMessage(player, Main.Gui.Button.SETTINGS)
-    val help = LanguageManager.getMessage(player, Main.Gui.Button.HELP)
-
     val buttons = listOf(
-        Button(10, Material.WRITABLE_BOOK, newPost, CustomID.NEW_POST.name),
-        Button(12, Material.BOOK, allPosts, CustomID.ALL_POSTS.name),
-        Button(14, Material.WRITTEN_BOOK, myPosts, CustomID.MY_POSTS.name),
-        Button(16, Material.CAULDRON, deletedPosts, CustomID.DELETED_POSTS.name),
-        Button(29, Material.LECTERN, aboutPlugin, CustomID.ABOUT_PLUGIN.name),
-        Button(31, Material.COMPARATOR, settings, CustomID.SETTINGS.name),
-        Button(33, Material.OAK_SIGN, help, CustomID.HELP.name)
+        Button(10, Material.WRITABLE_BOOK, Main.Gui.Button.NEW_POST.translate(player), CustomID.NEW_POST.name),
+        Button(12, Material.BOOK, Main.Gui.Button.ALL_POSTS.translate(player), CustomID.ALL_POSTS.name),
+        Button(14, Material.WRITTEN_BOOK, Main.Gui.Button.MY_POSTS.translate(player), CustomID.MY_POSTS.name),
+        Button(16, Material.CAULDRON, Main.Gui.Button.DELETED_POSTS.translate(player), CustomID.DELETED_POSTS.name),
+        Button(29, Material.LECTERN, Main.Gui.Button.ABOUT_PLUGIN.translate(player), CustomID.ABOUT_PLUGIN.name),
+        Button(31, Material.COMPARATOR, Main.Gui.Button.SETTINGS.translate(player), CustomID.SETTINGS.name),
+        Button(33, Material.OAK_SIGN, Main.Gui.Button.HELP.translate(player), CustomID.HELP.name)
     )
 
     val listener = object : GUIListener {
@@ -40,7 +30,7 @@ fun openMainBoard(player: Player) {
 
             val item = event.currentItem ?: return
             val meta = item.itemMeta ?: return
-            val customId = CustomID.fromString(meta.persistentDataContainer.get(BulletinBoard.key, PersistentDataType.STRING) ?: return)
+            val customId = CustomID.fromString(meta.persistentDataContainer.get(IGF.key, PersistentDataType.STRING) ?: return)
 
             when (customId) {
                 CustomID.NEW_POST -> openPostEditor(player)
@@ -49,7 +39,7 @@ fun openMainBoard(player: Player) {
                 CustomID.DELETED_POSTS -> openDeletedPosts(player)
                 CustomID.ABOUT_PLUGIN -> {
                     gui.close()
-
+                    displayAbout(player)
                 }
                 CustomID.SETTINGS -> TODO()
                 CustomID.HELP -> {
@@ -68,7 +58,6 @@ fun openMainBoard(player: Player) {
 
     val gui = SimpleGUI(player)
         .setTitle(LanguageManager.getMessage(player, Main.Gui.Title.MAIN_BOARD))
-        .setShouldCallGlobalListener(false)
         .setSize(45)
         .setBackground(Material.GRAY_STAINED_GLASS_PANE)
         .setItems(buttons)

@@ -2,7 +2,6 @@ package net.rk4z.igf
 
 import net.kyori.adventure.text.Component
 import org.bukkit.Material
-import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataType
@@ -12,17 +11,15 @@ data class Button(
     val material: Material,
     val name: Component,
     val customId: String? = null,
-    val key: NamespacedKey? = null
 ) {
     fun toItemStack(): ItemStack {
-        return material.toItemStack(name, customId, key)
+        return material.toItemStack(name, customId)
     }
 }
 
 fun Material.toItemStack(
     name: Component? = null,
-    customId: String? = null,
-    key: NamespacedKey? = null
+    customId: String? = null
 ): ItemStack {
     val itemStack = ItemStack(this)
     val meta: ItemMeta? = itemStack.itemMeta
@@ -31,11 +28,7 @@ fun Material.toItemStack(
         meta?.displayName(name)
     }
     if (customId != null) {
-        if (key != null) {
-            meta?.persistentDataContainer?.set(key, PersistentDataType.STRING, customId)
-        } else {
-            throw IllegalArgumentException("Key must be set if customId is set")
-        }
+        meta?.persistentDataContainer?.set(IGF.key, PersistentDataType.STRING, customId)
     }
     if (meta != null) {
         itemStack.itemMeta = meta

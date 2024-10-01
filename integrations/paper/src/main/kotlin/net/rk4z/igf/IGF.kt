@@ -16,10 +16,10 @@ object IGF : Listener {
     /**
      * The NamespacedKey used for identifying GUI-specific data.
      */
-    lateinit var namespacedKey: NamespacedKey
+    lateinit var key: NamespacedKey
         private set
 
-    const val ID = "igf"
+    private const val ID = "igf"
     private var globalListener: GUIListener = NoOpListener
 
     /**
@@ -28,7 +28,7 @@ object IGF : Listener {
      * @param plugin The JavaPlugin instance to initialize with.
      */
     fun init(plugin: JavaPlugin) {
-        namespacedKey = NamespacedKey(plugin, ID)
+        key = NamespacedKey(plugin, ID)
         plugin.server.pluginManager.registerEvents(this, plugin)
     }
 

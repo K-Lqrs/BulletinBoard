@@ -1,0 +1,52 @@
+#-------------------------------------------------------------------------------#
+#               Qodana analysis is configured by qodana.yaml file               #
+#             https://www.jetbrains.com/help/qodana/qodana-yaml.html            #
+#-------------------------------------------------------------------------------#
+version: "1.0"
+#Specify inspection profile for code analysis
+profile:
+  name: qodana.starter
+#Enable inspections
+#include:
+#  - name: <SomeEnabledInspectionId>
+#Disable inspections
+#exclude:
+#  - name: <SomeDisabledInspectionId>
+#    paths:
+#      - <path/where/not/run/inspection>
+projectJDK: 21 #(Applied in CI/CD pipeline)
+#Execute shell command before Qodana execution (Applied in CI/CD pipeline)
+#bootstrap: sh ./prepare-qodana.sh
+#Install IDE plugins before Qodana execution (Applied in CI/CD pipeline)
+#plugins:
+#  - id: <plugin.id> #(plugin id can be found at https://plugins.jetbrains.com)
+#Specify Qodana linter for analysis (Applied in CI/CD pipeline)
+linter: jetbrains/qodana-jvm:latest
+exclude:
+  - name: All
+    paths:
+      - integrations
+      - integrations/paper
+      - integrations/paper/src
+      - integrations/paper/src/main
+      - integrations/paper/src/main/java
+      - integrations/paper/src/main/java/net
+      - integrations/paper/src/main/java/net/rk4z
+      - integrations/paper/src/main/java/net/rk4z/bulletinboard
+      - integrations/paper/src/main/java/net/rk4z/bulletinboard/libs
+      - integrations/paper/src/main/java/net/rk4z/bulletinboard/libs/Metrics.java
+      - integrations/paper/src/main/kotlin
+      - integrations/paper/src/main/kotlin/net
+      - integrations/paper/src/main/kotlin/net/rk4z
+      - integrations/paper/src/main/kotlin/net/rk4z/bulletinboard
+      - integrations/paper/src/main/kotlin/net/rk4z/bulletinboard/manager
+      - integrations/paper/src/main/kotlin/net/rk4z/bulletinboard/manager/LanguageManager.kt
+      - integrations/paper/src/main/kotlin/net/rk4z/bulletinboard/utils
+      - integrations/paper/src/main/kotlin/net/rk4z/bulletinboard/utils/Serializers.kt
+      - integrations/paper/src/main/kotlin/net/rk4z/bulletinboard/utils/Translations.kt
+      - integrations/paper/src/main/kotlin/net/rk4z/bulletinboard/BulletinBoard.kt
+      - integrations/paper/src/main/kotlin/net/rk4z/bulletinboard/DataBase.kt
+      - integrations/paper/src/main/kotlin/net/rk4z/igf
+      - integrations/paper/src/main/kotlin/net/rk4z/igf/IGF.kt
+      - integrations/paper/src/main/kotlin/net/rk4z/igf/PaginatedGUI.kt
+      - integrations/paper/build.gradle.kts

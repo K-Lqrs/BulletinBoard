@@ -9,6 +9,7 @@ import net.rk4z.bulletinboard.BulletinBoard.Companion.runTask
 import net.rk4z.bulletinboard.manager.LanguageManager
 import org.bukkit.Sound
 import org.bukkit.entity.Player
+import java.io.File
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -26,6 +27,10 @@ fun Boolean?.isNullOrFalse(): Boolean {
 
 fun Player.playSoundMaster(sound: Sound, volume: Float = 1.0f, pitch: Float = 1.0f) {
     this.playSound(this.location, sound, volume, pitch)
+}
+
+fun File.notExists(): Boolean {
+    return !this.exists()
 }
 
 private val playerState = ConcurrentHashMap<UUID, PlayerState>()

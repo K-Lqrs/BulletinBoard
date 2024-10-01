@@ -14,31 +14,6 @@ import kotlin.reflect.full.isSubclassOf
 object LanguageManager {
     val messages: MutableMap<String, MutableMap<MessageKey, String>> = mutableMapOf()
 
-    val topLevelObjects: Map<String, Any> = mapOf(
-        "system" to System(),
-        "main" to Main()
-    )
-
-    fun mapMessageKeys(clazz: KClass<out MessageKey>, currentPath: String = "", messageKeyMap: MutableMap<String, MessageKey>) {
-        val className = clazz.simpleName?.lowercase() ?: return
-
-        val fullPath = if (currentPath.isEmpty()) className else "$currentPath.$className"
-
-        val objectInstance = clazz.objectInstance as? MessageKey
-        if (objectInstance != null) {
-            messageKeyMap[fullPath] = objectInstance
-            if (BulletinBoard.instance.isDebug) BulletinBoard.instance.logger.info("Mapped class: $fullPath -> ${clazz.simpleName}")
-        } else {
-            if (BulletinBoard.instance.isDebug) BulletinBoard.instance.logger.warning("Object instance not found for class: ${clazz.simpleName}")
-        }
-
-        clazz.nestedClasses.forEach { nestedClass ->
-            if (nestedClass.isSubclassOf(MessageKey::class)) {
-                mapMessageKeys(nestedClass as KClass<out MessageKey>, fullPath, messageKeyMap)
-            }
-        }
-    }
-
     fun processYamlAndMapMessageKeys(data: Map<String, Any>, messageMap: MutableMap<MessageKey, String>) {
         val messageKeyMap: MutableMap<String, MessageKey> = mutableMapOf()
 
@@ -48,7 +23,25 @@ object LanguageManager {
         processYamlData("", data, messageKeyMap, messageMap)
     }
 
-    fun processYamlData(prefix: String, data: Map<String, Any>, messageKeyMap: Map<String, MessageKey>, messageMap: MutableMap<MessageKey, String>) {
+    private fun mapMessageKeys(clazz: KClass<out MessageKey>, currentPath: String = "", messageKeyMap: MutableMap<String, MessageKey>) {
+        val className = clazz.simpleName?.lowercase() ?: return
+
+        val fullPath = if (currentPath.isEmpty()) className else "$currentPath.$className"
+
+        val objectInstance = clazz.objectInstance
+        if (objectInstance != null) {
+            messageKeyMap[fullPath] = objectInstance
+            if (BulletinBoard.instance.isDebug) BulletinBoard.instance.logger.info("Mapped class: $fullPath -> ${clazz.simpleName}")
+        }
+
+        clazz.nestedClasses.forEach { nestedClass ->
+            if (nestedClass.isSubclassOf(MessageKey::class)) {
+                mapMessageKeys(nestedClass as KClass<out MessageKey>, fullPath, messageKeyMap)
+            }
+        }
+    }
+
+    private fun processYamlData(prefix: String, data: Map<String, Any>, messageKeyMap: Map<String, MessageKey>, messageMap: MutableMap<MessageKey, String>) {
         for ((key, value) in data) {
             val currentPrefix = if (prefix.isEmpty()) key else "$prefix.$key"
             if (BulletinBoard.instance.isDebug) BulletinBoard.instance.logger.info("Processing YAML path: $currentPrefix")

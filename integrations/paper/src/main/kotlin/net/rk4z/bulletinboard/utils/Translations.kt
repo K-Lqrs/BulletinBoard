@@ -4,6 +4,8 @@ package net.rk4z.bulletinboard.utils
 
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.TextComponent
+import net.rk4z.bulletinboard.manager.LanguageManager
+import org.bukkit.entity.Player
 
 sealed interface MessageKey {
     fun toComponent(): Component {
@@ -12,6 +14,10 @@ sealed interface MessageKey {
 
     fun toTextComponent(): TextComponent {
         return Component.text(this.javaClass.simpleName)
+    }
+
+    fun translate(player: Player): Component {
+        return LanguageManager.getMessage(player, this)
     }
 }
 
@@ -48,11 +54,19 @@ open class Main : MessageKey {
             object MY_POSTS : Title()
             object ALL_POSTS : Title()
             object DELETED_POSTS : Title()
+
             object DELETE_POST_SELECTION : Title()
             object DELETE_POST_PERMANENTLY_SELECTION : Title()
             object EDIT_POST_SELECTION : Title()
             object RESTORE_POST_SELECTION : Title()
+            object DELETE_POST_ALL_PLAYER_SELECTION : Title()
 
+            object SAVE_POST_CONFIRMATION : Title()
+            object CANCEL_POST_CONFIRMATION : Title()
+            object DELETE_POST_CONFIRMATION : Title()
+            object DELETE_POST_PERMANENTLY_CONFIRMATION : Title()
+            object RESTORE_POST_CONFIRMATION : Title()
+            object DELETE_POST_FROM_ALL_CONFIRMATION : Title()
         }
 
         open class Button : Gui() {
@@ -66,6 +80,7 @@ open class Main : MessageKey {
 
             object EDIT_POST : Button()
             object DELETE_POST : Button()
+            object DELETE_POST_FROM_ALL : Button()
             object RESTORE_POST : Button()
             object DELETE_POST_PERMANENTLY : Button()
             object DELETE_POST_OTHERS : Button()
@@ -77,6 +92,20 @@ open class Main : MessageKey {
             object NEXT_PAGE : Button()
 
             object BACK_BUTTON : Button()
+
+            object CANCEL_CONFIRM_SAVE_POST : Button()
+            object PREVIEW_POST : Button()
+            object CONFIRM_SAVE_POST : Button()
+            object CONTINUE_POST : Button()
+            object CONFIRM_CANCEL_POST : Button()
+            object CANCEL_DELETE_POST : Button()
+            object CANCEL_DELETE_POST_FROM_ALL : Button()
+            object CONFIRM_DELETE_POST : Button()
+            object CONFIRM_DELETE_POST_FROM_ALL : Button()
+            object CANCEL_DELETE_POST_PERMANENTLY : Button()
+            object CONFIRM_DELETE_POST_PERMANENTLY : Button()
+            object CANCEL_RESTORE_POST : Button()
+            object CONFIRM_RESTORE_POST : Button()
         }
 
         open class Other : Gui() {
@@ -98,6 +127,9 @@ open class Main : MessageKey {
 
         object ENTER_TITLE_EDIT : Message()
         object ENTER_CONTENT_EDIT : Message()
+
+        object WHEN_POST_DRAFT_NULL : Message()
+        object POST_SAVED : Message()
     }
 
     open class Command : Main() {

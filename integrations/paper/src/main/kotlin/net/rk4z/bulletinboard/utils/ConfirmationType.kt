@@ -10,4 +10,5 @@ enum class ConfirmationType {
     DELETING_POST,
     DELETING_POST_PERMANENTLY,
     RESTORING_POST,
+    DELETE_POST_FROM_ALL,
 }
