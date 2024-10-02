@@ -8,12 +8,24 @@ import net.kyori.adventure.text.Component
 import java.util.Date
 import java.util.UUID
 
+interface Draft {
+    var title: Component?
+    var content: Component?
+    var isAnonymous: Boolean?
+}
+
+data class PostDraft(
+    override var title: Component? = null,
+    override var content: Component? = null,
+    override var isAnonymous: Boolean? = null
+) : Draft
+
 data class EditPostData(
     val id: ShortUUID? = null,
-    val title: Component? = null,
-    val content: Component? = null,
-    val isAnonymous: Boolean? = null
-) {
+    override var title: Component? = null,
+    override var content: Component? = null,
+    override var isAnonymous: Boolean? = null
+) : Draft {
     fun toPost(author: UUID, date: Date): Post {
         return Post(
             id = this.id ?: ShortUUID.randomUUID(),
@@ -25,12 +37,6 @@ data class EditPostData(
         )
     }
 }
-
-data class PostDraft(
-    val title: Component? = null,
-    val content: Component? = null,
-    val isAnonymous: Boolean? = null
-)
 
 @Serializable
 data class Post(

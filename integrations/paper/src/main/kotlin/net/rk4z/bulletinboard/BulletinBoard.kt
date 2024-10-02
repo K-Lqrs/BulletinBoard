@@ -7,9 +7,7 @@ import net.rk4z.bulletinboard.manager.CommandManager
 import net.rk4z.bulletinboard.manager.LanguageManager
 import net.rk4z.bulletinboard.utils.*
 import net.rk4z.igf.IGF
-import net.rk4z.igf.IGF.key
 import org.bukkit.Bukkit
-import org.bukkit.NamespacedKey
 import org.bukkit.command.Command
 import org.bukkit.command.CommandMap
 import org.bukkit.command.CommandSender
@@ -110,7 +108,7 @@ class BulletinBoard : JavaPlugin() {
         }
 
         IGF.init(this)
-        IGF.setGlobalListener(BBListener())
+            server.pluginManager.registerEvents(BBListener(), this)
 
         availableLang.forEach {
             LanguageManager.findMissingKeys(it)

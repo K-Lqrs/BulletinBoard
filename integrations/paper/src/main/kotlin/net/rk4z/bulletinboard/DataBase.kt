@@ -50,18 +50,18 @@ class DataBase(private val plugin: BulletinBoard) {
                 title TEXT NOT NULL,
                 content TEXT NOT NULL,
                 isAnonymous BOOLEAN NOT NULL DEFAULT FALSE,
-                date DATE NOT NULL DEFAULT CURRENT_TIMESTAMP
+                date TEXT NOT NULL
             );
         """.trimIndent()
 
         val createDeletedPostsTableSQL = """
-            CREATE TABLE IF NOT EXISTS posts (
+            CREATE TABLE IF NOT EXISTS deletedPosts (
                 id TEXT PRIMARY KEY,    
                 author TEXT NOT NULL,
                 title TEXT NOT NULL,
                 content TEXT NOT NULL,
                 isAnonymous BOOLEAN NOT NULL DEFAULT FALSE,
-                date DATE NOT NULL DEFAULT CURRENT_TIMESTAMP
+                date TEXT NOT NULL
             );
         """.trimIndent()
 
@@ -165,12 +165,11 @@ class DataBase(private val plugin: BulletinBoard) {
             values.add("?")
         }
 
-        if (isOldData) {
-            columns.add("date")
-            values.add("?")
-        }
+        columns.add("date")
+        values.add("?")
 
         val insertSQL = "INSERT INTO posts (${columns.joinToString(", ")}) VALUES (${values.joinToString(", ")})"
+
         val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
         dateFormat.timeZone = TimeZone.getTimeZone("UTC")
 
@@ -187,16 +186,16 @@ class DataBase(private val plugin: BulletinBoard) {
                 statement.setString(3, GsonComponentSerializer.gson().serialize(post.title))
                 statement.setString(4, GsonComponentSerializer.gson().serialize(post.content))
 
+                var indexOffset = 4
                 post.isAnonymous?.let {
                     statement.setBoolean(5, it)
+                    indexOffset = 5
                 }
 
-                if (isOldData) {
-                    val dateIndex = if (post.isAnonymous != null) 6 else 5
-                    statement.setString(dateIndex, dateFormat.format(post.date))
-                }
+                statement.setString(indexOffset + 1, dateFormat.format(post.date))
 
                 statement.executeUpdate()
+                plugin.log.info("Post successfully inserted into the database.")
             }
         } catch (e: SQLException) {
             plugin.log.error("Could not insert post into database!")

@@ -1,16 +1,17 @@
 package net.rk4z.bulletinboard.guis
 
-import net.rk4z.bulletinboard.BulletinBoard
 import net.rk4z.bulletinboard.manager.CommandManager.displayAbout
 import net.rk4z.bulletinboard.manager.CommandManager.displayHelp
 import net.rk4z.bulletinboard.manager.LanguageManager
 import net.rk4z.bulletinboard.utils.CustomID
 import net.rk4z.bulletinboard.utils.Main
+import net.rk4z.bulletinboard.utils.getPlayerState
 import net.rk4z.igf.*
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
+import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.persistence.PersistentDataType
 
 fun openMainBoard(player: Player) {
@@ -30,7 +31,7 @@ fun openMainBoard(player: Player) {
 
             val item = event.currentItem ?: return
             val meta = item.itemMeta ?: return
-            val customId = CustomID.fromString(meta.persistentDataContainer.get(IGF.key, PersistentDataType.STRING) ?: return)
+            val customId = meta.persistentDataContainer.get(IGF.key, PersistentDataType.STRING)?.let { CustomID.fromString(it) } ?: return
 
             when (customId) {
                 CustomID.NEW_POST -> openPostEditor(player)
@@ -41,7 +42,7 @@ fun openMainBoard(player: Player) {
                     gui.close()
                     displayAbout(player)
                 }
-                CustomID.SETTINGS -> TODO()
+                CustomID.SETTINGS -> openSetting(player)
                 CustomID.HELP -> {
                     gui.close()
                     displayHelp(player)
@@ -51,8 +52,16 @@ fun openMainBoard(player: Player) {
             }
         }
 
-        override fun onInventoryClose(event: InventoryCloseEvent, gui: InventoryGUI) {
+        override fun onInventoryOpen(event: InventoryOpenEvent, gui: InventoryGUI) {
+            // when player open the main board, clear all states
+            val state = player.getPlayerState()
+            state.clearAll()
+        }
 
+        override fun onInventoryClose(event: InventoryCloseEvent, gui: InventoryGUI) {
+            // when player close the main board, clear all states
+            val state = player.getPlayerState()
+            state.clearAll()
         }
     }
 

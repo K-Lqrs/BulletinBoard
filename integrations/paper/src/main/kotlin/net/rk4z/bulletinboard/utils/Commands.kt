@@ -1,9 +1,6 @@
 package net.rk4z.bulletinboard.utils
 
-import net.rk4z.bulletinboard.guis.openAllPosts
-import net.rk4z.bulletinboard.guis.openMainBoard
-import net.rk4z.bulletinboard.guis.openMyPosts
-import net.rk4z.bulletinboard.guis.openPostEditor
+import net.rk4z.bulletinboard.guis.*
 import net.rk4z.bulletinboard.manager.CommandManager.displayAbout
 import net.rk4z.bulletinboard.manager.CommandManager.displayHelp
 import org.bukkit.entity.Player
@@ -16,8 +13,10 @@ enum class Commands(val execute: CommandExecute) {
     NEWPOST({ player -> openPostEditor(player) }),
     ALLPOSTS({ player -> openAllPosts(player) }),
     MYPOSTS({ player -> openMyPosts(player) }),
+    DELETEDPOSTS({ player -> openDeletedPosts(player) }),
     HELP({ player -> displayHelp(player) }),
-    ABOUT({ player -> displayAbout(player) })
+    ABOUT({ player -> displayAbout(player) }),
+    DEBUG({ player -> player.getPlayerState().sendDebugMessage(player) })
     ;
 
     companion object {

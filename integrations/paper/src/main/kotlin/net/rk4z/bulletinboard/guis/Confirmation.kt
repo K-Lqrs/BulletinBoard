@@ -1,14 +1,14 @@
 package net.rk4z.bulletinboard.guis
 
-import kotlinx.serialization.json.JsonNull.content
 import net.kyori.adventure.text.Component
 import net.rk4z.bulletinboard.BulletinBoard
-import net.rk4z.bulletinboard.BulletinBoard.Companion.runTask
 import net.rk4z.bulletinboard.manager.LanguageManager
 import net.rk4z.bulletinboard.utils.*
 import net.rk4z.bulletinboard.utils.ConfirmationType.*
+import net.rk4z.bulletinboard.utils.ConfirmationType.CANCEL_EDIT
 import net.rk4z.bulletinboard.utils.ConfirmationType.CANCEL_POST
 import net.rk4z.bulletinboard.utils.ConfirmationType.DELETE_POST_FROM_ALL
+import net.rk4z.bulletinboard.utils.ConfirmationType.SAVE_EDIT
 import net.rk4z.bulletinboard.utils.ConfirmationType.SAVE_POST
 import net.rk4z.bulletinboard.utils.CustomID.*
 import net.rk4z.igf.*
@@ -17,15 +17,30 @@ import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
+import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.persistence.PersistentDataType
 import java.util.*
 
 fun openSavePostConfirmation(player: Player) {
+    val state = player.getPlayerState()
+    state.preview =
+        Pair(
+            state.draft?.title ?: LanguageManager.getMessage(player, Main.Gui.Other.NO_TITLE),
+            state.draft?.content ?: LanguageManager.getMessage(player, Main.Gui.Other.NO_CONTENT)
+        )
     openConfirmationScreen(player, SAVE_POST)
 }
 
 fun openCancelPostConfirmation(player: Player) {
     openConfirmationScreen(player, CANCEL_POST)
+}
+
+fun openSaveEditConfirmation(player: Player) {
+    openConfirmationScreen(player, SAVE_EDIT)
+}
+
+fun openCancelEditConfirmation(player: Player) {
+    openConfirmationScreen(player, CANCEL_EDIT)
 }
 
 fun openDeletePostConfirmation(player: Player) {
@@ -56,6 +71,8 @@ private fun openConfirmationScreen(player: Player, type: ConfirmationType) {
         DELETING_POST_PERMANENTLY -> Main.Gui.Title.DELETE_POST_PERMANENTLY_CONFIRMATION
         RESTORING_POST -> Main.Gui.Title.RESTORE_POST_CONFIRMATION
         DELETE_POST_FROM_ALL -> Main.Gui.Title.DELETE_POST_FROM_ALL_CONFIRMATION
+        SAVE_EDIT -> Main.Gui.Title.SAVE_EDIT_CONFIRMATION
+        CANCEL_EDIT -> Main.Gui.Title.CANCEL_EDIT_CONFIRMATION
     }.translate(player)
 
     val buttons = when (type) {
@@ -84,11 +101,16 @@ private fun openConfirmationScreen(player: Player, type: ConfirmationType) {
             Button(11, Material.RED_WOOL, Main.Gui.Button.CANCEL_DELETE_POST_FROM_ALL.translate(player), CANCEL_DELETE_POST_FROM_ALL.name),
             Button(15, Material.GREEN_WOOL, Main.Gui.Button.CONFIRM_DELETE_POST_FROM_ALL.translate(player), CONFIRM_DELETE_POST_FROM_ALL.name)
         )
+        SAVE_EDIT -> listOf(
+
+        )
+        CANCEL_EDIT -> listOf(
+
+        )
     }
 
     //TODO()
     val listener = object : GUIListener {
-
         override fun onInventoryClick(event: InventoryClickEvent, gui: InventoryGUI) {
             event.isCancelled = true
 
@@ -100,8 +122,12 @@ private fun openConfirmationScreen(player: Player, type: ConfirmationType) {
                 PREVIEW_POST -> {
                     state.isPreviewing = true
 
-                    val dt = state.preview?.first!!
-                    val dc = state.preview?.second!!
+                    val dt = state.preview?.first?.getContent()
+                    val dc = state.preview?.second?.getContent()
+
+                    if (dt == null || dc == null) {
+                        throw IllegalStateException("Preview data is null")
+                    }
 
                     player.sendMessage(Component.text("-----[ Preview ]-----"))
                     player.sendMessage(LanguageManager.getMessage(player, Main.Message.TITLE_LABEL, dt))
@@ -137,9 +163,23 @@ private fun openConfirmationScreen(player: Player, type: ConfirmationType) {
                     }
                 }
 
+                CONTINUE_POST -> {
+                    state.isOpeningConfirmation = null
+                    state.confirmationType = null
+                    openPostEditor(player)
+                }
+
+                CONFIRM_CANCEL_POST -> {
+                    state.clearAll()
+                    gui.close()
+                    player.sendMessage(LanguageManager.getMessage(player, Main.Message.POST_CANCELLED))
+                }
+
                 else -> {}
             }
         }
+
+        override fun onInventoryOpen(event: InventoryOpenEvent, gui: InventoryGUI) {}
 
         override fun onInventoryClose(event: InventoryCloseEvent, gui: InventoryGUI) {}
     }

@@ -1,10 +1,8 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "DuplicatedCode")
 
 package net.rk4z.bulletinboard.guis
 
 import net.kyori.adventure.text.Component
-import net.rk4z.bulletinboard.BulletinBoard
-import net.rk4z.bulletinboard.BulletinBoard.Companion.runTask
 import net.rk4z.bulletinboard.manager.LanguageManager
 import net.rk4z.bulletinboard.utils.*
 import net.rk4z.igf.Button
@@ -16,6 +14,7 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
+import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.persistence.PersistentDataType
 
 fun openPostEditor(player: Player) {
@@ -38,29 +37,36 @@ fun openPostEditor(player: Player) {
     postEditor.open()
 }
 
-fun openPostEditorForEdit(player: Player, post: Post) {
+fun openPostEditorForEdit(player: Player, post: Post?) {
     val state = player.getPlayerState()
-    state.editDraft = EditPostData(
-        id = post.id,
-        title = post.title,
-        content = post.content
-    )
+    if (state.editDraft == null && post == null) {
+        throw IllegalArgumentException("Post must not be null when editDraft is null")
+    }
+    post?.let {
+        state.editDraft = EditPostData(
+            id = it.id,
+            title = it.title,
+            content = it.content
+        )
+    }
 
-    val postEditor = createPostEditorInventory(
-        player,
-        post.title,
-        post.content,
-        LanguageManager.getMessage(player, Main.Gui.Title.POST_EDITOR_FOR_EDIT),
-        CustomID.EDIT_POST_TITLE,
-        CustomID.EDIT_POST_CONTENT,
-        CustomID.CANCEL_EDIT,
-        CustomID.SAVE_EDIT
-    )
+    val postEditor = post?.let {
+        createPostEditorInventory(
+            player,
+            it.title,
+            it.content,
+            LanguageManager.getMessage(player, Main.Gui.Title.POST_EDITOR_FOR_EDIT),
+            CustomID.EDIT_POST_TITLE,
+            CustomID.EDIT_POST_CONTENT,
+            CustomID.CANCEL_EDIT,
+            CustomID.SAVE_EDIT
+        )
+    } ?: return
 
     postEditor.open()
 }
 
-private fun createPostEditorInventory(
+fun createPostEditorInventory(
     player: Player,
     title: Component,
     content: Component,
@@ -87,13 +93,9 @@ private fun createPostEditorInventory(
             val actionId = customId?.let { CustomID.fromString(it) } ?: return
 
             when (actionId) {
-                CustomID.CANCEL_POST -> {
+                CustomID.CANCEL_POST -> openCancelPostConfirmation(player)
 
-                }
-
-                CustomID.SAVE_POST -> {
-                    //TODO
-                }
+                CustomID.SAVE_POST -> openSavePostConfirmation(player)
 
                 CustomID.CANCEL_EDIT -> {
                     //TODO
@@ -109,9 +111,7 @@ private fun createPostEditorInventory(
                     state.inputType = InputType.EDIT_TITLE
                     state.isInputting = true
 
-                    runTask(BulletinBoard.instance) {
-                        player.sendMessage(LanguageManager.getMessage(player, Main.Message.ENTER_TITLE_EDIT))
-                    }
+                    player.sendMessage(LanguageManager.getMessage(player, Main.Message.ENTER_TITLE_EDIT))
                 }
 
                 CustomID.EDIT_POST_CONTENT -> {
@@ -120,31 +120,25 @@ private fun createPostEditorInventory(
                     state.inputType = InputType.EDIT_CONTENT
                     state.isInputting = true
 
-                    runTask(BulletinBoard.instance) {
-                        player.sendMessage(LanguageManager.getMessage(player, Main.Message.ENTER_CONTENT_EDIT))
-                    }
+                    player.sendMessage(LanguageManager.getMessage(player, Main.Message.ENTER_CONTENT_EDIT))
                 }
 
                 CustomID.POST_TITLE -> {
                     gui.close()
                     val state = player.getPlayerState()
-                    state.inputType = InputType.CONTENT
+                    state.inputType = InputType.TITLE
                     state.isInputting = true
 
-                    runTask(BulletinBoard.instance) {
-                        player.sendMessage(LanguageManager.getMessage(player, Main.Message.ENTER_TITLE))
-                    }
+                    player.sendMessage(LanguageManager.getMessage(player, Main.Message.ENTER_TITLE))
                 }
 
                 CustomID.POST_CONTENT -> {
                     gui.close()
                     val state = player.getPlayerState()
-                    state.inputType = InputType.TITLE
+                    state.inputType = InputType.CONTENT
                     state.isInputting = true
 
-                    runTask(BulletinBoard.instance) {
-                        player.sendMessage(LanguageManager.getMessage(player, Main.Message.ENTER_CONTENT))
-                    }
+                    player.sendMessage(LanguageManager.getMessage(player, Main.Message.ENTER_CONTENT))
                 }
 
                 else -> {}
@@ -152,9 +146,24 @@ private fun createPostEditorInventory(
         }
 
         override fun onInventoryClose(event: InventoryCloseEvent, gui: InventoryGUI) {
-            // Do nothing
+            if (event.reason == InventoryCloseEvent.Reason.PLAYER) {
+                val state = player.getPlayerState()
+                state.isInputting = null
+                state.isEditInputting = null
+                state.inputType = null
+                state.editInputType = null
+                state.isPreviewing = null
+            }
         }
 
+        override fun onInventoryOpen(event: InventoryOpenEvent, gui: InventoryGUI) {
+            val state = player.getPlayerState()
+            state.isInputting = null
+            state.isEditInputting = null
+            state.inputType = null
+            state.editInputType = null
+            state.isPreviewing = null
+        }
     }
 
     val postEditor = SimpleGUI(player)
@@ -162,6 +171,7 @@ private fun createPostEditorInventory(
         .setSize(27)
         .setBackground(Material.GRAY_STAINED_GLASS_PANE)
         .setItems(buttons)
+        .setListener(listener)
         .build()
 
     return postEditor

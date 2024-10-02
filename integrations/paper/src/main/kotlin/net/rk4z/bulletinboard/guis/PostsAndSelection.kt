@@ -15,6 +15,7 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
+import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.persistence.PersistentDataType
 
 fun openMyPosts(player: Player, page: Int = 0) {
@@ -58,7 +59,7 @@ fun openDeletePostPermanentlySelection(player: Player, page: Int = 0) {
 }
 
 private fun openPostsInventory(player: Player, titleType: TitleType, posts: List<Post>, page: Int) {
-    val title = titleType.key.toComponent()
+    val title = titleType.key.translate(player)
     val buttons = mutableListOf<Button>()
     val middleRowSlots = listOf(10, 12, 14, 16)
     val postButtons = if (posts.isNotEmpty()) {
@@ -75,9 +76,10 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
             val clickedItem = event.currentItem ?: return
             val meta = clickedItem.itemMeta ?: return
             val customId = meta.persistentDataContainer.get(key, PersistentDataType.STRING) ?: return
-            val guiTitle = gui.getTitle()
 
-            when (guiTitle) {
+            BulletinBoard.instance.log.info("customId: $customId, title: ${gui.getTitle()!!}")
+
+            when (gui.getTitle()!!) {
                 Main.Gui.Title.MY_POSTS.translate(player),
                 Main.Gui.Title.ALL_POSTS.translate(player),
                 Main.Gui.Title.DELETED_POSTS.translate(player) -> {
@@ -87,25 +89,6 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
                         else -> {
                             val post = BulletinBoard.dataBase.getPost(customId) ?: return
                             displayPost(player, post)
-                        }
-                    }
-                }
-
-                Main.Gui.Title.MY_POSTS.translate(player) -> {
-                    when (customId) {
-                        CustomID.EDIT_POST.name -> {
-                            openEditPostSelection(player)
-                        }
-                        CustomID.DELETE_POST.name -> {
-                            openDeletePostSelection(player)
-                        }
-                    }
-                }
-
-                Main.Gui.Title.ALL_POSTS.translate(player) -> {
-                    when (customId) {
-                        CustomID.DELETE_POST_FROM_ALL.name -> {
-                            openDeletePostFromAllPlayerSelection(player)
                         }
                     }
                 }
@@ -121,7 +104,24 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
                     }
                 }
             }
+
+            when (customId) {
+                CustomID.DELETE_POST_FROM_ALL.name -> {
+                    gui.close()
+                    openDeletePostFromAllPlayerSelection(player)
+                }
+                CustomID.EDIT_POST.name -> {
+                    gui.close()
+                    openEditPostSelection(player)
+                }
+                CustomID.DELETE_POST.name -> {
+                    gui.close()
+                    openDeletePostSelection(player)
+                }
+            }
         }
+
+        override fun onInventoryOpen(event: InventoryOpenEvent, gui: InventoryGUI) {}
 
         override fun onInventoryClose(event: InventoryCloseEvent, gui: InventoryGUI) {}
     }
@@ -135,7 +135,9 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
     )
 
     if (player.hasPermission("bulletinboard.post.delete.other")) {
-        buttons.add(Button(11, Material.RED_WOOL, LanguageManager.getMessage(player, Main.Gui.Button.DELETE_POST_FROM_ALL), CustomID.DELETE_POST_FROM_ALL.name))
+        if (titleType == ALL_POSTS) {
+            buttons.add(Button(20, Material.RED_WOOL, LanguageManager.getMessage(player, Main.Gui.Button.DELETE_POST_FROM_ALL), CustomID.DELETE_POST_FROM_ALL.name))
+        }
     }
 
     val inventory = PaginatedGUI(player)

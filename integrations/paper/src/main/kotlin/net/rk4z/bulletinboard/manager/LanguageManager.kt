@@ -83,7 +83,6 @@ object LanguageManager {
         return missingKeys
     }
 
-
     private fun Player.getLanguage(): String {
         return this.locale().language ?: "en"
     }

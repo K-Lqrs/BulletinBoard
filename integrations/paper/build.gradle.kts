@@ -11,6 +11,7 @@ dependencies {
     paperweight.paperDevBundle("1.21.1-R0.1-SNAPSHOT")
     compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
     implementation("org.bstats:bstats-base:3.0.2")
+    implementation("net.rk4z:igf:1.0.0")
 
     library("com.google.code.gson:gson:2.10.1")
     paperLibrary("com.google.code.gson:gson:2.10.1")
@@ -25,6 +26,7 @@ paper {
     name = rootProject.name
     load = BukkitPluginDescription.PluginLoadOrder.POSTWORLD
     authors = listOf("Lars", "cotrin_d8")
+    description = "A simple bulletin board plugin"
 
     serverDependencies {
         register("Kotlin") {

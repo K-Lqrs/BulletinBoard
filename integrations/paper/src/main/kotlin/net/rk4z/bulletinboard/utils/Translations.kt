@@ -19,6 +19,10 @@ sealed interface MessageKey {
     fun translate(player: Player): Component {
         return LanguageManager.getMessage(player, this)
     }
+
+    fun translateText(player: Player): String {
+        return LanguageManager.getMessageFromContent(player, this)
+    }
 }
 
 open class System : MessageKey {
@@ -67,6 +71,8 @@ open class Main : MessageKey {
             object DELETE_POST_PERMANENTLY_CONFIRMATION : Title()
             object RESTORE_POST_CONFIRMATION : Title()
             object DELETE_POST_FROM_ALL_CONFIRMATION : Title()
+            object SAVE_EDIT_CONFIRMATION : Title()
+            object CANCEL_EDIT_CONFIRMATION : Title()
         }
 
         open class Button : Gui() {
@@ -113,6 +119,7 @@ open class Main : MessageKey {
             object NO_POSTS : Other()
             object NO_TITLE : Other()
             object NO_CONTENT : Other()
+            object UNKNOWN_PLAYER : Other()
         }
     }
 
@@ -130,6 +137,7 @@ open class Main : MessageKey {
 
         object WHEN_POST_DRAFT_NULL : Message()
         object POST_SAVED : Message()
+        object POST_CANCELLED : Message()
     }
 
     open class Command : Main() {
