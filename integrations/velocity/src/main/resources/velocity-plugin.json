@@ -5,6 +5,7 @@
   "version": "1.0.0",
   "main": "net.rk4z.bulletinboard.BulletinBoard",
   "authors": [
-    "Ruxy"
+    "Lars",
+    "cotrin_d8"
   ]
 }

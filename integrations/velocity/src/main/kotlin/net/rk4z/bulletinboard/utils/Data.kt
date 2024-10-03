@@ -1,12 +1,9 @@
-@file:Suppress("ClassName", "unused")
-
 package net.rk4z.bulletinboard.utils
 
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import net.kyori.adventure.text.Component
-import java.util.Date
-import java.util.UUID
+import java.util.*
 
 interface Draft {
     var title: Component?
@@ -51,20 +48,4 @@ data class Post(
     val isAnonymous: Boolean?,
     @Contextual
     val date: Date?
-)
-
-@Serializable
-data class BulletinBoardData(
-    val posts: List<Post>,
-    @Deprecated("Only used to process old data files")
-    val players: List<PlayerData> = emptyList(),
-    val deletedPosts: List<Post> = emptyList()
-)
-
-@Serializable
-@Deprecated("Only used to process old data files")
-data class PlayerData(
-    @Contextual
-    val uuid: UUID,
-    val posts: List<String>
 )
