@@ -29,7 +29,7 @@ main:
       all_posts: "全ての投稿"
       deleted_posts: "削除された投稿"
       delete_post_selection: "削除する投稿を選択してください"
-      delete_post_permanently_selection: "投稿を完全に削除する"
+      delete_post_permanently_selection: "完全に削除する投稿を選択してください"
       edit_post_selection: "編集する投稿を選択してください"
       restore_post_selection: "復元する投稿を選択してください"
       delete_post_all_player_selection: "削除する他のプレイヤーの投稿を選択してください"

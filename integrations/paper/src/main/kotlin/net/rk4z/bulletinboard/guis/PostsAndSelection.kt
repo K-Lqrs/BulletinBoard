@@ -128,6 +128,30 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
                         }
                     }
                 }
+
+                Main.Gui.Title.RESTORE_POST_SELECTION.translate(player) -> {
+                    when (customId) {
+                        CustomID.BACK_BUTTON.name -> openDeletedPosts(player)
+
+                        else -> {
+                            state.selectedRestoringPostId = customId
+                            openRestorePostConfirmation(player)
+                        }
+                    }
+                }
+
+                Main.Gui.Title.DELETE_POST_PERMANENTLY_SELECTION.translate(player) -> {
+                    when (customId) {
+                        CustomID.BACK_BUTTON.name -> openDeletedPosts(player)
+
+                        else -> {
+                            state.selectedDeletingPostId = customId
+                            openDeletePostPermanentlyConfirmation(player)
+                        }
+                    }
+                }
+
+                else -> { return }
             }
         }
 
@@ -167,8 +191,6 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
             // no additional buttons
         }
     }
-
-
 
     val inventory = PaginatedGUI(player)
         .setSlotPositions(middleRowSlots)
