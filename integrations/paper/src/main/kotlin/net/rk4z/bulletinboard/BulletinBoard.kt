@@ -11,6 +11,7 @@ import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.CommandMap
 import org.bukkit.command.CommandSender
+import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import org.json.JSONArray
 import org.slf4j.Logger
@@ -31,8 +32,7 @@ import java.util.concurrent.ScheduledExecutorService
 import kotlin.io.path.notExists
 
 typealias TaskRunner = (JavaPlugin, Runnable) -> Unit
-typealias TaskRunnerWithDelay = (JavaPlugin, Runnable, Long) -> Unit
-typealias TaskRunnerWithPeriod = (JavaPlugin, Runnable, Long, Long) -> Unit
+
 
 @Suppress("unused", "DEPRECATION")
 class BulletinBoard : JavaPlugin() {
@@ -46,19 +46,19 @@ class BulletinBoard : JavaPlugin() {
 
         const val ID = "bulletinboard"
         const val MODRINTH_API_URL = "https://api.modrinth.com/v2/project/AfO6aot1/version"
-        const val MODRINTH_DOWNLOAD_URL = "https://modrinth.com/plugin/AfO6aot1/version"
+        const val MODRINTH_DOWNLOAD_URL = "https://modrinth.com/plugin/AfO6aot1/versions/"
 
         val runTask: TaskRunner = { plugin, task -> Bukkit.getScheduler().runTask(plugin, task) }
         val runTaskAsync: TaskRunner = { plugin, task -> Bukkit.getScheduler().runTaskAsynchronously(plugin, task) }
-        val runTaskLater: TaskRunnerWithDelay = { plugin, task, delay -> Bukkit.getScheduler().runTaskLater(plugin, task, delay) }
-        val runTaskTimer: TaskRunnerWithPeriod = { plugin, task, delay, period -> Bukkit.getScheduler().runTaskTimer(plugin, task, delay, period) }
+
+        val log: Logger = LoggerFactory.getLogger(BulletinBoard::class.java.simpleName)
     }
 
     val version = description.version
     val authors: MutableList<String> = description.authors
     val pluginDes = description.description
     val isDebug: Boolean = true
-    val log: Logger = LoggerFactory.getLogger(BulletinBoard::class.java.simpleName)
+
     private val executor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
     private var enableMetrics: Boolean? = true
     private var isProxied: Boolean? = false
@@ -108,7 +108,8 @@ class BulletinBoard : JavaPlugin() {
         }
 
         IGF.init(this)
-            server.pluginManager.registerEvents(BBListener(), this)
+        IGF.setGlobalListener(BBListener())
+        server.pluginManager.registerEvents(BBListener(), this)
 
         availableLang.forEach {
             LanguageManager.findMissingKeys(it)
@@ -118,6 +119,32 @@ class BulletinBoard : JavaPlugin() {
     override fun onDisable() {
         log.info(LanguageManager.getSysMessage(System.Log.DISABLING, name, version))
         dataBase.closeConnection()
+    }
+
+    fun reload(player: Player) {
+        log.info("Reloading language files...")
+        loadLanguageFiles()
+        availableLang.forEach {
+            LanguageManager.findMissingKeys(it)
+        }
+        log.info("Language files reloaded successfully.")
+        player.sendMessage("Language files reloaded.")
+
+        log.info("Reloading configuration file...")
+        loadConfig()
+        log.info("Configuration file reloaded successfully.")
+        player.sendMessage("Configuration file reloaded.")
+
+        log.info("Reloading database connection...")
+        dataBase.closeConnection()
+        if (dataBase.connectToDatabase()) {
+            dataBase.createRequiredTables()
+            log.info("Database connection reloaded successfully.")
+            player.sendMessage("Database connection reloaded.")
+        } else {
+            log.warn("Failed to reload database connection.")
+            player.sendMessage("Failed to reload database connection.")
+        }
     }
 
     private fun initializeDirectories() {
@@ -198,7 +225,7 @@ class BulletinBoard : JavaPlugin() {
         val commandMap = commandMapField.get(Bukkit.getServer()) as CommandMap
 
         val command = object : Command("bulletinboard") {
-            override fun execute(sender: CommandSender, label: String, args: Array<out String>): Boolean {
+            override fun execute(sender: CommandSender, label: String, args: Array<String>): Boolean {
                 return CommandManager.onCommand(sender, this, label, args)
             }
 

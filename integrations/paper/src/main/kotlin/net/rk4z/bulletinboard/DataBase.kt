@@ -1,6 +1,7 @@
 package net.rk4z.bulletinboard
 
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
+import net.rk4z.bulletinboard.BulletinBoard.Companion.log
 import net.rk4z.bulletinboard.utils.ShortUUID
 import net.rk4z.bulletinboard.utils.JsonUtil
 import net.rk4z.bulletinboard.utils.Post
@@ -24,14 +25,14 @@ class DataBase(private val plugin: BulletinBoard) {
 
         try {
             connection = DriverManager.getConnection(url)
-            plugin.log.info("Successfully connected to the SQLite database!")
+            log.info("Successfully connected to the SQLite database!")
             return true
         } catch (e: SQLException) {
-            plugin.log.error("Could not connect to the SQLite database!")
+            log.error("Could not connect to the SQLite database!")
             e.printStackTrace()
             return false
         } catch (e: Exception) {
-            plugin.log.error("An unknown error occurred while connecting to the SQLite database!")
+            log.error("An unknown error occurred while connecting to the SQLite database!")
             e.printStackTrace()
             return false
         }
@@ -39,7 +40,7 @@ class DataBase(private val plugin: BulletinBoard) {
 
     fun createRequiredTables() {
         if (connection == null) {
-            plugin.log.error("Could not create the required tables because the connection to the SQLite database is null!")
+            log.error("Could not create the required tables because the connection to the SQLite database is null!")
             return
         }
 
@@ -87,13 +88,13 @@ class DataBase(private val plugin: BulletinBoard) {
                 statement.execute(createDeletedPostsTableSQL)
                 statement.execute(createConfigTableSQL)
                 statement.execute(createSettingsTableSQL)
-                plugin.logger.info("Requirement tables created successfully!")
+                log.info("Requirement tables created successfully!")
             }
         } catch (e: SQLException) {
-            plugin.log.error("Could not create the required tables!")
+            log.error("Could not create the required tables!")
             e.printStackTrace()
         } catch (e: Exception) {
-            plugin.log.error("An unknown error occurred while creating the required tables!")
+            log.error("An unknown error occurred while creating the required tables!")
             e.printStackTrace()
         }
     }
@@ -102,13 +103,13 @@ class DataBase(private val plugin: BulletinBoard) {
         try {
             if (connection != null) {
                 connection?.close()
-                plugin.log.info("Successfully closed the SQLite database connection!")
+                log.info("Successfully closed the SQLite database connection!")
             }
         } catch (e: SQLException) {
-            plugin.log.error("Could not close the SQLite database connection!")
+            log.error("Could not close the SQLite database connection!")
             e.printStackTrace()
         } catch (e: Exception) {
-            plugin.log.error("An unknown error occurred while closing the SQLite database connection!")
+            log.error("An unknown error occurred while closing the SQLite database connection!")
             e.printStackTrace()
         } finally {
             connection = null
@@ -120,7 +121,7 @@ class DataBase(private val plugin: BulletinBoard) {
         data.posts.forEach { post ->
             insertPost(post, true)
         }
-        plugin.log.info("Data imported from JSON to SQLite successfully!")
+        log.info("Data imported from JSON to SQLite successfully!")
         setMigrationFlag()
     }
 
@@ -131,7 +132,7 @@ class DataBase(private val plugin: BulletinBoard) {
                 statement.executeUpdate()
             }
         } catch (e: SQLException) {
-            plugin.log.error("Could not set migration flag in config table!")
+            log.error("Could not set migration flag in config table!")
             e.printStackTrace()
         }
     }
@@ -148,7 +149,7 @@ class DataBase(private val plugin: BulletinBoard) {
                 }
             } ?: false
         } catch (e: SQLException) {
-            plugin.log.error("Could not check migration flag in config table!")
+            log.error("Could not check migration flag in config table!")
             e.printStackTrace()
             false
         }
@@ -195,10 +196,10 @@ class DataBase(private val plugin: BulletinBoard) {
                 statement.setString(indexOffset + 1, dateFormat.format(post.date))
 
                 statement.executeUpdate()
-                plugin.log.info("Post successfully inserted into the database.")
+                log.info("Post successfully inserted into the database.")
             }
         } catch (e: SQLException) {
-            plugin.log.error("Could not insert post into database!")
+            log.error("Could not insert post into database!")
             e.printStackTrace()
         }
     }
@@ -246,13 +247,28 @@ class DataBase(private val plugin: BulletinBoard) {
                         deleteStatement.executeUpdate()
                     }
 
-                    plugin.log.info("Post moved to deletedPosts and deleted from posts.")
+                    log.info("Post moved to deletedPosts and deleted from posts.")
                 } else {
-                    plugin.log.warn("No post found with the given ID.")
+                    log.warn("No post found with the given ID.")
                 }
             }
         } catch (e: SQLException) {
-            plugin.log.error("Could not delete post from database!")
+            log.error("Could not delete post from database!")
+            e.printStackTrace()
+        }
+    }
+
+    fun deletePostFromAll(id: String) {
+        val deleteSQL = "DELETE FROM posts WHERE id = ?"
+
+        try {
+            connection?.prepareStatement(deleteSQL)?.use { statement ->
+                statement.setString(1, id)
+                statement.executeUpdate()
+                log.info("Post deleted from all posts.")
+            }
+        } catch (e: SQLException) {
+            log.error("Could not delete post from all posts!")
             e.printStackTrace()
         }
     }
@@ -288,7 +304,7 @@ class DataBase(private val plugin: BulletinBoard) {
                 }
             }
         } catch (e: SQLException) {
-            plugin.log.error("Could not retrieve posts from database!")
+            log.error("Could not retrieve posts from database!")
             e.printStackTrace()
         }
 
@@ -327,7 +343,7 @@ class DataBase(private val plugin: BulletinBoard) {
                 }
             }
         } catch (e: SQLException) {
-            plugin.log.error("Could not retrieve posts from database!")
+            log.error("Could not retrieve posts from database!")
             e.printStackTrace()
         }
 
@@ -366,7 +382,7 @@ class DataBase(private val plugin: BulletinBoard) {
                 }
             }
         } catch (e: SQLException) {
-            plugin.log.error("Could not retrieve post from database!")
+            log.error("Could not retrieve post from database!")
             e.printStackTrace()
             null
         }
@@ -404,7 +420,7 @@ class DataBase(private val plugin: BulletinBoard) {
                 }
             }
         } catch (e: SQLException) {
-            plugin.log.error("Could not retrieve deleted post from database!")
+            log.error("Could not retrieve deleted post from database!")
             e.printStackTrace()
             null
         }
@@ -442,7 +458,7 @@ class DataBase(private val plugin: BulletinBoard) {
                 }
             }
         } catch (e: SQLException) {
-            plugin.log.error("Could not retrieve deleted posts from database!")
+            log.error("Could not retrieve deleted posts from database!")
             e.printStackTrace()
         }
 

@@ -1,23 +1,54 @@
 package net.rk4z.bulletinboard.utils
 
+import net.kyori.adventure.text.Component
 import net.rk4z.bulletinboard.guis.*
 import net.rk4z.bulletinboard.manager.CommandManager.displayAbout
 import net.rk4z.bulletinboard.manager.CommandManager.displayHelp
+import net.rk4z.bulletinboard.BulletinBoard
 import org.bukkit.entity.Player
 
-typealias CommandExecute = (Player) -> Unit
+import java.util.*
+
+typealias CommandExecute = (Player, Array<String>) -> Unit
 
 enum class Commands(val execute: CommandExecute) {
-    //TODO: Add more commands
-    OPENBOARD({ player -> openMainBoard(player) }),
-    NEWPOST({ player -> openPostEditor(player) }),
-    ALLPOSTS({ player -> openAllPosts(player) }),
-    MYPOSTS({ player -> openMyPosts(player) }),
-    DELETEDPOSTS({ player -> openDeletedPosts(player) }),
-    HELP({ player -> displayHelp(player) }),
-    ABOUT({ player -> displayAbout(player) }),
-    DEBUG({ player -> player.getPlayerState().sendDebugMessage(player) })
-    ;
+    OPENBOARD({ player, _ -> openMainBoard(player) }),
+    NEWPOST({ player, _ -> openPostEditor(player) }),
+    ALLPOSTS({ player, _ -> openAllPosts(player) }),
+    MYPOSTS({ player, _ -> openMyPosts(player) }),
+    DELETEDPOSTS({ player, _ -> openDeletedPosts(player) }),
+    HELP({ player, _ -> displayHelp(player) }),
+    ABOUT({ player, _ -> displayAbout(player) }),
+    DEBUG({ player, _ -> player.getPlayerState().sendDebugMessage(player) }),
+    INSERTDEBUGPOST({ player, args ->
+        if (player.hasPermission("bulletinboard.post.debug")) {
+            if (args.size > 1 && (args[1] == "0" || args[1] == "1")) {
+                val isAnonymous = args[1] == "1"
+
+                val post = Post(
+                    id = ShortUUID.randomUUID(),
+                    title = Component.text("Debug Post"),
+                    content = Component.text("This is a debug post"),
+                    author = player.uniqueId,
+                    isAnonymous = isAnonymous,
+                    date = Date()
+                )
+                BulletinBoard.dataBase.insertPost(post)
+                player.sendMessage("Debug post inserted with isAnonymous set to $isAnonymous")
+            } else {
+                player.sendMessage("Usage: /insertdebugpost <0 or 1>")
+            }
+        } else {
+            player.sendMessage("You do not have permission to use this command.")
+        }
+    }),
+    RELOAD({ player, _ ->
+        if (player.hasPermission("bulletinboard.reload")) {
+            BulletinBoard.instance.reload(player)
+        } else {
+            player.sendMessage("You do not have permission to use this command.")
+        }
+    });
 
     companion object {
         fun fromString(name: String): Commands? {

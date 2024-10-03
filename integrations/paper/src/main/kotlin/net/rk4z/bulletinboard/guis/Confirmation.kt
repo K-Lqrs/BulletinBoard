@@ -175,6 +175,36 @@ private fun openConfirmationScreen(player: Player, type: ConfirmationType) {
                     player.sendMessage(LanguageManager.getMessage(player, Main.Message.POST_CANCELLED))
                 }
 
+                CustomID.DELETE_POST_FROM_ALL -> {
+                    val id = state.selectedDeletingPostId ?: run {
+                        player.sendMessage(LanguageManager.getMessage(player, Main.Message.POST_NOT_FOUND))
+                        return
+                    }
+
+                    BulletinBoard.runTaskAsync(BulletinBoard.instance) {
+                        BulletinBoard.dataBase.deletePost(id)
+                    }
+
+                    state.clearAll()
+                    gui.close()
+                    player.sendMessage(LanguageManager.getMessage(player, Main.Message.POST_DELETED))
+                }
+
+                CONFIRM_DELETE_POST_FROM_ALL -> {
+                    val id = state.selectedDeletingPostId ?: run {
+                        player.sendMessage(LanguageManager.getMessage(player, Main.Message.POST_NOT_FOUND))
+                        return
+                    }
+
+                    BulletinBoard.runTaskAsync(BulletinBoard.instance) {
+                        BulletinBoard.dataBase.deletePostFromAll(id)
+                    }
+
+                    state.clearAll()
+                    gui.close()
+                    player.sendMessage(LanguageManager.getMessage(player, Main.Message.POST_DELETED))
+                }
+
                 else -> {}
             }
         }

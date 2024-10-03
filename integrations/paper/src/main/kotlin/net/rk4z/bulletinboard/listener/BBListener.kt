@@ -10,10 +10,16 @@ import net.rk4z.bulletinboard.guis.openPostEditor
 import net.rk4z.bulletinboard.guis.openPostEditorForEdit
 import net.rk4z.bulletinboard.utils.*
 import net.rk4z.bulletinboard.utils.InputType.*
+import net.rk4z.igf.GUIListener
+import net.rk4z.igf.InventoryGUI
+import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.inventory.InventoryCloseEvent
+import org.bukkit.event.inventory.InventoryOpenEvent
 
-class BBListener : Listener {
+class BBListener : Listener, GUIListener {
     @EventHandler
     fun onChat(event: AsyncChatEvent) {
         val player = event.player
@@ -56,6 +62,18 @@ class BBListener : Listener {
         } else {
             state.draft = draft as PostDraft
             state.inputType = null
+        }
+    }
+
+    override fun onInventoryClick(event: InventoryClickEvent, gui: InventoryGUI) {}
+    override fun onInventoryOpen(event: InventoryOpenEvent, gui: InventoryGUI) {}
+
+    override fun onInventoryClose(event: InventoryCloseEvent, gui: InventoryGUI) {
+        val player = event.player as Player
+        val state = player.getPlayerState()
+
+        if (event.reason == InventoryCloseEvent.Reason.PLAYER) {
+            state.clearAll()
         }
     }
 }

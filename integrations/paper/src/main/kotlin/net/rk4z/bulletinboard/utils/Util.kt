@@ -66,7 +66,8 @@ private val countryTimeZones = mapOf(
     "NZ" to "Pacific/Auckland"  // ニュージーランド
 )
 
-fun displayPost(player: Player, post: Post) {
+fun displayPost(player: Player, post: Post?) {
+    if (post == null) return
     val playerTimeZone = getPlayerTimeZone(player)
     // Date in Result can never be null
     val zonedDateTime = ZonedDateTime.ofInstant(post.date!!.toInstant(), playerTimeZone.toZoneId())
@@ -81,7 +82,7 @@ fun displayPost(player: Player, post: Post) {
     val authorComponent = if (!post.isAnonymous!!) {
         LanguageManager.getMessage(player, Main.Message.AUTHOR_LABEL, authorName)
     } else {
-        LanguageManager.getMessage(player, Main.Gui.Other.ANONYMOUS)
+        LanguageManager.getMessage(player, Main.Message.AUTHOR_LABEL, LanguageManager.getMessage(player, Main.Gui.Other.ANONYMOUS))
     }
 
     val plainTitle = PlainTextComponentSerializer.plainText().serialize(post.title)
@@ -100,17 +101,17 @@ fun displayPost(player: Player, post: Post) {
     runTask(BulletinBoard.instance) {
         player.closeInventory()
 
-        val message = Component.text("---------------------------------", NamedTextColor.DARK_GRAY) // 上の線
+        val message = Component.text("---------------------------------", NamedTextColor.DARK_GRAY)
             .append(Component.newline())
-            .append(titleComponent.color(NamedTextColor.WHITE)) // タイトルをデフォルトの白に設定（任意で他の色に変更可能）
+            .append(titleComponent.color(NamedTextColor.WHITE))
             .append(Component.newline())
-            .append(contentComponent.color(NamedTextColor.WHITE)) // 内容もデフォルトの白に設定
+            .append(contentComponent.color(NamedTextColor.WHITE))
             .append(Component.newline())
-            .append(authorComponent.color(NamedTextColor.WHITE)) // 作者情報の色も設定
+            .append(authorComponent.color(NamedTextColor.WHITE))
             .append(Component.newline())
-            .append(dateComponent.color(NamedTextColor.WHITE)) // 日付情報もデフォルトの色に設定
+            .append(dateComponent.color(NamedTextColor.WHITE))
             .append(Component.newline())
-            .append(Component.text("---------------------------------", NamedTextColor.DARK_GRAY)) // 下の線
+            .append(Component.text("---------------------------------", NamedTextColor.DARK_GRAY))
 
 
         player.sendMessage(message)

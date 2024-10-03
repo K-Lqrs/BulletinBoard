@@ -76,8 +76,7 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
             val clickedItem = event.currentItem ?: return
             val meta = clickedItem.itemMeta ?: return
             val customId = meta.persistentDataContainer.get(key, PersistentDataType.STRING) ?: return
-
-            BulletinBoard.instance.log.info("customId: $customId, title: ${gui.getTitle()!!}")
+            val state = player.getPlayerState()
 
             when (gui.getTitle()!!) {
                 Main.Gui.Title.MY_POSTS.translate(player),
@@ -85,9 +84,12 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
                 Main.Gui.Title.DELETED_POSTS.translate(player) -> {
                     when (customId) {
                         CustomID.BACK_BUTTON.name -> openMainBoard(player)
+                        CustomID.DELETE_POST_FROM_ALL.name -> openDeletePostFromAllPlayerSelection(player)
+                        CustomID.EDIT_POST.name -> openEditPostSelection(player)
+                        CustomID.DELETE_POST.name -> openDeletePostSelection(player)
 
                         else -> {
-                            val post = BulletinBoard.dataBase.getPost(customId) ?: return
+                            val post = BulletinBoard.dataBase.getPost(customId)
                             displayPost(player, post)
                         }
                     }
@@ -98,25 +100,33 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
                         CustomID.BACK_BUTTON.name -> openAllPosts(player)
 
                         else -> {
-                            val post = BulletinBoard.dataBase.getPost(customId) ?: return
-                            displayPost(player, post)
+                            state.selectedDeletingPostId = customId
+                            openDeletePostFromAllConfirmation(player)
                         }
                     }
                 }
-            }
 
-            when (customId) {
-                CustomID.DELETE_POST_FROM_ALL.name -> {
-                    gui.close()
-                    openDeletePostFromAllPlayerSelection(player)
+                Main.Gui.Title.EDIT_POST_SELECTION.translate(player) -> {
+                    when (customId) {
+                        CustomID.BACK_BUTTON.name -> openMyPosts(player)
+
+                        else -> {
+                            state.selectedEditingPostId = customId
+                            val post = BulletinBoard.dataBase.getPost(customId)
+                            openPostEditorForEdit(player, post)
+                        }
+                    }
                 }
-                CustomID.EDIT_POST.name -> {
-                    gui.close()
-                    openEditPostSelection(player)
-                }
-                CustomID.DELETE_POST.name -> {
-                    gui.close()
-                    openDeletePostSelection(player)
+
+                Main.Gui.Title.DELETE_POST_SELECTION.translate(player) -> {
+                    when (customId) {
+                        CustomID.BACK_BUTTON.name -> openMyPosts(player)
+
+                        else -> {
+                            state.selectedDeletingPostId = customId
+                            openDeletePostConfirmation(player)
+                        }
+                    }
                 }
             }
         }
@@ -134,11 +144,31 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
         Button(26, Material.ARROW, LanguageManager.getMessage(player, Main.Gui.Button.NEXT_PAGE), CustomID.NEXT_PAGE.name)
     )
 
-    if (player.hasPermission("bulletinboard.post.delete.other")) {
-        if (titleType == ALL_POSTS) {
-            buttons.add(Button(20, Material.RED_WOOL, LanguageManager.getMessage(player, Main.Gui.Button.DELETE_POST_FROM_ALL), CustomID.DELETE_POST_FROM_ALL.name))
+    when (titleType) {
+        ALL_POSTS -> {
+            if (player.hasPermission("bulletinboard.post.delete.other")) {
+                buttons.add(Button(20, Material.RED_WOOL, LanguageManager.getMessage(player, Main.Gui.Button.DELETE_POST_FROM_ALL), CustomID.DELETE_POST_FROM_ALL.name))
+            }
+        }
+        MY_POSTS -> {
+            buttons.addAll(listOf(
+                Button(20, Material.WRITABLE_BOOK, Main.Gui.Button.EDIT_POST.translate(player), CustomID.EDIT_POST.name),
+                Button(24, Material.CAULDRON, Main.Gui.Button.DELETE_POST.translate(player), CustomID.DELETE_POST.name)
+            ))
+        }
+        DELETED_POSTS -> {
+            buttons.addAll(listOf(
+                Button(20, Material.RESPAWN_ANCHOR, Main.Gui.Button.RESTORE_POST.translate(player), CustomID.RESTORE_POST.name),
+                Button(24, Material.LAVA_BUCKET, Main.Gui.Button.DELETE_POST_PERMANENTLY.translate(player), CustomID.DELETE_POST_PERMANENTLY.name)
+            ))
+        }
+
+        else -> {
+            // no additional buttons
         }
     }
+
+
 
     val inventory = PaginatedGUI(player)
         .setSlotPositions(middleRowSlots)

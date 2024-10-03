@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import net.rk4z.bulletinboard.BulletinBoard
+import net.rk4z.bulletinboard.BulletinBoard.Companion.log
 import net.rk4z.bulletinboard.utils.Commands
 import net.rk4z.bulletinboard.utils.Main
 import net.rk4z.bulletinboard.utils.playSoundMaster
@@ -22,7 +23,7 @@ object CommandManager : CommandExecutor, TabCompleter {
         sender: CommandSender,
         command: Command,
         label: String,
-        args: Array<out String>?
+        args: Array<String>?
     ): Boolean {
         if (args.isNullOrEmpty() || subCommandsList.map { it.lowercase() }.contains(args[0]).not()) {
             if (sender is Player) {
@@ -37,7 +38,7 @@ object CommandManager : CommandExecutor, TabCompleter {
         val commandEnum = Commands.fromString(args[0])
         if (commandEnum != null && sender is Player) {
             with(commandEnum) {
-                execute(sender)
+                execute(sender, args)
                 return true
             }
         } else {
@@ -123,6 +124,6 @@ object CommandManager : CommandExecutor, TabCompleter {
         player.sendMessage(Component.text("===================")
             .color(NamedTextColor.DARK_GREEN)
             .decorate(TextDecoration.BOLD))
-        BulletinBoard.instance.logger.info("About command executed by ${player.name}")
+        log.info("About command executed by ${player.name}")
     }
 }

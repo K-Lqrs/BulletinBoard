@@ -138,6 +138,8 @@ open class Main : MessageKey {
         object WHEN_POST_DRAFT_NULL : Message()
         object POST_SAVED : Message()
         object POST_CANCELLED : Message()
+        object POST_NOT_FOUND : Message()
+        object POST_DELETED : Message()
     }
 
     open class Command : Main() {

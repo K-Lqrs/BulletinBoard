@@ -2,6 +2,7 @@ package net.rk4z.bulletinboard.manager
 
 import net.kyori.adventure.text.Component
 import net.rk4z.bulletinboard.BulletinBoard
+import net.rk4z.bulletinboard.BulletinBoard.Companion.log
 import net.rk4z.bulletinboard.utils.Main
 import net.rk4z.bulletinboard.utils.MessageKey
 import net.rk4z.bulletinboard.utils.System
@@ -76,7 +77,7 @@ object LanguageManager {
         messageKeyMap.forEach { (path, key) ->
             if (!currentMessages.containsKey(key)) {
                 missingKeys.add(path)
-                BulletinBoard.instance.logger.warning("Missing key: $path for language: $lang")
+                log.warn("Missing key: $path for language: $lang")
             }
         }
 

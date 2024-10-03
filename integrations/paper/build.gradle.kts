@@ -116,6 +116,11 @@ paper {
             default = BukkitPluginDescription.Permission.Default.OP
         }
 
+        register("bulletinboard.post.debug") {
+            description = "Allows the player to add a debug post"
+            default = BukkitPluginDescription.Permission.Default.OP
+        }
+
         register("bulletinboard.reload") {
             description = "Allows the player to reload the plugin"
             default = BukkitPluginDescription.Permission.Default.OP

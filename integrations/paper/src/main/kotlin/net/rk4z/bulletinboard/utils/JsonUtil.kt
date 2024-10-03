@@ -3,7 +3,7 @@ package net.rk4z.bulletinboard.utils
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import net.kyori.adventure.text.Component
-import net.rk4z.bulletinboard.BulletinBoard
+import net.rk4z.bulletinboard.BulletinBoard.Companion.log
 import java.io.File
 import java.util.*
 
@@ -20,18 +20,16 @@ object JsonUtil {
         }
     }
 
-    private val logger = BulletinBoard.instance.logger
-
     fun loadFromFile(file: File): BulletinBoardData {
         return if (file.exists() && file.readText().isNotEmpty()) {
             try {
                 json.decodeFromString(BulletinBoardData.serializer(), file.readText())
             } catch (e: Exception) {
-                logger.info("Error parsing JSON: ${e.message}")
+                log.info("Error parsing JSON: ${e.message}")
                 BulletinBoardData(emptyList(), emptyList(), emptyList())
             }
         } else {
-            logger.info("Warning: JSON file is empty or does not exist.")
+            log.info("Warning: JSON file is empty or does not exist.")
             BulletinBoardData(emptyList(), emptyList(), emptyList())
         }
     }
