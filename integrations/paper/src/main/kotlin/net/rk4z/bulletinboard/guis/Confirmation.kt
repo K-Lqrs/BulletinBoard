@@ -129,6 +129,7 @@ private fun openConfirmationScreen(player: Player, type: ConfirmationType) {
                         throw IllegalStateException("Preview data is null")
                     }
 
+                    gui.close()
                     player.sendMessage(Component.text("-----[ Preview ]-----"))
                     player.sendMessage(LanguageManager.getMessage(player, Main.Message.TITLE_LABEL, dt))
                     player.sendMessage(LanguageManager.getMessage(player, Main.Message.CONTENT_LABEL, dc))
@@ -203,6 +204,12 @@ private fun openConfirmationScreen(player: Player, type: ConfirmationType) {
                     state.clearAll()
                     gui.close()
                     player.sendMessage(LanguageManager.getMessage(player, Main.Message.POST_DELETED))
+                }
+
+                CANCEL_CONFIRM_SAVE_POST -> {
+                    state.isOpeningConfirmation = null
+                    state.confirmationType = null
+                    openPostEditor(player)
                 }
 
                 else -> {}

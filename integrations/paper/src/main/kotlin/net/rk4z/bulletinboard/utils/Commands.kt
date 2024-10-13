@@ -5,6 +5,7 @@ import net.rk4z.bulletinboard.guis.*
 import net.rk4z.bulletinboard.manager.CommandManager.displayAbout
 import net.rk4z.bulletinboard.manager.CommandManager.displayHelp
 import net.rk4z.bulletinboard.BulletinBoard
+import net.rk4z.bulletinboard.manager.LanguageManager
 import org.bukkit.entity.Player
 
 import java.util.*
@@ -17,6 +18,16 @@ enum class Commands(val execute: CommandExecute) {
     ALLPOSTS({ player, _ -> openAllPosts(player) }),
     MYPOSTS({ player, _ -> openMyPosts(player) }),
     DELETEDPOSTS({ player, _ -> openDeletedPosts(player) }),
+    PREVIEWCLOSE({ player, _ ->
+        val state = player.getPlayerState()
+        if (state.preview != null) {
+            state.isPreviewing = null
+            state.preview = null
+            openPostEditor(player)
+        } else {
+            player.sendMessage(LanguageManager.getMessage(player, Main.Command.Message.NOT_PREVIEWING))
+        }
+    }),
     HELP({ player, _ -> displayHelp(player) }),
     ABOUT({ player, _ -> displayAbout(player) }),
     DEBUG({ player, _ -> player.getPlayerState().sendDebugMessage(player) }),

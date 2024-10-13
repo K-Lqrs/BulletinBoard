@@ -146,6 +146,7 @@ open class Main : MessageKey {
         open class Message : Command() {
             object PLAYER_ONLY : Message()
             object UNKNOWN_COMMAND : Message()
+            object NOT_PREVIEWING : Message()
         }
 
         open class Help : Command() {

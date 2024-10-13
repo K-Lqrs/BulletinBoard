@@ -72,9 +72,9 @@ fun displayPost(player: Player, post: Post?) {
     // Date in Result can never be null
     val zonedDateTime = ZonedDateTime.ofInstant(post.date!!.toInstant(), playerTimeZone.toZoneId())
     val authorName =
-            // First try. get from online player
+            // First try. Get from online player
            Bukkit.getPlayer(post.author)?.name
-           // Second try. get from offline player
+           // Second try. Get from offline player
         ?: Bukkit.getOfflinePlayer(post.author).name
            // If a player is not found, just display "Unknown Player"
         ?: LanguageManager.getMessage(player, Main.Gui.Other.UNKNOWN_PLAYER)
@@ -82,7 +82,7 @@ fun displayPost(player: Player, post: Post?) {
     val authorComponent = if (!post.isAnonymous!!) {
         LanguageManager.getMessage(player, Main.Message.AUTHOR_LABEL, authorName)
     } else {
-        LanguageManager.getMessage(player, Main.Message.AUTHOR_LABEL, LanguageManager.getMessage(player, Main.Gui.Other.ANONYMOUS))
+        LanguageManager.getMessage(player, Main.Message.AUTHOR_LABEL, LanguageManager.getMessage(player, Main.Gui.Other.ANONYMOUS).getContent())
     }
 
     val plainTitle = PlainTextComponentSerializer.plainText().serialize(post.title)

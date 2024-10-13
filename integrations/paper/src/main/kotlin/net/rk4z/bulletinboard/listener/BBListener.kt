@@ -67,7 +67,6 @@ class BBListener : Listener, GUIListener {
 
     override fun onInventoryClick(event: InventoryClickEvent, gui: InventoryGUI) {}
     override fun onInventoryOpen(event: InventoryOpenEvent, gui: InventoryGUI) {}
-
     override fun onInventoryClose(event: InventoryCloseEvent, gui: InventoryGUI) {
         val player = event.player as Player
         val state = player.getPlayerState()
