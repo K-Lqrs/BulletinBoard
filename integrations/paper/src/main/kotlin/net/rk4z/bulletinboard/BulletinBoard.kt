@@ -31,6 +31,7 @@ import kotlin.io.path.notExists
 
 typealias TaskRunner = (JavaPlugin, Runnable) -> Unit
 
+//TODO: Refactor this class to use PluginBase API.
 @Suppress("unused", "DEPRECATION")
 class BulletinBoard : JavaPlugin() {
     companion object {
@@ -144,6 +145,7 @@ class BulletinBoard : JavaPlugin() {
         }
     }
 
+    @Deprecated("This method will be removed in the future. It will be provided as a PluginBase API")
     private fun initializeDirectories() {
         if (dataFolder.toPath().notExists()) {
             dataFolder.mkdirs()
@@ -162,6 +164,7 @@ class BulletinBoard : JavaPlugin() {
         }
     }
 
+    @Deprecated("This method will be removed in the future. It will be provided as a PluginBase API")
     private fun updateLanguageFilesIfNeeded() {
         availableLang.forEach { lang ->
             val langFile = File(langDir, "$lang.yml")
@@ -193,6 +196,7 @@ class BulletinBoard : JavaPlugin() {
         }
     }
 
+    @Deprecated("This method will be removed in the future. It will be provided as a PluginBase API")
     private fun loadLanguageFiles() {
         availableLang.forEach { lang ->
             val langFile = langDir.resolve("$lang.yml")
@@ -209,6 +213,7 @@ class BulletinBoard : JavaPlugin() {
         }
     }
 
+    @Deprecated("This method will be removed in the future. It will be provided as a PluginBase API")
     private fun readLangVersion(stream: InputStream): String {
         return InputStreamReader(stream, StandardCharsets.UTF_8).use { reader ->
             val langData: Map<String, Any> = yaml.load(reader)
@@ -236,6 +241,7 @@ class BulletinBoard : JavaPlugin() {
         commandMap.register(plugin.description.name, command)
     }
 
+    @Deprecated("This method will be removed in the future. It will be provided as a PluginBase API")
     private fun checkUpdate() {
         executor.execute {
             log.info(LanguageManager.getSysMessage(System.Log.CHECKING_UPDATE))
@@ -266,6 +272,7 @@ class BulletinBoard : JavaPlugin() {
         }
     }
 
+    @Deprecated("This method will be removed in the future. It will be provided as a PluginBase API")
     private fun isVersionNewer(version1: String, version2: String): Boolean {
         val v1Parts = version1.split(".").map { it.toIntOrNull() ?: 0 }
         val v2Parts = version2.split(".").map { it.toIntOrNull() ?: 0 }
@@ -281,6 +288,7 @@ class BulletinBoard : JavaPlugin() {
         return false
     }
 
+    @Deprecated("This method will be removed in the future. It will be provided as a PluginBase API")
     private fun extractVersionInfo(response: String): Triple<String, Int, Int> {
         val jsonArray = JSONArray(response)
         var latestVersion = ""
@@ -306,6 +314,7 @@ class BulletinBoard : JavaPlugin() {
         return Triple(latestVersion, versionCount, newerVersionCount)
     }
 
+    @Deprecated("This method will be removed in the future. It will be provided as a PluginBase API")
     private fun loadConfig() {
         Files.newInputStream(configFile).use { inputStream ->
             val config: Map<String, Any> = yaml.load(inputStream)
