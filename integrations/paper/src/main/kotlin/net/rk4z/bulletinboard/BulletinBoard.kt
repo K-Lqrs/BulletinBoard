@@ -31,7 +31,6 @@ import kotlin.io.path.notExists
 
 typealias TaskRunner = (JavaPlugin, Runnable) -> Unit
 
-
 @Suppress("unused", "DEPRECATION")
 class BulletinBoard : JavaPlugin() {
     companion object {

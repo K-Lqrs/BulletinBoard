@@ -19,9 +19,9 @@ data class PlayerState(
     // the ID of the post the player is currently restoring
     var selectedRestoringPostId: String? = null,
 
-    // when true, the player is inputting a something. the type is determined by the inputType
+    // when true, the player is inputting something. the type is determined by the inputType
     var isInputting: Boolean? = null,
-    // when true, the player is editing a something. the type is determined by the editInputType
+    // when true, the player is editing something. the type is determined by the editInputType
     var isEditInputting: Boolean? = null,
     // when true, the player is previewing.
     var isPreviewing: Boolean? = null,
@@ -131,6 +131,10 @@ data class PlayerState(
                 Component.text(it.first.toString() + " | " + it.second.toString(), NamedTextColor.WHITE)
             } ?: Component.text("None", NamedTextColor.WHITE))
 
-        player.sendMessage(stateMessage)
+        if (player.hasPermission("bulletinboard.post.debug")) {
+            player.sendMessage(stateMessage)
+        } else {
+            player.sendMessage("You do not have permission to use this command.")
+        }
     }
 }

@@ -14,6 +14,12 @@ import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.persistence.PersistentDataType
 
+/**
+ * Open the main board for the player
+ * @param player the player to open the main board for
+ *
+ * This function is called from the following places: [net.rk4z.bulletinboard.utils.Commands.OPENBOARD]
+ */
 fun openMainBoard(player: Player) {
     val buttons = listOf(
         Button(10, Material.WRITABLE_BOOK, Main.Gui.Button.NEW_POST.translate(player), CustomID.NEW_POST.name),
