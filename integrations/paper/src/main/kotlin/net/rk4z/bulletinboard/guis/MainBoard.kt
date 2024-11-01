@@ -2,11 +2,11 @@ package net.rk4z.bulletinboard.guis
 
 import net.rk4z.bulletinboard.manager.CommandManager.displayAbout
 import net.rk4z.bulletinboard.manager.CommandManager.displayHelp
-import net.rk4z.bulletinboard.manager.LanguageManager
 import net.rk4z.bulletinboard.utils.CustomID
 import net.rk4z.bulletinboard.utils.Main
 import net.rk4z.bulletinboard.utils.getPlayerState
 import net.rk4z.igf.*
+import net.rk4z.s1.pluginBase.LanguageManager
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -22,13 +22,13 @@ import org.bukkit.persistence.PersistentDataType
  */
 fun openMainBoard(player: Player) {
     val buttons = listOf(
-        Button(10, Material.WRITABLE_BOOK, Main.Gui.Button.NEW_POST.translate(player), CustomID.NEW_POST.name),
-        Button(12, Material.BOOK, Main.Gui.Button.ALL_POSTS.translate(player), CustomID.ALL_POSTS.name),
-        Button(14, Material.WRITTEN_BOOK, Main.Gui.Button.MY_POSTS.translate(player), CustomID.MY_POSTS.name),
-        Button(16, Material.CAULDRON, Main.Gui.Button.DELETED_POSTS.translate(player), CustomID.DELETED_POSTS.name),
-        Button(29, Material.LECTERN, Main.Gui.Button.ABOUT_PLUGIN.translate(player), CustomID.ABOUT_PLUGIN.name),
-        Button(31, Material.COMPARATOR, Main.Gui.Button.SETTINGS.translate(player), CustomID.SETTINGS.name),
-        Button(33, Material.OAK_SIGN, Main.Gui.Button.HELP.translate(player), CustomID.HELP.name)
+        Button(10, Material.WRITABLE_BOOK, Main.Gui.Button.NEW_POST.t(player), CustomID.NEW_POST.name),
+        Button(12, Material.BOOK, Main.Gui.Button.ALL_POSTS.t(player), CustomID.ALL_POSTS.name),
+        Button(14, Material.WRITTEN_BOOK, Main.Gui.Button.MY_POSTS.t(player), CustomID.MY_POSTS.name),
+        Button(16, Material.CAULDRON, Main.Gui.Button.DELETED_POSTS.t(player), CustomID.DELETED_POSTS.name),
+        Button(29, Material.LECTERN, Main.Gui.Button.ABOUT_PLUGIN.t(player), CustomID.ABOUT_PLUGIN.name),
+        Button(31, Material.COMPARATOR, Main.Gui.Button.SETTINGS.t(player), CustomID.SETTINGS.name),
+        Button(33, Material.OAK_SIGN, Main.Gui.Button.HELP.t(player), CustomID.HELP.name)
     )
 
     val listener = object : GUIListener {

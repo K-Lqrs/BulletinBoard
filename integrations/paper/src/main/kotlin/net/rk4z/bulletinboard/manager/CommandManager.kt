@@ -4,10 +4,11 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import net.rk4z.bulletinboard.BulletinBoard
-import net.rk4z.bulletinboard.BulletinBoard.Companion.log
 import net.rk4z.bulletinboard.utils.Commands
 import net.rk4z.bulletinboard.utils.Main
 import net.rk4z.bulletinboard.utils.playSoundMaster
+import net.rk4z.s1.pluginBase.LanguageManager
+import net.rk4z.s1.pluginBase.Logger
 import org.bukkit.Sound
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
@@ -106,15 +107,15 @@ object CommandManager : CommandExecutor, TabCompleter {
             .color(NamedTextColor.DARK_GREEN)
             .decorate(TextDecoration.BOLD)
 
-        val versionMessage = Component.text("Version: v${BulletinBoard.instance.version}")
+        val versionMessage = Component.text("Version: v${BulletinBoard.get().version}")
             .color(NamedTextColor.GOLD)
             .decorate(TextDecoration.BOLD)
 
-        val authorMessage = Component.text("Made by ${BulletinBoard.instance.authors.joinToString(", ")}")
+        val authorMessage = Component.text("Made by ${BulletinBoard.get().authors.joinToString(", ")}")
             .color(NamedTextColor.BLUE)
             .decorate(TextDecoration.ITALIC)
 
-        val description = Component.text(BulletinBoard.instance.pluginDes ?: "No Description")
+        val description = Component.text(BulletinBoard.get().pluginDes ?: "No Description")
             .color(NamedTextColor.WHITE)
 
         player.sendMessage(header)
@@ -124,6 +125,6 @@ object CommandManager : CommandExecutor, TabCompleter {
         player.sendMessage(Component.text("===================")
             .color(NamedTextColor.DARK_GREEN)
             .decorate(TextDecoration.BOLD))
-        log.info("About command executed by ${player.name}")
+        Logger.info("About command executed by ${player.name}")
     }
 }

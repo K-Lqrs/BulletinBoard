@@ -2,28 +2,7 @@
 
 package net.rk4z.bulletinboard.utils
 
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.TextComponent
-import net.rk4z.bulletinboard.manager.LanguageManager
-import org.bukkit.entity.Player
-
-sealed interface MessageKey {
-    fun toComponent(): Component {
-        return Component.text(this.javaClass.simpleName)
-    }
-
-    fun toTextComponent(): TextComponent {
-        return Component.text(this.javaClass.simpleName)
-    }
-
-    fun translate(player: Player): Component {
-        return LanguageManager.getMessage(player, this)
-    }
-
-    fun translateText(player: Player): String {
-        return LanguageManager.getMessageFromContent(player, this)
-    }
-}
+import net.rk4z.s1.pluginBase.MessageKey
 
 open class System : MessageKey {
     open class Log : System() {

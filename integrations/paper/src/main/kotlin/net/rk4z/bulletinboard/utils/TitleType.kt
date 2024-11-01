@@ -1,5 +1,7 @@
 package net.rk4z.bulletinboard.utils
 
+import net.rk4z.s1.pluginBase.MessageKey
+
 @Suppress("unused")
 enum class TitleType(val key: MessageKey) {
     ALL_POSTS(Main.Gui.Title.ALL_POSTS),

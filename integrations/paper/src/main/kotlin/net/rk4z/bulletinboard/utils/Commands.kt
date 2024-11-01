@@ -5,7 +5,7 @@ import net.rk4z.bulletinboard.guis.*
 import net.rk4z.bulletinboard.manager.CommandManager.displayAbout
 import net.rk4z.bulletinboard.manager.CommandManager.displayHelp
 import net.rk4z.bulletinboard.BulletinBoard
-import net.rk4z.bulletinboard.manager.LanguageManager
+import net.rk4z.s1.pluginBase.LanguageManager
 import org.bukkit.entity.Player
 
 import java.util.*
@@ -55,7 +55,7 @@ enum class Commands(val execute: CommandExecute) {
     }),
     RELOAD({ player, _ ->
         if (player.hasPermission("bulletinboard.reload")) {
-            BulletinBoard.instance.reload(player)
+            BulletinBoard.get().reload(player)
         } else {
             player.sendMessage("You do not have permission to use this command.")
         }

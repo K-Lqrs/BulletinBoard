@@ -3,7 +3,7 @@ package net.rk4z.bulletinboard.utils
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import net.kyori.adventure.text.Component
-import net.rk4z.bulletinboard.BulletinBoard.Companion.log
+import net.rk4z.s1.pluginBase.Logger
 import java.io.File
 import java.util.*
 
@@ -25,11 +25,11 @@ object JsonUtil {
             try {
                 json.decodeFromString(BulletinBoardData.serializer(), file.readText())
             } catch (e: Exception) {
-                log.info("Error parsing JSON: ${e.message}")
+                Logger.info("Error parsing JSON: ${e.message}")
                 BulletinBoardData(emptyList(), emptyList(), emptyList())
             }
         } else {
-            log.info("Warning: JSON file is empty or does not exist.")
+            Logger.info("Warning: JSON file is empty or does not exist.")
             BulletinBoardData(emptyList(), emptyList(), emptyList())
         }
     }

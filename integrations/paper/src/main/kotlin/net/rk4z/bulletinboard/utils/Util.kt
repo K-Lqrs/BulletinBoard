@@ -6,8 +6,9 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import net.rk4z.bulletinboard.BulletinBoard
-import net.rk4z.bulletinboard.BulletinBoard.Companion.runTask
-import net.rk4z.bulletinboard.manager.LanguageManager
+import net.rk4z.s1.pluginBase.Executor
+import net.rk4z.s1.pluginBase.LanguageManager
+import net.rk4z.s1.pluginBase.S1Executor
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.entity.Player
@@ -98,7 +99,7 @@ fun displayPost(player: Player, post: Post?) {
         zonedDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z")).toString()
     )
 
-    runTask(BulletinBoard.instance) {
+    Executor.execute {
         player.closeInventory()
 
         val message = Component.text("---------------------------------", NamedTextColor.DARK_GRAY)

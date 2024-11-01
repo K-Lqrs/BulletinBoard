@@ -12,6 +12,7 @@ import net.rk4z.bulletinboard.utils.*
 import net.rk4z.bulletinboard.utils.InputType.*
 import net.rk4z.igf.GUIListener
 import net.rk4z.igf.InventoryGUI
+import net.rk4z.s1.pluginBase.Executor
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -32,7 +33,7 @@ class BBListener : Listener, GUIListener {
 
         updateDraft(state, inputType, plainMessage)
 
-        BulletinBoard.runTask(BulletinBoard.instance) {
+        Executor.execute {
             if (state.editInputType != null) {
                 openPostEditorForEdit(player, null)
             } else {

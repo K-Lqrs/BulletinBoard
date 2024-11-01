@@ -3,7 +3,6 @@
 package net.rk4z.bulletinboard.guis
 
 import net.rk4z.bulletinboard.BulletinBoard
-import net.rk4z.bulletinboard.manager.LanguageManager
 import net.rk4z.bulletinboard.utils.*
 import net.rk4z.bulletinboard.utils.TitleType.*
 import net.rk4z.igf.Button
@@ -11,6 +10,7 @@ import net.rk4z.igf.GUIListener
 import net.rk4z.igf.IGF.key
 import net.rk4z.igf.InventoryGUI
 import net.rk4z.igf.PaginatedGUI
+import net.rk4z.s1.pluginBase.LanguageManager
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -59,7 +59,7 @@ fun openDeletePostPermanentlySelection(player: Player, page: Int = 0) {
 }
 
 private fun openPostsInventory(player: Player, titleType: TitleType, posts: List<Post>, page: Int) {
-    val title = titleType.key.translate(player)
+    val title = titleType.key.t(player)
     val buttons = mutableListOf<Button>()
     val middleRowSlots = listOf(10, 12, 14, 16)
     val postButtons = if (posts.isNotEmpty()) {
@@ -79,9 +79,9 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
             val state = player.getPlayerState()
 
             when (gui.getTitle()!!) {
-                Main.Gui.Title.MY_POSTS.translate(player),
-                Main.Gui.Title.ALL_POSTS.translate(player),
-                Main.Gui.Title.DELETED_POSTS.translate(player) -> {
+                Main.Gui.Title.MY_POSTS.t(player),
+                Main.Gui.Title.ALL_POSTS.t(player),
+                Main.Gui.Title.DELETED_POSTS.t(player) -> {
                     when (customId) {
                         CustomID.BACK_BUTTON.name -> openMainBoard(player)
                         CustomID.DELETE_POST_FROM_ALL.name -> openDeletePostFromAllPlayerSelection(player)
@@ -95,7 +95,7 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
                     }
                 }
 
-                Main.Gui.Title.DELETE_POST_ALL_PLAYER_SELECTION.translate(player) -> {
+                Main.Gui.Title.DELETE_POST_ALL_PLAYER_SELECTION.t(player) -> {
                     when (customId) {
                         CustomID.BACK_BUTTON.name -> openAllPosts(player)
 
@@ -106,7 +106,7 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
                     }
                 }
 
-                Main.Gui.Title.EDIT_POST_SELECTION.translate(player) -> {
+                Main.Gui.Title.EDIT_POST_SELECTION.t(player) -> {
                     when (customId) {
                         CustomID.BACK_BUTTON.name -> openMyPosts(player)
 
@@ -118,7 +118,7 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
                     }
                 }
 
-                Main.Gui.Title.DELETE_POST_SELECTION.translate(player) -> {
+                Main.Gui.Title.DELETE_POST_SELECTION.t(player) -> {
                     when (customId) {
                         CustomID.BACK_BUTTON.name -> openMyPosts(player)
 
@@ -129,7 +129,7 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
                     }
                 }
 
-                Main.Gui.Title.RESTORE_POST_SELECTION.translate(player) -> {
+                Main.Gui.Title.RESTORE_POST_SELECTION.t(player) -> {
                     when (customId) {
                         CustomID.BACK_BUTTON.name -> openDeletedPosts(player)
 
@@ -140,7 +140,7 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
                     }
                 }
 
-                Main.Gui.Title.DELETE_POST_PERMANENTLY_SELECTION.translate(player) -> {
+                Main.Gui.Title.DELETE_POST_PERMANENTLY_SELECTION.t(player) -> {
                     when (customId) {
                         CustomID.BACK_BUTTON.name -> openDeletedPosts(player)
 
@@ -176,14 +176,14 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
         }
         MY_POSTS -> {
             buttons.addAll(listOf(
-                Button(20, Material.WRITABLE_BOOK, Main.Gui.Button.EDIT_POST.translate(player), CustomID.EDIT_POST.name),
-                Button(24, Material.CAULDRON, Main.Gui.Button.DELETE_POST.translate(player), CustomID.DELETE_POST.name)
+                Button(20, Material.WRITABLE_BOOK, Main.Gui.Button.EDIT_POST.t(player), CustomID.EDIT_POST.name),
+                Button(24, Material.CAULDRON, Main.Gui.Button.DELETE_POST.t(player), CustomID.DELETE_POST.name)
             ))
         }
         DELETED_POSTS -> {
             buttons.addAll(listOf(
-                Button(20, Material.RESPAWN_ANCHOR, Main.Gui.Button.RESTORE_POST.translate(player), CustomID.RESTORE_POST.name),
-                Button(24, Material.LAVA_BUCKET, Main.Gui.Button.DELETE_POST_PERMANENTLY.translate(player), CustomID.DELETE_POST_PERMANENTLY.name)
+                Button(20, Material.RESPAWN_ANCHOR, Main.Gui.Button.RESTORE_POST.t(player), CustomID.RESTORE_POST.name),
+                Button(24, Material.LAVA_BUCKET, Main.Gui.Button.DELETE_POST_PERMANENTLY.t(player), CustomID.DELETE_POST_PERMANENTLY.name)
             ))
         }
 
