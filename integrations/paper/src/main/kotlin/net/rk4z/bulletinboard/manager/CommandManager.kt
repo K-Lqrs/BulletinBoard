@@ -24,9 +24,9 @@ object CommandManager : CommandExecutor, TabCompleter {
         sender: CommandSender,
         command: Command,
         label: String,
-        args: Array<String>?
+        args: Array<String>
     ): Boolean {
-        if (args.isNullOrEmpty() || subCommandsList.map { it.lowercase() }.contains(args[0]).not()) {
+        if (args.isEmpty() || subCommandsList.map { it.lowercase() }.contains(args[0]).not()) {
             if (sender is Player) {
                 displayHelp(sender)
                 return true
@@ -56,7 +56,7 @@ object CommandManager : CommandExecutor, TabCompleter {
         sender: CommandSender,
         command: Command,
         label: String,
-        args: Array<out String>?
+        args: Array<out String>
     ): List<String?> {
         if (args.isNullOrEmpty()) {
             return subCommandsList.map { it.lowercase() }

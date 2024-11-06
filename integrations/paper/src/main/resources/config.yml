@@ -2,7 +2,7 @@
 # This is the configuration file for the plugin.
 
 # DO NOT EDIT THIS SECTION.
-metaVersion: 1.0
+configVersion: 1.0
 
 # If data collection by bStats is not a problem, set this to true.
 enableMetrics: true

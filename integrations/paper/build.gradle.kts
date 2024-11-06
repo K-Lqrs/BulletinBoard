@@ -10,16 +10,14 @@ plugins {
 dependencies {
     paperweight.paperDevBundle("1.21.1-R0.1-SNAPSHOT")
     compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
-    implementation("net.rk4z.s1:pluginbase:1.1.3")
-    implementation("net.rk4z:igf:1.0.0")
 
-    library("com.google.code.gson:gson:2.10.1")
-    paperLibrary("com.google.code.gson:gson:2.10.1")
+    library("net.rk4z:igf:1.0.0")
+    library("net.rk4z.s1:pluginbase:1.1.9")
 }
 
 paper {
     main = "net.rk4z.bulletinboard.BulletinBoard"
-    generateLibrariesJson = false
+    generateLibrariesJson = true
     foliaSupported = false
     apiVersion = "1.21"
     version = rootProject.version.toString()

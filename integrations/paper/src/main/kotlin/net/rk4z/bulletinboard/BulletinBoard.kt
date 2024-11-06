@@ -15,7 +15,6 @@ import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
-import java.util.*
 
 @Suppress("unused", "DEPRECATION")
 class BulletinBoard : PluginEntry(
@@ -26,7 +25,10 @@ class BulletinBoard : PluginEntry(
     23481,
     true,
     "AfO6aot1",
-    listOf("ja", "en")
+    listOf("ja", "en"),
+    true,
+    true,
+    true
 ) {
     companion object {
         lateinit var dataBase: DataBase
@@ -40,6 +42,8 @@ class BulletinBoard : PluginEntry(
     val version = description.version
     val authors: MutableList<String> = description.authors
     val pluginDes = description.description
+    var fileConfigVer: Double? = null
+    val configVer: Double = 1.0
 
     private var isProxied: Boolean? = false
 
@@ -157,7 +161,7 @@ class BulletinBoard : PluginEntry(
                 return CommandManager.onCommand(sender, this, label, args)
             }
 
-            override fun tabComplete(sender: CommandSender, alias: String, args: Array<out String>?): List<String?> {
+            override fun tabComplete(sender: CommandSender, alias: String, args: Array<out String>): List<String?> {
                 return CommandManager.onTabComplete(sender, this, alias, args)
             }
         }
@@ -168,7 +172,8 @@ class BulletinBoard : PluginEntry(
     }
 
     private fun loadConfig() {
-        lc<Boolean>("enableMetrics")
-        lc<Boolean>("isProxied")
+        enableMetrics = lc<Boolean>("enableMetrics") ?: false
+        isProxied = lc<Boolean>("isProxied")
+        fileConfigVer = lc<Double>("configVersion")
     }
 }
