@@ -4,37 +4,38 @@ import net.rk4z.bulletinboard.listener.BBListener
 import net.rk4z.bulletinboard.listener.ProxyBridger
 import net.rk4z.bulletinboard.manager.CommandManager
 import net.rk4z.bulletinboard.utils.System
+import net.rk4z.bulletinboard.utils.*
 import net.rk4z.igf.IGF
-import net.rk4z.s1.pluginBase.LanguageManager
-import net.rk4z.s1.pluginBase.Logger
-import net.rk4z.s1.pluginBase.PluginEntry
+import net.rk4z.s1.swiftbase.core.CB
+import net.rk4z.s1.swiftbase.core.LMB
+import net.rk4z.s1.swiftbase.core.Logger
+import net.rk4z.s1.swiftbase.paper.PluginEntry
 import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.CommandMap
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
+import org.slf4j.LoggerFactory
 import java.io.File
 
 @Suppress("unused", "DEPRECATION")
 class BulletinBoard : PluginEntry(
-    "bulletinboard",
-    "net.rk4z.bulletinboard",
-    false,
-    true,
-    23481,
-    true,
-    "AfO6aot1",
-    listOf("ja", "en"),
-    true,
-    true,
-    true
+    id = "bulletinboard",
+    packageName = "net.rk4z.bulletinboard",
+    isDebug = true,
+    configFile = "config.yml",
+    availableLang = listOf("en", "ja"),
+    logger = LoggerFactory.getLogger(BulletinBoard::class.simpleName),
+    enableUpdateChecker = true,
+    modrinthID = "AfO6aot1",
+    serviceId = 23481
 ) {
     companion object {
         lateinit var dataBase: DataBase
             private set
 
-        fun get(): BulletinBoard {
+        fun get(): BulletinBoard? {
             return get<BulletinBoard>()
         }
     }
@@ -45,14 +46,43 @@ class BulletinBoard : PluginEntry(
     var fileConfigVer: Double? = null
     val configVer: Double = 1.0
 
+    var enableMetrics: Boolean = false
     private var isProxied: Boolean? = false
 
     override fun onLoadPre() {
         dataBase = DataBase(this)
+
+        CB.apply {
+            onCheckUpdate = {
+                Logger.info(LMB.getSysMessage(System.Log.CHECKING_UPDATE))
+            }
+
+            onAllVersionsRetrieved = { versionCount ->
+                Logger.info(LMB.getSysMessage(System.Log.ALL_VERSION_COUNT, versionCount.toString()))
+            }
+
+            onNewVersionFound = { latestVersion, newerVersionCount ->
+                Logger.info(LMB.getSysMessage(System.Log.NEW_VERSION_COUNT, newerVersionCount.toString()))
+                Logger.info(LMB.getSysMessage(System.Log.LATEST_VERSION_FOUND, latestVersion, version))
+                Logger.info(LMB.getSysMessage(System.Log.VIEW_LATEST_VER, MODRINTH_DOWNLOAD_URL))
+            }
+
+            onNoNewVersionFound = {
+                Logger.info(LMB.getSysMessage(System.Log.YOU_ARE_USING_LATEST))
+            }
+
+            onUpdateCheckFailed = { responseCode ->
+                Logger.warn(LMB.getSysMessage(System.Log.FAILED_TO_CHECK_UPDATE, responseCode.toString()))
+            }
+
+            onUpdateCheckError = { e ->
+                Logger.error(LMB.getSysMessage(System.Log.ERROR_WHILE_CHECKING_UPDATE, e.message ?: LMB.getSysMessage(System.Log.Other.UNKNOWN_ERROR)))
+            }
+        }
     }
 
     override fun onLoadPost() {
-        LanguageManager.getSysMessage(System.Log.LOADING, name, version)
+        LMB.getSysMessage(System.Log.LOADING, name, version)
 
         loadConfig()
 
@@ -69,66 +99,51 @@ class BulletinBoard : PluginEntry(
     }
 
     override fun onEnablePre() {
-        Logger.info(LanguageManager.getSysMessage(System.Log.ENABLING, name, version))
+        Logger.info(LMB.getSysMessage(System.Log.ENABLING, name, version))
     }
 
     override fun onEnablePost() {
         registerCommand(this)
 
+        // id:main:gui:main
+        mainBoardKey = IGF.createKey("main", "gui", "main")
+        // id:main:gui:posts
+        postsKey = IGF.createKey("main", "gui", "posts")
+        // id:main:gui:editor
+        editorKey = IGF.createKey("main", "gui", "editor")
+        // id:main:gui:editor:confirmation
+        confirmationKey = IGF.createKey("main", "gui", "editor", "confirmation")
+
+
         server.messenger.registerIncomingPluginChannel(this, "$id:main", ProxyBridger())
         server.messenger.registerOutgoingPluginChannel(this, "$id:main")
 
-        IGF.init(this)
+        IGF.init(this, id)
         IGF.setGlobalListener(BBListener())
         server.pluginManager.registerEvents(BBListener(), this)
 
         availableLang?.let { al ->
             al.forEach {
-                LanguageManager.findMissingKeys(it)
+                LMB.findMissingKeys(it)
             }
         }
     }
 
     override fun onDisablePre() {
-        Logger.info(LanguageManager.getSysMessage(System.Log.DISABLING, name, version))
+        Logger.info(LMB.getSysMessage(System.Log.DISABLING, name, version))
     }
 
     override fun onDisablePost() {
         dataBase.closeConnection()
     }
 
-    override fun onCheckUpdate() {
-        Logger.info(LanguageManager.getSysMessage(System.Log.CHECKING_UPDATE))
-    }
-
-    override fun onAllVersionsRetrieved(versionCount: Int) {
-        Logger.info(LanguageManager.getSysMessage(System.Log.ALL_VERSION_COUNT, versionCount.toString()))
-    }
-
-    override fun onNewVersionFound(latestVersion: String, newerVersionCount: Int) {
-        Logger.info(LanguageManager.getSysMessage(System.Log.NEW_VERSION_COUNT, newerVersionCount.toString()))
-        Logger.info(LanguageManager.getSysMessage(System.Log.LATEST_VERSION_FOUND, latestVersion, version))
-        Logger.info(LanguageManager.getSysMessage(System.Log.VIEW_LATEST_VER, MODRINTH_DOWNLOAD_URL))
-    }
-
-    override fun onNoNewVersionFound() {
-        Logger.info(LanguageManager.getSysMessage(System.Log.YOU_ARE_USING_LATEST))
-    }
-
-    override fun onUpdateCheckFailed(responseCode: Int) {
-        Logger.warn(LanguageManager.getSysMessage(System.Log.FAILED_TO_CHECK_UPDATE, responseCode.toString()))
-    }
-
-    override fun onUpdateCheckError(e: Exception) {
-        Logger.error(LanguageManager.getSysMessage(System.Log.ERROR_WHILE_CHECKING_UPDATE, e.message ?: LanguageManager.getSysMessage(System.Log.Other.UNKNOWN_ERROR)))
-    }
-
     fun reload(player: Player) {
         Logger.info("Reloading language files...")
-        loadLanguageFiles()
+        LMB.messages.clear()
+        CB.loadLanguageFiles()
         this.availableLang?.let { al ->
             al.forEach {
-                LanguageManager.findMissingKeys(it)
+                LMB.findMissingKeys(it)
             }
         }
         Logger.info("Language files reloaded successfully.")
@@ -172,7 +187,6 @@ class BulletinBoard : PluginEntry(
     }
 
     private fun loadConfig() {
-        enableMetrics = lc<Boolean>("enableMetrics") ?: false
         isProxied = lc<Boolean>("isProxied")
         fileConfigVer = lc<Double>("configVersion")
     }

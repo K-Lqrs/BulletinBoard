@@ -5,14 +5,13 @@ package net.rk4z.bulletinboard.listener
 import io.papermc.paper.event.player.AsyncChatEvent
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
-import net.rk4z.bulletinboard.BulletinBoard
 import net.rk4z.bulletinboard.guis.openPostEditor
 import net.rk4z.bulletinboard.guis.openPostEditorForEdit
 import net.rk4z.bulletinboard.utils.*
 import net.rk4z.bulletinboard.utils.InputType.*
 import net.rk4z.igf.GUIListener
 import net.rk4z.igf.InventoryGUI
-import net.rk4z.s1.pluginBase.Executor
+import net.rk4z.s1.swiftbase.core.CB
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -33,7 +32,7 @@ class BBListener : Listener, GUIListener {
 
         updateDraft(state, inputType, plainMessage)
 
-        Executor.execute {
+        CB.executor.execute {
             if (state.editInputType != null) {
                 openPostEditorForEdit(player, null)
             } else {

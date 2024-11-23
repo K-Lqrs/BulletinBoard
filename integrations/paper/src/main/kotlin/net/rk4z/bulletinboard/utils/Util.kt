@@ -5,10 +5,8 @@ package net.rk4z.bulletinboard.utils
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
-import net.rk4z.bulletinboard.BulletinBoard
-import net.rk4z.s1.pluginBase.Executor
-import net.rk4z.s1.pluginBase.LanguageManager
-import net.rk4z.s1.pluginBase.S1Executor
+import net.rk4z.s1.swiftbase.core.CB
+import net.rk4z.s1.swiftbase.paper.adapt
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.entity.Player
@@ -69,6 +67,7 @@ private val countryTimeZones = mapOf(
 
 fun displayPost(player: Player, post: Post?) {
     if (post == null) return
+    val cp = player.adapt()
     val playerTimeZone = getPlayerTimeZone(player)
     // Date in Result can never be null
     val zonedDateTime = ZonedDateTime.ofInstant(post.date!!.toInstant(), playerTimeZone.toZoneId())
@@ -77,29 +76,28 @@ fun displayPost(player: Player, post: Post?) {
            Bukkit.getPlayer(post.author)?.name
            // Second try. Get from offline player
         ?: Bukkit.getOfflinePlayer(post.author).name
-           // If a player is not found, just display "Unknown Player"
-        ?: LanguageManager.getMessage(player, Main.Gui.Other.UNKNOWN_PLAYER)
+           // If a player is not found, display "Unknown Player"
+        ?: cp.getMessage(Main.Gui.Other.UNKNOWN_PLAYER)
 
     val authorComponent = if (!post.isAnonymous!!) {
-        LanguageManager.getMessage(player, Main.Message.AUTHOR_LABEL, authorName)
+        cp.getMessage(Main.Message.AUTHOR_LABEL, authorName)
     } else {
-        LanguageManager.getMessage(player, Main.Message.AUTHOR_LABEL, LanguageManager.getMessage(player, Main.Gui.Other.ANONYMOUS).getContent())
+        cp.getMessage(Main.Message.AUTHOR_LABEL, cp.getMessage(Main.Gui.Other.ANONYMOUS).getContent())
     }
 
     val plainTitle = PlainTextComponentSerializer.plainText().serialize(post.title)
     val plainContent = PlainTextComponentSerializer.plainText().serialize(post.content)
 
-    val titleComponent = LanguageManager.getMessage(player, Main.Message.TITLE_LABEL, plainTitle)
+    val titleComponent = cp.getMessage(Main.Message.TITLE_LABEL, plainTitle)
 
-    val contentComponent = LanguageManager.getMessage(player, Main.Message.CONTENT_LABEL, plainContent)
+    val contentComponent = cp.getMessage(Main.Message.CONTENT_LABEL, plainContent)
 
-    val dateComponent = LanguageManager.getMessage(
-        player,
+    val dateComponent = cp.getMessage(
         Main.Message.DATE_LABEL,
         zonedDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z")).toString()
     )
 
-    Executor.execute {
+    CB.executor.execute {
         player.closeInventory()
 
         val message = Component.text("---------------------------------", NamedTextColor.DARK_GRAY)

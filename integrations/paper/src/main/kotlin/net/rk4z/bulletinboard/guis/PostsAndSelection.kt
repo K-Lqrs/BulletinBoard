@@ -7,10 +7,9 @@ import net.rk4z.bulletinboard.utils.*
 import net.rk4z.bulletinboard.utils.TitleType.*
 import net.rk4z.igf.Button
 import net.rk4z.igf.GUIListener
-import net.rk4z.igf.IGF.key
 import net.rk4z.igf.InventoryGUI
 import net.rk4z.igf.PaginatedGUI
-import net.rk4z.s1.pluginBase.LanguageManager
+import net.rk4z.s1.swiftbase.paper.adapt
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -59,12 +58,13 @@ fun openDeletePostPermanentlySelection(player: Player, page: Int = 0) {
 }
 
 private fun openPostsInventory(player: Player, titleType: TitleType, posts: List<Post>, page: Int) {
-    val title = titleType.key.t(player)
+    val p = player.adapt()
+    val title = titleType.key.t(p)
     val buttons = mutableListOf<Button>()
     val middleRowSlots = listOf(10, 12, 14, 16)
     val postButtons = if (posts.isNotEmpty()) {
         posts.mapIndexed { index, (postId, _, title, _, _) ->
-            Button(middleRowSlots.getOrNull(index) ?: -1, Material.WRITTEN_BOOK, title, postId.toString())
+            Button(middleRowSlots.getOrNull(index) ?: -1, Material.WRITTEN_BOOK, title, postsKey, postId.toString())
         }
     } else {
         emptyList()
@@ -75,13 +75,13 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
             event.isCancelled = true
             val clickedItem = event.currentItem ?: return
             val meta = clickedItem.itemMeta ?: return
-            val customId = meta.persistentDataContainer.get(key, PersistentDataType.STRING) ?: return
+            val customId = meta.persistentDataContainer.get(postsKey!!, PersistentDataType.STRING) ?: return
             val state = player.getPlayerState()
 
             when (gui.getTitle()!!) {
-                Main.Gui.Title.MY_POSTS.t(player),
-                Main.Gui.Title.ALL_POSTS.t(player),
-                Main.Gui.Title.DELETED_POSTS.t(player) -> {
+                Main.Gui.Title.MY_POSTS.t(p),
+                Main.Gui.Title.ALL_POSTS.t(p),
+                Main.Gui.Title.DELETED_POSTS.t(p) -> {
                     when (customId) {
                         CustomID.BACK_BUTTON.name -> openMainBoard(player)
                         CustomID.DELETE_POST_FROM_ALL.name -> openDeletePostFromAllPlayerSelection(player)
@@ -95,7 +95,7 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
                     }
                 }
 
-                Main.Gui.Title.DELETE_POST_ALL_PLAYER_SELECTION.t(player) -> {
+                Main.Gui.Title.DELETE_POST_ALL_PLAYER_SELECTION.t(p) -> {
                     when (customId) {
                         CustomID.BACK_BUTTON.name -> openAllPosts(player)
 
@@ -106,7 +106,7 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
                     }
                 }
 
-                Main.Gui.Title.EDIT_POST_SELECTION.t(player) -> {
+                Main.Gui.Title.EDIT_POST_SELECTION.t(p) -> {
                     when (customId) {
                         CustomID.BACK_BUTTON.name -> openMyPosts(player)
 
@@ -118,7 +118,7 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
                     }
                 }
 
-                Main.Gui.Title.DELETE_POST_SELECTION.t(player) -> {
+                Main.Gui.Title.DELETE_POST_SELECTION.t(p) -> {
                     when (customId) {
                         CustomID.BACK_BUTTON.name -> openMyPosts(player)
 
@@ -129,7 +129,7 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
                     }
                 }
 
-                Main.Gui.Title.RESTORE_POST_SELECTION.t(player) -> {
+                Main.Gui.Title.RESTORE_POST_SELECTION.t(p) -> {
                     when (customId) {
                         CustomID.BACK_BUTTON.name -> openDeletedPosts(player)
 
@@ -140,7 +140,7 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
                     }
                 }
 
-                Main.Gui.Title.DELETE_POST_PERMANENTLY_SELECTION.t(player) -> {
+                Main.Gui.Title.DELETE_POST_PERMANENTLY_SELECTION.t(p) -> {
                     when (customId) {
                         CustomID.BACK_BUTTON.name -> openDeletedPosts(player)
 
@@ -160,30 +160,31 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
         override fun onInventoryClose(event: InventoryCloseEvent, gui: InventoryGUI) {}
     }
 
-    val noPosts = Button(13, Material.PAPER, LanguageManager.getMessage(player, Main.Gui.Other.NO_POSTS), CustomID.NO_POSTS.name)
-    buttons.add(Button(22, Material.BARRIER, LanguageManager.getMessage(player, Main.Gui.Button.BACK_BUTTON), CustomID.BACK_BUTTON.name))
+    val noPosts = Button(13, Material.PAPER, p.getMessage(Main.Gui.Other.NO_POSTS), postsKey, CustomID.NO_POSTS.name)
+    buttons.add(Button(22, Material.BARRIER, p.getMessage(Main.Gui.Button.BACK_BUTTON), postsKey, CustomID.BACK_BUTTON.name))
 
     val pageButtons = Pair(
-        Button(18, Material.ARROW, LanguageManager.getMessage(player, Main.Gui.Button.PREV_PAGE), CustomID.PREV_PAGE.name),
-        Button(26, Material.ARROW, LanguageManager.getMessage(player, Main.Gui.Button.NEXT_PAGE), CustomID.NEXT_PAGE.name)
+        Button(18, Material.ARROW, p.getMessage(Main.Gui.Button.PREV_PAGE), postsKey, CustomID.PREV_PAGE.name),
+        Button(26, Material.ARROW, p.getMessage(Main.Gui.Button.NEXT_PAGE), postsKey, CustomID.NEXT_PAGE.name)
     )
 
     when (titleType) {
         ALL_POSTS -> {
             if (player.hasPermission("bulletinboard.post.delete.other")) {
-                buttons.add(Button(20, Material.RED_WOOL, LanguageManager.getMessage(player, Main.Gui.Button.DELETE_POST_FROM_ALL), CustomID.DELETE_POST_FROM_ALL.name))
+                buttons.add(Button(20, Material.RED_WOOL, p.getMessage(Main.Gui.Button.DELETE_POST_FROM_ALL), postsKey, CustomID
+                    .DELETE_POST_FROM_ALL.name))
             }
         }
         MY_POSTS -> {
             buttons.addAll(listOf(
-                Button(20, Material.WRITABLE_BOOK, Main.Gui.Button.EDIT_POST.t(player), CustomID.EDIT_POST.name),
-                Button(24, Material.CAULDRON, Main.Gui.Button.DELETE_POST.t(player), CustomID.DELETE_POST.name)
+                Button(20, Material.WRITABLE_BOOK, Main.Gui.Button.EDIT_POST.t(p), postsKey, CustomID.EDIT_POST.name),
+                Button(24, Material.CAULDRON, Main.Gui.Button.DELETE_POST.t(p), postsKey, CustomID.DELETE_POST.name)
             ))
         }
         DELETED_POSTS -> {
             buttons.addAll(listOf(
-                Button(20, Material.RESPAWN_ANCHOR, Main.Gui.Button.RESTORE_POST.t(player), CustomID.RESTORE_POST.name),
-                Button(24, Material.LAVA_BUCKET, Main.Gui.Button.DELETE_POST_PERMANENTLY.t(player), CustomID.DELETE_POST_PERMANENTLY.name)
+                Button(20, Material.RESPAWN_ANCHOR, Main.Gui.Button.RESTORE_POST.t(p), postsKey, CustomID.RESTORE_POST.name),
+                Button(24, Material.LAVA_BUCKET, Main.Gui.Button.DELETE_POST_PERMANENTLY.t(p), postsKey, CustomID.DELETE_POST_PERMANENTLY.name)
             ))
         }
 
@@ -198,7 +199,6 @@ private fun openPostsInventory(player: Player, titleType: TitleType, posts: List
         .setItemsPerPage(middleRowSlots.size)
         .setEmptyMessageButton(noPosts)
         .setPage(page.coerceAtLeast(0))
-        .setPageButtonsCustomID(CustomID.PREV_PAGE.name, CustomID.NEXT_PAGE.name)
         .setPageButtons(pageButtons.first, pageButtons.second)
         // End of the PaginatedGUI configuration
         .setSize(27)

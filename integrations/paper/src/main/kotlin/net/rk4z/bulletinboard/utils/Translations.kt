@@ -2,9 +2,9 @@
 
 package net.rk4z.bulletinboard.utils
 
-import net.rk4z.s1.pluginBase.MessageKey
+import net.rk4z.s1.swiftbase.paper.PaperMessageKey
 
-open class System : MessageKey {
+open class System : PaperMessageKey {
     open class Log : System() {
         object LOADING : Log()
         object ENABLING : Log()
@@ -28,7 +28,7 @@ open class System : MessageKey {
 }
 
 //TODO: Add more keys and write translations to the language files
-open class Main : MessageKey {
+open class Main : PaperMessageKey {
     open class Gui : Main() {
         open class Title : Gui() {
             object MAIN_BOARD : Title()

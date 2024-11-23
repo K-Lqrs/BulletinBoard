@@ -3,7 +3,7 @@ package net.rk4z.bulletinboard.utils
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import net.kyori.adventure.text.Component
-import net.rk4z.s1.pluginBase.Logger
+import net.rk4z.s1.swiftbase.core.Logger
 import java.io.File
 import java.util.*
 

@@ -7,8 +7,9 @@ import net.rk4z.bulletinboard.BulletinBoard
 import net.rk4z.bulletinboard.utils.Commands
 import net.rk4z.bulletinboard.utils.Main
 import net.rk4z.bulletinboard.utils.playSoundMaster
-import net.rk4z.s1.pluginBase.LanguageManager
-import net.rk4z.s1.pluginBase.Logger
+import net.rk4z.s1.swiftbase.core.LMB
+import net.rk4z.s1.swiftbase.core.Logger
+import net.rk4z.s1.swiftbase.paper.adapt
 import org.bukkit.Sound
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
@@ -31,7 +32,7 @@ object CommandManager : CommandExecutor, TabCompleter {
                 displayHelp(sender)
                 return true
             } else {
-                sender.sendMessage(LanguageManager.getSysMessage(Main.Command.Message.PLAYER_ONLY))
+                sender.sendMessage(LMB.getSysMessage(Main.Command.Message.PLAYER_ONLY))
                 return true
             }
         }
@@ -44,9 +45,10 @@ object CommandManager : CommandExecutor, TabCompleter {
             }
         } else {
             if (sender is Player) {
-                sender.sendMessage(LanguageManager.getMessage(sender, Main.Command.Message.UNKNOWN_COMMAND, Commands.HELP.name))
+                val p = sender.adapt()
+                sender.sendMessage(p.getMessage(Main.Command.Message.UNKNOWN_COMMAND, Commands.HELP.name))
             } else {
-                sender.sendMessage(LanguageManager.getSysMessage(Main.Command.Message.UNKNOWN_COMMAND, Commands.HELP.name))
+                sender.sendMessage(LMB.getSysMessage(Main.Command.Message.UNKNOWN_COMMAND, Commands.HELP.name))
             }
             return true
         }
@@ -58,7 +60,7 @@ object CommandManager : CommandExecutor, TabCompleter {
         label: String,
         args: Array<out String>
     ): List<String?> {
-        if (args.isNullOrEmpty()) {
+        if (args.isEmpty()) {
             return subCommandsList.map { it.lowercase() }
         }
 
@@ -72,7 +74,8 @@ object CommandManager : CommandExecutor, TabCompleter {
     }
 
     fun displayHelp(player: Player) {
-        val headerComponent = LanguageManager.getMessage(player, Main.Command.Help.HELP_HEADER)
+        val p = player.adapt()
+        val headerComponent = p.getMessage(Main.Command.Help.HELP_HEADER)
             .color(NamedTextColor.GOLD)
             .decorate(TextDecoration.BOLD)
 
@@ -93,7 +96,7 @@ object CommandManager : CommandExecutor, TabCompleter {
 
         commandsDescription.forEach { (command, key) ->
             player.sendMessage(
-                Component.text("$command - ").append(LanguageManager.getMessage(player, key))
+                Component.text("$command - ").append(p.getMessage(key))
                     .color(NamedTextColor.GREEN)
             )
         }
@@ -107,15 +110,15 @@ object CommandManager : CommandExecutor, TabCompleter {
             .color(NamedTextColor.DARK_GREEN)
             .decorate(TextDecoration.BOLD)
 
-        val versionMessage = Component.text("Version: v${BulletinBoard.get().version}")
+        val versionMessage = Component.text("Version: v${BulletinBoard.get()?.version}")
             .color(NamedTextColor.GOLD)
             .decorate(TextDecoration.BOLD)
 
-        val authorMessage = Component.text("Made by ${BulletinBoard.get().authors.joinToString(", ")}")
+        val authorMessage = Component.text("Made by ${BulletinBoard.get()?.authors?.joinToString(", ")}")
             .color(NamedTextColor.BLUE)
             .decorate(TextDecoration.ITALIC)
 
-        val description = Component.text(BulletinBoard.get().pluginDes ?: "No Description")
+        val description = Component.text(BulletinBoard.get()?.pluginDes ?: "No Description")
             .color(NamedTextColor.WHITE)
 
         player.sendMessage(header)

@@ -6,10 +6,9 @@ import net.kyori.adventure.text.Component
 import net.rk4z.bulletinboard.utils.*
 import net.rk4z.igf.Button
 import net.rk4z.igf.GUIListener
-import net.rk4z.igf.IGF.key
 import net.rk4z.igf.InventoryGUI
 import net.rk4z.igf.SimpleGUI
-import net.rk4z.s1.pluginBase.LanguageManager
+import net.rk4z.s1.swiftbase.paper.adapt
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -18,16 +17,17 @@ import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.persistence.PersistentDataType
 
 fun openPostEditor(player: Player) {
+    val p = player.adapt()
     val state = player.getPlayerState()
     val draft = state.draft ?: PostDraft()
-    val title = draft.title ?: LanguageManager.getMessage(player, Main.Gui.Other.NO_TITLE)
-    val content = draft.content ?: LanguageManager.getMessage(player, Main.Gui.Other.NO_CONTENT)
+    val title = draft.title ?: p.getMessage(Main.Gui.Other.NO_TITLE)
+    val content = draft.content ?: p.getMessage(Main.Gui.Other.NO_CONTENT)
 
     val postEditor = createPostEditorInventory(
         player,
         title,
         content,
-        LanguageManager.getMessage(player, Main.Gui.Title.POST_EDITOR),
+        p.getMessage(Main.Gui.Title.POST_EDITOR),
         CustomID.POST_TITLE,
         CustomID.POST_CONTENT,
         CustomID.CANCEL_POST,
@@ -38,6 +38,7 @@ fun openPostEditor(player: Player) {
 }
 
 fun openPostEditorForEdit(player: Player, post: Post?) {
+    val p = player.adapt()
     val state = player.getPlayerState()
     if (state.editDraft == null && post == null) {
         throw IllegalArgumentException("Post must not be null when editDraft is null")
@@ -55,7 +56,7 @@ fun openPostEditorForEdit(player: Player, post: Post?) {
             player,
             it.title,
             it.content,
-            LanguageManager.getMessage(player, Main.Gui.Title.POST_EDITOR_FOR_EDIT),
+            p.getMessage(Main.Gui.Title.POST_EDITOR_FOR_EDIT),
             CustomID.EDIT_POST_TITLE,
             CustomID.EDIT_POST_CONTENT,
             CustomID.CANCEL_EDIT,
@@ -76,11 +77,12 @@ fun createPostEditorInventory(
     cancelCustomId: CustomID,
     saveCustomId: CustomID
 ): InventoryGUI {
+    val p = player.adapt()
     val buttons = listOf(
-        Button(11, Material.PAPER, title, titleCustomId.name),
-        Button(15, Material.BOOK, content, contentCustomId.name),
-        Button(19, Material.RED_WOOL, LanguageManager.getMessage(player, Main.Gui.Button.CANCEL_POST), cancelCustomId.name),
-        Button(25, Material.GREEN_WOOL, LanguageManager.getMessage(player, Main.Gui.Button.SAVE_POST), saveCustomId.name)
+        Button(11, Material.PAPER, title, editorKey, titleCustomId.name),
+        Button(15, Material.BOOK, content, editorKey, contentCustomId.name),
+        Button(19, Material.RED_WOOL, p.getMessage(Main.Gui.Button.CANCEL_POST), editorKey, cancelCustomId.name),
+        Button(25, Material.GREEN_WOOL, p.getMessage(Main.Gui.Button.SAVE_POST), editorKey, saveCustomId.name)
     )
 
     val listener = object : GUIListener {
@@ -89,7 +91,7 @@ fun createPostEditorInventory(
 
             val clickedItem = event.currentItem ?: return
             val meta = clickedItem.itemMeta ?: return
-            val customId = meta.persistentDataContainer.get(key, PersistentDataType.STRING)
+            val customId = meta.persistentDataContainer.get(editorKey!!, PersistentDataType.STRING)
             val actionId = customId?.let { CustomID.fromString(it) } ?: return
 
             when (actionId) {
@@ -111,7 +113,7 @@ fun createPostEditorInventory(
                     state.inputType = InputType.EDIT_TITLE
                     state.isInputting = true
 
-                    player.sendMessage(LanguageManager.getMessage(player, Main.Message.ENTER_TITLE_EDIT))
+                    player.sendMessage(p.getMessage(Main.Message.ENTER_TITLE_EDIT))
                 }
 
                 CustomID.EDIT_POST_CONTENT -> {
@@ -120,7 +122,7 @@ fun createPostEditorInventory(
                     state.inputType = InputType.EDIT_CONTENT
                     state.isInputting = true
 
-                    player.sendMessage(LanguageManager.getMessage(player, Main.Message.ENTER_CONTENT_EDIT))
+                    player.sendMessage(p.getMessage(Main.Message.ENTER_CONTENT_EDIT))
                 }
 
                 CustomID.POST_TITLE -> {
@@ -129,7 +131,7 @@ fun createPostEditorInventory(
                     state.inputType = InputType.TITLE
                     state.isInputting = true
 
-                    player.sendMessage(LanguageManager.getMessage(player, Main.Message.ENTER_TITLE))
+                    player.sendMessage(p.getMessage(Main.Message.ENTER_TITLE))
                 }
 
                 CustomID.POST_CONTENT -> {
@@ -138,7 +140,7 @@ fun createPostEditorInventory(
                     state.inputType = InputType.CONTENT
                     state.isInputting = true
 
-                    player.sendMessage(LanguageManager.getMessage(player, Main.Message.ENTER_CONTENT))
+                    player.sendMessage(p.getMessage(Main.Message.ENTER_CONTENT))
                 }
 
                 else -> {}

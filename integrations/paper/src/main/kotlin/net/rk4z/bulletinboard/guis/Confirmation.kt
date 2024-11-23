@@ -11,8 +11,8 @@ import net.rk4z.bulletinboard.utils.ConfirmationType.SAVE_EDIT
 import net.rk4z.bulletinboard.utils.ConfirmationType.SAVE_POST
 import net.rk4z.bulletinboard.utils.CustomID.*
 import net.rk4z.igf.*
-import net.rk4z.s1.pluginBase.Executor
-import net.rk4z.s1.pluginBase.LanguageManager
+import net.rk4z.s1.swiftbase.core.CB
+import net.rk4z.s1.swiftbase.paper.adapt
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.entity.Player
@@ -23,11 +23,12 @@ import org.bukkit.persistence.PersistentDataType
 import java.util.*
 
 fun openSavePostConfirmation(player: Player) {
+    val p = player.adapt()
     val state = player.getPlayerState()
     state.preview =
         Pair(
-            state.draft?.title ?: LanguageManager.getMessage(player, Main.Gui.Other.NO_TITLE),
-            state.draft?.content ?: LanguageManager.getMessage(player, Main.Gui.Other.NO_CONTENT)
+            state.draft?.title ?: p.getMessage(Main.Gui.Other.NO_TITLE),
+            state.draft?.content ?: p.getMessage(Main.Gui.Other.NO_CONTENT)
         )
     openConfirmationScreen(player, SAVE_POST)
 }
@@ -61,6 +62,7 @@ fun openDeletePostPermanentlyConfirmation(player: Player) {
 }
 
 private fun openConfirmationScreen(player: Player, type: ConfirmationType) {
+    val p = player.adapt()
     val state = player.getPlayerState()
     state.isOpeningConfirmation = true
     state.confirmationType = type
@@ -74,33 +76,33 @@ private fun openConfirmationScreen(player: Player, type: ConfirmationType) {
         DELETE_POST_FROM_ALL -> Main.Gui.Title.DELETE_POST_FROM_ALL_CONFIRMATION
         SAVE_EDIT -> Main.Gui.Title.SAVE_EDIT_CONFIRMATION
         CANCEL_EDIT -> Main.Gui.Title.CANCEL_EDIT_CONFIRMATION
-    }.t(player)
+    }.t(p)
 
     val buttons = when (type) {
         SAVE_POST -> listOf(
-            Button(11, Material.RED_WOOL, Main.Gui.Button.CANCEL_CONFIRM_SAVE_POST.t(player), CANCEL_CONFIRM_SAVE_POST.name),
-            Button(13, Material.BLUE_WOOL, Main.Gui.Button.PREVIEW_POST.t(player), PREVIEW_POST.name),
-            Button(15, Material.GREEN_WOOL, Main.Gui.Button.CONFIRM_SAVE_POST.t(player), CONFIRM_SAVE_POST.name)
+            Button(11, Material.RED_WOOL, Main.Gui.Button.CANCEL_CONFIRM_SAVE_POST.t(p), confirmationKey, CANCEL_CONFIRM_SAVE_POST.name),
+            Button(13, Material.BLUE_WOOL, Main.Gui.Button.PREVIEW_POST.t(p), confirmationKey, PREVIEW_POST.name),
+            Button(15, Material.GREEN_WOOL, Main.Gui.Button.CONFIRM_SAVE_POST.t(p), confirmationKey, CONFIRM_SAVE_POST.name)
         )
         CANCEL_POST -> listOf(
-            Button(11, Material.RED_WOOL, Main.Gui.Button.CONTINUE_POST.t(player), CONTINUE_POST.name),
-            Button(15, Material.GREEN_WOOL, Main.Gui.Button.CONFIRM_CANCEL_POST.t(player), CONFIRM_CANCEL_POST.name)
+            Button(11, Material.RED_WOOL, Main.Gui.Button.CONTINUE_POST.t(p), confirmationKey, CONTINUE_POST.name),
+            Button(15, Material.GREEN_WOOL, Main.Gui.Button.CONFIRM_CANCEL_POST.t(p), confirmationKey, CONFIRM_CANCEL_POST.name)
         )
         DELETING_POST -> listOf(
-            Button(11, Material.RED_WOOL, Main.Gui.Button.CANCEL_DELETE_POST.t(player), CANCEL_DELETE_POST.name),
-            Button(15, Material.GREEN_WOOL, Main.Gui.Button.CONFIRM_DELETE_POST.t(player), CONFIRM_DELETE_POST.name)
+            Button(11, Material.RED_WOOL, Main.Gui.Button.CANCEL_DELETE_POST.t(p), confirmationKey, CANCEL_DELETE_POST.name),
+            Button(15, Material.GREEN_WOOL, Main.Gui.Button.CONFIRM_DELETE_POST.t(p), confirmationKey, CONFIRM_DELETE_POST.name)
         )
         DELETING_POST_PERMANENTLY -> listOf(
-            Button(11, Material.RED_WOOL, Main.Gui.Button.CANCEL_DELETE_POST_PERMANENTLY.t(player), CANCEL_DELETE_POST_PERMANENTLY.name),
-            Button(15, Material.GREEN_WOOL, Main.Gui.Button.CONFIRM_DELETE_POST_PERMANENTLY.t(player), CONFIRM_DELETE_POST_PERMANENTLY.name)
+            Button(11, Material.RED_WOOL, Main.Gui.Button.CANCEL_DELETE_POST_PERMANENTLY.t(p), confirmationKey, CANCEL_DELETE_POST_PERMANENTLY.name),
+            Button(15, Material.GREEN_WOOL, Main.Gui.Button.CONFIRM_DELETE_POST_PERMANENTLY.t(p), confirmationKey, CONFIRM_DELETE_POST_PERMANENTLY.name)
         )
         RESTORING_POST -> listOf(
-            Button(11, Material.RED_WOOL, Main.Gui.Button.CANCEL_RESTORE_POST.t(player), CANCEL_RESTORE_POST.name),
-            Button(15, Material.GREEN_WOOL, Main.Gui.Button.CONFIRM_RESTORE_POST.t(player), CONFIRM_RESTORE_POST.name)
+            Button(11, Material.RED_WOOL, Main.Gui.Button.CANCEL_RESTORE_POST.t(p), confirmationKey, CANCEL_RESTORE_POST.name),
+            Button(15, Material.GREEN_WOOL, Main.Gui.Button.CONFIRM_RESTORE_POST.t(p), confirmationKey, CONFIRM_RESTORE_POST.name)
         )
         DELETE_POST_FROM_ALL -> listOf(
-            Button(11, Material.RED_WOOL, Main.Gui.Button.CANCEL_DELETE_POST_FROM_ALL.t(player), CANCEL_DELETE_POST_FROM_ALL.name),
-            Button(15, Material.GREEN_WOOL, Main.Gui.Button.CONFIRM_DELETE_POST_FROM_ALL.t(player), CONFIRM_DELETE_POST_FROM_ALL.name)
+            Button(11, Material.RED_WOOL, Main.Gui.Button.CANCEL_DELETE_POST_FROM_ALL.t(p), confirmationKey, CANCEL_DELETE_POST_FROM_ALL.name),
+            Button(15, Material.GREEN_WOOL, Main.Gui.Button.CONFIRM_DELETE_POST_FROM_ALL.t(p), confirmationKey, CONFIRM_DELETE_POST_FROM_ALL.name)
         )
         SAVE_EDIT -> listOf(
 
@@ -117,7 +119,7 @@ private fun openConfirmationScreen(player: Player, type: ConfirmationType) {
 
             val item = event.currentItem ?: return
             val meta = item.itemMeta ?: return
-            val customId = CustomID.fromString(meta.persistentDataContainer.get(IGF.key, PersistentDataType.STRING) ?: return)
+            val customId = CustomID.fromString(meta.persistentDataContainer.get(confirmationKey!!, PersistentDataType.STRING) ?: return)
 
             when (customId) {
                 PREVIEW_POST -> {
@@ -132,8 +134,8 @@ private fun openConfirmationScreen(player: Player, type: ConfirmationType) {
 
                     gui.close()
                     player.sendMessage(Component.text("-----[ Preview ]-----"))
-                    player.sendMessage(LanguageManager.getMessage(player, Main.Message.TITLE_LABEL, dt))
-                    player.sendMessage(LanguageManager.getMessage(player, Main.Message.CONTENT_LABEL, dc))
+                    player.sendMessage(p.getMessage(Main.Message.TITLE_LABEL, dt))
+                    player.sendMessage(p.getMessage(Main.Message.CONTENT_LABEL, dc))
                     player.sendMessage(Component.text("--------------------"))
                 }
 
@@ -141,19 +143,19 @@ private fun openConfirmationScreen(player: Player, type: ConfirmationType) {
                     val draft = state.draft
                     if (draft == null) {
                         player.closeInventory()
-                        player.sendMessage(LanguageManager.getMessage(player, Main.Message.WHEN_POST_DRAFT_NULL))
+                        player.sendMessage(p.getMessage(Main.Message.WHEN_POST_DRAFT_NULL))
                         state.clearAll()
                     } else {
                         val post = Post(
                             id = ShortUUID.randomUUID(),
-                            title = draft.title ?: LanguageManager.getMessage(player, Main.Gui.Other.NO_TITLE),
+                            title = draft.title ?: p.getMessage(Main.Gui.Other.NO_TITLE),
                             author = player.uniqueId,
-                            content = draft.content ?: LanguageManager.getMessage(player, Main.Gui.Other.NO_CONTENT),
+                            content = draft.content ?: p.getMessage(Main.Gui.Other.NO_CONTENT),
                             isAnonymous = draft.isAnonymous,
                             date = Date()
                         )
 
-                        Executor.executeAsync {
+                        CB.executor.executeAsync {
                             BulletinBoard.dataBase.insertPost(post)
                         }
 
@@ -161,7 +163,7 @@ private fun openConfirmationScreen(player: Player, type: ConfirmationType) {
                         gui.close()
 
                         player.playSoundMaster(Sound.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, 1.5f)
-                        player.sendMessage(LanguageManager.getMessage(player, Main.Message.POST_SAVED))
+                        player.sendMessage(p.getMessage(Main.Message.POST_SAVED))
                     }
                 }
 
@@ -174,37 +176,37 @@ private fun openConfirmationScreen(player: Player, type: ConfirmationType) {
                 CONFIRM_CANCEL_POST -> {
                     state.clearAll()
                     gui.close()
-                    player.sendMessage(LanguageManager.getMessage(player, Main.Message.POST_CANCELLED))
+                    player.sendMessage(p.getMessage(Main.Message.POST_CANCELLED))
                 }
 
                 CustomID.DELETE_POST_FROM_ALL -> {
                     val id = state.selectedDeletingPostId ?: run {
-                        player.sendMessage(LanguageManager.getMessage(player, Main.Message.POST_NOT_FOUND))
+                        player.sendMessage(p.getMessage(Main.Message.POST_NOT_FOUND))
                         return
                     }
 
-                    Executor.executeAsync {
+                    CB.executor.executeAsync {
                         BulletinBoard.dataBase.deletePost(id)
                     }
 
                     state.clearAll()
                     gui.close()
-                    player.sendMessage(LanguageManager.getMessage(player, Main.Message.POST_DELETED))
+                    player.sendMessage(p.getMessage(Main.Message.POST_DELETED))
                 }
 
                 CONFIRM_DELETE_POST_FROM_ALL -> {
                     val id = state.selectedDeletingPostId ?: run {
-                        player.sendMessage(LanguageManager.getMessage(player, Main.Message.POST_NOT_FOUND))
+                        player.sendMessage(p.getMessage(Main.Message.POST_NOT_FOUND))
                         return
                     }
 
-                    Executor.executeAsync {
+                    CB.executor.executeAsync {
                         BulletinBoard.dataBase.deletePostFromAll(id)
                     }
 
                     state.clearAll()
                     gui.close()
-                    player.sendMessage(LanguageManager.getMessage(player, Main.Message.POST_DELETED))
+                    player.sendMessage(p.getMessage(Main.Message.POST_DELETED))
                 }
 
                 CANCEL_CONFIRM_SAVE_POST -> {

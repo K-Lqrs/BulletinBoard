@@ -4,7 +4,7 @@ import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
 import net.rk4z.bulletinboard.utils.ShortUUID
 import net.rk4z.bulletinboard.utils.JsonUtil
 import net.rk4z.bulletinboard.utils.Post
-import net.rk4z.s1.pluginBase.Logger
+import net.rk4z.s1.swiftbase.core.Logger
 import java.io.File
 import java.sql.Connection
 import java.sql.DriverManager
@@ -16,7 +16,7 @@ import java.util.Date
 import java.util.TimeZone
 import java.util.UUID
 
-@Suppress("SqlNoDataSourceInspection", "SqlDialectInspection", "LoggingSimilarMessage", "DuplicatedCode")
+@Suppress("SqlNoDataSourceInspection", "SqlDialectInspection", "LoggingSimilarMessage", "DuplicatedCode", "SqlResolve")
 class DataBase(private val plugin: BulletinBoard) {
     private var connection: Connection? = null
 

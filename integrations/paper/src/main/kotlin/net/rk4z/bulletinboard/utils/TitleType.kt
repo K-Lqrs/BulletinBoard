@@ -1,9 +1,9 @@
 package net.rk4z.bulletinboard.utils
 
-import net.rk4z.s1.pluginBase.MessageKey
+import net.rk4z.s1.swiftbase.paper.PaperMessageKey
 
 @Suppress("unused")
-enum class TitleType(val key: MessageKey) {
+enum class TitleType(val key: PaperMessageKey) {
     ALL_POSTS(Main.Gui.Title.ALL_POSTS),
     MY_POSTS(Main.Gui.Title.MY_POSTS),
     DELETED_POSTS(Main.Gui.Title.DELETED_POSTS),

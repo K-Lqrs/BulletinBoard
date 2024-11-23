@@ -8,12 +8,8 @@ allprojects {
     apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
 
     dependencies {
-        implementation("com.google.guava:guava:33.3.0-jre")
-        implementation("org.jetbrains.kotlin:kotlin-reflect:2.0.20")
-        implementation("org.json:json:20240303")
-        implementation("org.slf4j:slf4j-api:2.1.0-alpha1")
-        implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.7.3")
-        implementation("org.jetbrains.kotlin:kotlin-reflect:2.0.20")
+        implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+        implementation("net.rk4z.s1:swiftbase-core:2.0.7")
     }
 }
 

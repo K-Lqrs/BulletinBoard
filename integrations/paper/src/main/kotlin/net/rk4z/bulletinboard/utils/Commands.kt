@@ -5,7 +5,7 @@ import net.rk4z.bulletinboard.guis.*
 import net.rk4z.bulletinboard.manager.CommandManager.displayAbout
 import net.rk4z.bulletinboard.manager.CommandManager.displayHelp
 import net.rk4z.bulletinboard.BulletinBoard
-import net.rk4z.s1.pluginBase.LanguageManager
+import net.rk4z.s1.swiftbase.paper.adapt
 import org.bukkit.entity.Player
 
 import java.util.*
@@ -20,12 +20,13 @@ enum class Commands(val execute: CommandExecute) {
     DELETEDPOSTS({ player, _ -> openDeletedPosts(player) }),
     PREVIEWCLOSE({ player, _ ->
         val state = player.getPlayerState()
+        val p = player.adapt()
         if (state.preview != null) {
             state.isPreviewing = null
             state.preview = null
             openPostEditor(player)
         } else {
-            player.sendMessage(LanguageManager.getMessage(player, Main.Command.Message.NOT_PREVIEWING))
+            player.sendMessage(p.getMessage(Main.Command.Message.NOT_PREVIEWING))
         }
     }),
     HELP({ player, _ -> displayHelp(player) }),
@@ -55,7 +56,7 @@ enum class Commands(val execute: CommandExecute) {
     }),
     RELOAD({ player, _ ->
         if (player.hasPermission("bulletinboard.reload")) {
-            BulletinBoard.get().reload(player)
+            BulletinBoard.get()?.reload(player)
         } else {
             player.sendMessage("You do not have permission to use this command.")
         }

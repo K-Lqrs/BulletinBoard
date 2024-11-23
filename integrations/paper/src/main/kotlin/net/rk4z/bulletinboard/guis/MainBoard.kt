@@ -5,8 +5,9 @@ import net.rk4z.bulletinboard.manager.CommandManager.displayHelp
 import net.rk4z.bulletinboard.utils.CustomID
 import net.rk4z.bulletinboard.utils.Main
 import net.rk4z.bulletinboard.utils.getPlayerState
+import net.rk4z.bulletinboard.utils.mainBoardKey
 import net.rk4z.igf.*
-import net.rk4z.s1.pluginBase.LanguageManager
+import net.rk4z.s1.swiftbase.paper.adapt
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -21,14 +22,15 @@ import org.bukkit.persistence.PersistentDataType
  * This function is called from the following places: [net.rk4z.bulletinboard.utils.Commands.OPENBOARD]
  */
 fun openMainBoard(player: Player) {
+    val p = player.adapt()
     val buttons = listOf(
-        Button(10, Material.WRITABLE_BOOK, Main.Gui.Button.NEW_POST.t(player), CustomID.NEW_POST.name),
-        Button(12, Material.BOOK, Main.Gui.Button.ALL_POSTS.t(player), CustomID.ALL_POSTS.name),
-        Button(14, Material.WRITTEN_BOOK, Main.Gui.Button.MY_POSTS.t(player), CustomID.MY_POSTS.name),
-        Button(16, Material.CAULDRON, Main.Gui.Button.DELETED_POSTS.t(player), CustomID.DELETED_POSTS.name),
-        Button(29, Material.LECTERN, Main.Gui.Button.ABOUT_PLUGIN.t(player), CustomID.ABOUT_PLUGIN.name),
-        Button(31, Material.COMPARATOR, Main.Gui.Button.SETTINGS.t(player), CustomID.SETTINGS.name),
-        Button(33, Material.OAK_SIGN, Main.Gui.Button.HELP.t(player), CustomID.HELP.name)
+        Button(10, Material.WRITABLE_BOOK, Main.Gui.Button.NEW_POST.t(p), mainBoardKey, CustomID.NEW_POST.name),
+        Button(12, Material.BOOK, Main.Gui.Button.ALL_POSTS.t(p), mainBoardKey, CustomID.ALL_POSTS.name),
+        Button(14, Material.WRITTEN_BOOK, Main.Gui.Button.MY_POSTS.t(p), mainBoardKey, CustomID.MY_POSTS.name),
+        Button(16, Material.CAULDRON, Main.Gui.Button.DELETED_POSTS.t(p), mainBoardKey, CustomID.DELETED_POSTS.name),
+        Button(29, Material.LECTERN, Main.Gui.Button.ABOUT_PLUGIN.t(p), mainBoardKey, CustomID.ABOUT_PLUGIN.name),
+        Button(31, Material.COMPARATOR, Main.Gui.Button.SETTINGS.t(p), mainBoardKey, CustomID.SETTINGS.name),
+        Button(33, Material.OAK_SIGN, Main.Gui.Button.HELP.t(p), mainBoardKey, CustomID.HELP.name)
     )
 
     val listener = object : GUIListener {
@@ -37,7 +39,7 @@ fun openMainBoard(player: Player) {
 
             val item = event.currentItem ?: return
             val meta = item.itemMeta ?: return
-            val customId = meta.persistentDataContainer.get(IGF.key, PersistentDataType.STRING)?.let { CustomID.fromString(it) } ?: return
+            val customId = meta.persistentDataContainer.get(mainBoardKey!!, PersistentDataType.STRING)?.let { CustomID.fromString(it) } ?: return
 
             when (customId) {
                 CustomID.NEW_POST -> openPostEditor(player)
@@ -72,7 +74,7 @@ fun openMainBoard(player: Player) {
     }
 
     val gui = SimpleGUI(player)
-        .setTitle(LanguageManager.getMessage(player, Main.Gui.Title.MAIN_BOARD))
+        .setTitle(p.getMessage(Main.Gui.Title.MAIN_BOARD))
         .setSize(45)
         .setBackground(Material.GRAY_STAINED_GLASS_PANE)
         .setItems(buttons)

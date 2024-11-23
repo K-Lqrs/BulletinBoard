@@ -3,11 +3,22 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/integrations/bungee/BulletinBoard.integrations.bungee.main.iml" filepath="$PROJECT_DIR$/.idea/modules/integrations/bungee/BulletinBoard.integrations.bungee.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/integrations/bungee/BulletinBoard.integrations.bungee.test.iml" filepath="$PROJECT_DIR$/.idea/modules/integrations/bungee/BulletinBoard.integrations.bungee.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/integrations/BulletinBoard.integrations.main.iml" filepath="$PROJECT_DIR$/.idea/modules/integrations/BulletinBoard.integrations.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/integrations/paper/BulletinBoard.integrations.paper.main.iml" filepath="$PROJECT_DIR$/.idea/modules/integrations/paper/BulletinBoard.integrations.paper.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/integrations/paper/BulletinBoard.integrations.paper.test.iml" filepath="$PROJECT_DIR$/.idea/modules/integrations/paper/BulletinBoard.integrations.paper.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/integrations/BulletinBoard.integrations.test.iml" filepath="$PROJECT_DIR$/.idea/modules/integrations/BulletinBoard.integrations.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/integrations/velocity/BulletinBoard.integrations.velocity.main.iml" filepath="$PROJECT_DIR$/.idea/modules/integrations/velocity/BulletinBoard.integrations.velocity.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/integrations/velocity/BulletinBoard.integrations.velocity.test.iml" filepath="$PROJECT_DIR$/.idea/modules/integrations/velocity/BulletinBoard.integrations.velocity.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/integrations/bungee/bungee.BulletinBoard.integrations.bungee.main.iml" filepath="$PROJECT_DIR$/.idea/modules/integrations/bungee/bungee.BulletinBoard.integrations.bungee.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/integrations/bungee/bungee.BulletinBoard.integrations.bungee.test.iml" filepath="$PROJECT_DIR$/.idea/modules/integrations/bungee/bungee.BulletinBoard.integrations.bungee.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/integrations/integrations.BulletinBoard.integrations.main.iml" filepath="$PROJECT_DIR$/.idea/modules/integrations/integrations.BulletinBoard.integrations.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/integrations/integrations.BulletinBoard.integrations.test.iml" filepath="$PROJECT_DIR$/.idea/modules/integrations/integrations.BulletinBoard.integrations.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/integrations/paper/integrations.paper.BulletinBoard.integrations.paper.test.iml" filepath="$PROJECT_DIR$/.idea/modules/integrations/paper/integrations.paper.BulletinBoard.integrations.paper.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/integrations/paper/paper.BulletinBoard.integrations.paper.main.iml" filepath="$PROJECT_DIR$/.idea/modules/integrations/paper/paper.BulletinBoard.integrations.paper.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/integrations/paper/paper.BulletinBoard.integrations.paper.test.iml" filepath="$PROJECT_DIR$/.idea/modules/integrations/paper/paper.BulletinBoard.integrations.paper.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/integrations/velocity/velocity.BulletinBoard.integrations.velocity.main.iml" filepath="$PROJECT_DIR$/.idea/modules/integrations/velocity/velocity.BulletinBoard.integrations.velocity.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/integrations/velocity/velocity.BulletinBoard.integrations.velocity.test.iml" filepath="$PROJECT_DIR$/.idea/modules/integrations/velocity/velocity.BulletinBoard.integrations.velocity.test.iml" />
     </modules>
   </component>
 </project>
